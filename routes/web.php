@@ -14,5 +14,29 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('Frontend.Home.index');
+});
+
+Route::get('/about', function () {
+    return view('Frontend.About.index');
+});
+
+Route::get('/wishlist', function () {
+    return view('Frontend.Wishlist.index');
+});
+
+Route::get('/cart', function () {
+    return view('Frontend.Cart.index');
+});
+
+Route::get('/checkout', function () {
+    return view('Frontend.Checkout.index');
+});
+
+Route::get('/login', function () {
+    return view('Frontend.Login.index');
+});
+
+Route::get('/register', function () {
+    return view('Frontend.Register.index');
 });
