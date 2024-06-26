@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             BookCategoriesTableSeeder::class,
             TagSeeder::class,
             BookTagSeeder::class,
+            RolePermissionSeeder::class,
         ]);
     }
 }

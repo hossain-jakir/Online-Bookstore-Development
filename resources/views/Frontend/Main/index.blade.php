@@ -33,7 +33,7 @@
         <div class="page-wraper">
 
             <!-- Preloader -->
-            @include('Frontend/Main/preloader')
+            {{-- @include('Frontend/Main/preloader') --}}
             <!-- Preloader -->
 
             <!-- Header -->
