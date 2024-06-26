@@ -22,6 +22,14 @@ class RolePermissionSeeder extends Seeder
 
         // insert roles
         DB::table('roles')->insert($rolesList);
-        
+
+        // user assign role
+        $model_has_roles = [
+            ['role_id' => 1, 'model_type' => 'App\Models\User', 'model_id' => 1],
+            ['role_id' => 4, 'model_type' => 'App\Models\User', 'model_id' => 2],
+            ['role_id' => 3, 'model_type' => 'App\Models\User', 'model_id' => 3],
+        ];
+
+        DB::table('model_has_roles')->insert($model_has_roles);
     }
 }

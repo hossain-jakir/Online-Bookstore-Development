@@ -21,6 +21,8 @@ return new class extends Migration
             $table->date('dob')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('status', ['active', 'inactive', 'pending'])->default('active');
+            $table->enum('isDeleted', ['yes', 'no'])->default('no');
             $table->rememberToken();
             $table->timestamps();
         });
