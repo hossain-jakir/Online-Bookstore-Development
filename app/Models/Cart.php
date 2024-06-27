@@ -8,4 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 class Cart extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'book_id',
+        'quantity',
+        'is_checked_out',
+        'status',
+        'isDeleted'
+    ];
+
+    public function book(){
+        return $this->belongsTo(Book::class, 'book_id');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getCartItems($userId){
+        return Cart::where('user_id', $userId)->where('isDeleted', 'no')->where('status', 'active')->get();
+    }
 }

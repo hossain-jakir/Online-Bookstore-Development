@@ -27,6 +27,25 @@
         <!-- Include Styles -->
         @include('Frontend/Main/styles')
 
+        <style>
+            .toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1000;
+                width: 300px;
+            }
+
+            .toast {
+                background-color: #333;
+                color: #fff;
+                padding: 15px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+
     </head>
 
     <body>
@@ -49,6 +68,8 @@
             <!-- Footer -->
             @include('Frontend/Main/footer')
             <!-- Footer -->
+
+            <div id="toast-container" class="toast-container"></div>
 
             <button class="scroltop" type="button"><i class="fas fa-arrow-up"></i></button>
         </div>

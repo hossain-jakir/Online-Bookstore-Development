@@ -1,10 +1,10 @@
 @charset "UTF-8";
 /*
-    Name: Bookland 
+    Name: Bookland
     Author: DexignZone
     Portfolio : https://themeforest.net/user/dexignzone/portfolio
-   
-    Table of Content: 
+
+    Table of Content:
 
     1. Abstract
     2. Bootstrap CSS
@@ -12,7 +12,7 @@
     4. Layout
     5. Component
     7. Pages
-    
+
 */
 @import url("../icons/fontawesome/css/all.min.css");
 @import url("../icons/flaticon/font/flaticon.css");
@@ -4059,7 +4059,7 @@ textarea.form-control-lg {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center; }
-  
+
   .btn-group-vertical > .btn,
   .btn-group-vertical > .wp-block-button__link,
   .woocommerce .widget_shopping_cart .buttons .btn-group-vertical > a,
@@ -9276,7 +9276,7 @@ strong,
   padding-left: 30px;
   padding-right: 30px; }
   @media only screen and (max-width: 1280px) {
-    
+
     .container-fluid,
     .container-sm,
     .container-md,
@@ -9285,7 +9285,7 @@ strong,
       padding-left: 20px;
       padding-right: 20px; } }
   @media only screen and (max-width: 575px) {
-    
+
     .container-fluid,
     .container-sm,
     .container-md,
@@ -16731,7 +16731,7 @@ ul a.rsswidget {
     -webkit-transition: all 0.8s;
     -ms-transition: all 0.8s;
     transition: all 0.8s; }
-  
+
   .dz-box-bg .icon-box-btn .btn,
   .dz-box-bg .icon-box-btn .wp-block-button__link,
   .dz-box-bg .icon-box-btn .woocommerce .widget_shopping_cart .buttons a,
@@ -19934,7 +19934,7 @@ pre {
 		flex:0 0 50%;
 		display:flex;
 		align-items:center;
-		
+
 		img{
 			width:80px;
 			height:80px;
@@ -19944,10 +19944,10 @@ pre {
 		}
 	}
 	.next-post{
-		
+
 	}
 	.prev-post{
-		
+
 	}
 } */
 /* Post Next Preview */

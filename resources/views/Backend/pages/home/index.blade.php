@@ -202,7 +202,7 @@
                                             alt="message user image">
                                         <!-- /.direct-chat-img -->
                                         <div class="direct-chat-text">
-                                            Working with AdminLTE on a great new app! Wanna join?
+                                            Working with on a great new app! Wanna join?
                                         </div>
                                         <!-- /.direct-chat-text -->
                                     </div>

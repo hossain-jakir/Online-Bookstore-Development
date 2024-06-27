@@ -18,7 +18,7 @@
             $('#addRoleForm input[name="permissions[]"]').prop('checked', false);
 
             // set form action
-            $('#addRoleForm').attr('action', '{{ route('admin.role.update', ':id') }}'.replace(':id', id));
+            $('#addRoleForm').attr('action', '{{ route('backend.role.update', ':id') }}'.replace(':id', id));
             // set name value
             $('#addRoleForm input[name="name"]').val(name);
             // show modal
@@ -39,7 +39,7 @@
             $('#addRoleForm input[name="permissions[]"]').prop('checked', false);
 
             // set form action
-            $('#addRoleForm').attr('action', '{{ route('admin.role.store') }}');
+            $('#addRoleForm').attr('action', '{{ route('backend.role.store') }}');
             // set name value
             $('#addRoleForm input[name="name"]').val('');
             // show modal
@@ -59,12 +59,12 @@
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1 class="m-0">Role List</h1>
-                        <p>A role provided access to predefined menus and features so that depending on <br> assigned role an administrator can
+                        <p>A role provided access to predefined menus and features so that depending on <br> assigned role an backendistrator can
                             have access to what user needs.</p>
                     </div><!-- /.col -->
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('backend.dashboard') }}">Home</a></li>
                             <li class="breadcrumb-item active">Role List</li>
                         </ol>
                     </div><!-- /.col -->
@@ -108,19 +108,19 @@
                                         <div class="role-heading">
                                             <h4 class="mb-1">{{ $role->name }}</h4>
                                             @if ($role->id != 1)
-                                                @can('admin.role.edit')
+                                                @can('backend.role.edit')
                                                     <a href="javascript:;"
                                                         onclick="editRole('{{ $role->hashId }}','{{ $role->name }}','{{ json_encode($role->permissions) }}')"><small>Edit
                                                             Role</small></a>
                                                 @endcan
 
-                                                @if (auth()->user()->can('admin.role.edit') &&
-                                                    auth()->user()->can('admin.role.delete'))
+                                                @if (auth()->user()->can('backend.role.edit') &&
+                                                    auth()->user()->can('backend.role.delete'))
                                                     <div class="vr"></div>
                                                 @endif
 
-                                                @can('admin.role.delete')
-                                                    <form action="{{ route('admin.role.delete', $role->hashId) }}" method="POST"
+                                                @can('backend.role.delete')
+                                                    <form action="{{ route('backend.role.delete', $role->hashId) }}" method="POST"
                                                         class="d-inline">
                                                         @csrf
                                                         <button type="submit" class="btn btn-link text-danger p-0 m-0 align-baseline"
@@ -138,7 +138,7 @@
                             </div>
                         </div>
                     @endforeach
-                    @can('admin.role.create')
+                    @can('backend.role.create')
                         <div class="col-xl-4 col-lg-6 col-md-6">
                             <div class="card h-100">
                                 <div class="row h-100">

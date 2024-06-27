@@ -18,7 +18,7 @@
                     </div><!-- /.col -->
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('backend.dashboard') }}">Home</a></li>
                             <li class="breadcrumb-item active">Category Create</li>
                         </ol>
                     </div><!-- /.col -->
@@ -46,7 +46,7 @@
                         </div>
                         <!-- /.card-header -->
                         <!-- form start -->
-                        <form role="form" action="{{ route('admin.category.store') }}" method="POST" enctype="multipart/form-data">
+                        <form role="form" action="{{ route('backend.category.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="card-body">
 

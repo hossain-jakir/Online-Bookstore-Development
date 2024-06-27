@@ -8,13 +8,13 @@ class ImageHelper{
 
     public static function generateImage($path, $type = 'main'){
         if($path == null || $path == ''){
-            return Storage::url('assets/frontend/img/404.png');
+            return Storage::url('assets/img/default_book_vector.jpg');
         }
         if($type == 'main'){
             if(file_exists(storage_path('app/public/'.$path))){
                 return Storage::url($path);
             }else{
-                return Storage::url('assets/frontend/img/404.png');
+                return Storage::url('assets/img/default_book_vector.jpg');
             }
         }else{
             $file_base_name = basename($path);
@@ -26,7 +26,7 @@ class ImageHelper{
             if(file_exists(storage_path('app/public/'.$newFile))){
                 return Storage::url($newFile);
             }
-            return Storage::url('assets/frontend/img/404.png');
+            return Storage::url('assets/img/default_book_vector.jpg');
         }
     }
 

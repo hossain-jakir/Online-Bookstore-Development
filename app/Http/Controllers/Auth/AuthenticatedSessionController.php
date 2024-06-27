@@ -12,12 +12,17 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    protected $data = [];
+    function __construct(){
+        $data = [];
+        $this->data = array_merge($data, $this->frontendItems());
+    }
     /**
      * Display the login view.
      */
     public function create(): View
     {
-        return view('Frontend.Login.index');
+        return view('Frontend.Login.index')->with('data', $this->data);
     }
 
     /**

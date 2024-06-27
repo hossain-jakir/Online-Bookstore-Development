@@ -62,7 +62,7 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                url: "{{ route('admin.role.update.user') }}",
+                url: "{{ route('backend.role.update.user') }}",
                 type: "POST",
                 data: {
                     "userId": userId,
@@ -103,7 +103,7 @@
                     </div><!-- /.col -->
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('backend.dashboard') }}">Home</a></li>
                             <li class="breadcrumb-item active">User List</li>
                         </ol>
                     </div><!-- /.col -->

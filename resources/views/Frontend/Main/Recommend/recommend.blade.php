@@ -9,90 +9,34 @@
         <!-- Swiper -->
         <div class="swiper-container swiper-two">
             <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="dz-media">
-                            <img src="{{ asset('assets/frontend/images/books/grid/book6.jpg')}}" alt="book">
-                        </div>
-                        <div class="dz-content">
-                            <h4 class="title">Adventure</h4>
-                            <span class="price">$18,78</span>
-                            <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.2s">
-                        <div class="dz-media">
-                            <img src="{{ asset('assets/frontend/images/books/grid/book5.jpg')}}" alt="book">
-                        </div>
-                        <div class="dz-content">
-                            <h4 class="title">Take Tango</h4>
-                            <span class="price">$18,78</span>
-                            <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.3s">
-                        <div class="dz-media">
-                            <img src="{{ asset('assets/frontend/images/books/grid/book2.jpg')}}" alt="book">
-                        </div>
-                        <div class="dz-content">
-                            <h4 class="title">Home</h4>
-                            <span class="price">$18,78</span>
-                            <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
+                @foreach ($data['recommended'] as $recommended)
+                    <div class="swiper-slide">
+                        <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="dz-media">
+                                <img src="{{ $recommended->image_path }}" alt="book" style="height: 300px;">
+                            </div>
+                            <div class="dz-content">
+                                <h4 class="title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-size: 14px; line-height: 1.2;">
+                                    {{ $recommended->title }}
+                                </h4>
+
+                                <span class="price">
+                                    @if ($recommended->discounted_price)
+                                        £{{ $recommended->discounted_price }}
+                                    @else
+                                        £{{ $recommended->sale_price }}
+                                    @endif
+                                </span>
+                                <!-- Love Icon -->
+                                <a href="javascript:void(0);" class="btn btn-outline-danger btnhover add-to-wishlist @if($recommended->isInWishlist) active @endif" data-id="{{ $recommended->id }}" data-type="large">
+                                    <i class="flaticon-heart"></i>
+                                </a>
+                                <!-- Love Icon -->
+                                <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.4s">
-                        <div class="dz-media">
-                            <img src="{{ asset('assets/frontend/images/books/grid/book16.jpg')}}" alt="book">
-                        </div>
-                        <div class="dz-content">
-                            <h4 class="title">Thunder Stunt</h4>
-                            <span class="price">$18,78</span>
-                            <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.5s">
-                        <div class="dz-media">
-                            <img src="{{ asset('assets/frontend/images/books/grid/book14.jpg')}}" alt="book">
-                        </div>
-                        <div class="dz-content">
-                            <h4 class="title">Heavy Lift</h4>
-                            <span class="price">$18,78</span>
-                            <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.6s">
-                        <div class="dz-media">
-                            <img src="{{ asset('assets/frontend/images/books/grid/book1.jpg')}}" alt="book">
-                        </div>
-                        <div class="dz-content">
-                            <h4 class="title">Real Life</h4>
-                            <span class="price">$18,78</span>
-                            <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="books-card style-1 wow fadeInUp" data-wow-delay="0.7s">
-                        <div class="dz-media">
-                            <img src="{{ asset('assets/frontend/images/books/grid/book15.jpg')}}" alt="book">
-                        </div>
-                        <div class="dz-content">
-                            <h4 class="title">Terrible</h4>
-                            <span class="price">$18,78</span>
-                            <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>

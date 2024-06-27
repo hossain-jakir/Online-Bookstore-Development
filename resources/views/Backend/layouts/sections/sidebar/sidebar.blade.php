@@ -1,8 +1,8 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
-        <img src="{{ asset('assets/frontend/images/logo-white.png')}}" alt="AdminLTE Logo"
+    <a href="{{ route('backend.dashboard') }}" class="brand-link">
+        <img src="{{ asset('assets/frontend/images/logo-white.png')}}" alt="Logo"
             class="brand-image elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-light">{{ config('backend.site.short_title') }}</span>
     </a>
@@ -40,16 +40,16 @@
                 <!-- Add icons to the links using the .nav-icon class
              with font-awesome or any other icon font library -->
                 <li class="nav-item">
-                    <a href="{{ route('admin.dashboard') }}"
-                        class="nav-link @if (Route::currentRouteName() == 'admin.dashboard') active @endif">
+                    <a href="{{ route('backend.dashboard') }}"
+                        class="nav-link @if (Route::currentRouteName() == 'backend.dashboard') active @endif">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Dashboard
                         </p>
                     </a>
                 </li>
-                <li class="nav-item {{ Route::is('admin.category.*')  ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ Route::is('admin.category.*')  ? 'active' : '' }}">
+                <li class="nav-item {{ Route::is('backend.category.*')  ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Route::is('backend.category.*')  ? 'active' : '' }}">
                         <i class="nav-icon fas fa-list"></i>
                         <p>
                             Category
@@ -58,15 +58,65 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('admin.category.index') }}"
-                                class="nav-link @if (Route::currentRouteName() == 'admin.category.index') active @endif">
+                            <a href="{{ route('backend.category.index') }}"
+                                class="nav-link @if (Route::currentRouteName() == 'backend.category.index') active @endif">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>List</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('admin.category.create') }}"
-                                class="nav-link @if (Route::currentRouteName() == 'admin.category.create') active @endif">
+                            <a href="{{ route('backend.category.create') }}"
+                                class="nav-link @if (Route::currentRouteName() == 'backend.category.create') active @endif">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Create</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item {{ Route::is('backend.tag.*')  ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Route::is('backend.tag.*')  ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-list"></i>
+                        <p>
+                            Tag
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('backend.tag.index') }}"
+                                class="nav-link @if (Route::currentRouteName() == 'backend.tag.index') active @endif">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>List</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('backend.tag.create') }}"
+                                class="nav-link @if (Route::currentRouteName() == 'backend.tag.create') active @endif">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Create</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item {{ Route::is('backend.book.*')  ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Route::is('backend.book.*')  ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-list"></i>
+                        <p>
+                            Book
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('backend.book.index') }}"
+                                class="nav-link @if (Route::currentRouteName() == 'backend.book.index') active @endif">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>List</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('backend.book.create') }}"
+                                class="nav-link @if (Route::currentRouteName() == 'backend.book.create') active @endif">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Create</p>
                             </a>
@@ -74,8 +124,8 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.user.index') }}"
-                        class="nav-link @if (Route::currentRouteName() == 'admin.user.index') active @endif">
+                    <a href="{{ route('backend.user.index') }}"
+                        class="nav-link @if (Route::currentRouteName() == 'backend.user.index') active @endif">
                         <i class="nav-icon fas fa-users"></i>
                         <p>
                             User
@@ -83,8 +133,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.role.index') }}"
-                        class="nav-link @if (Route::currentRouteName() == 'admin.role.index') active @endif">
+                    <a href="{{ route('backend.role.index') }}"
+                        class="nav-link @if (Route::currentRouteName() == 'backend.role.index') active @endif">
                         <i class="nav-icon fas fa-shield-alt"></i>
                         <p>
                             Role & Permission

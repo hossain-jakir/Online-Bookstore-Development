@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\Category;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Backend\TagRequest;
+use App\Models\Tag;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
-use App\Http\Requests\Backend\CategoryRequest;
 
-class CategoryController extends Controller
+class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,13 +20,13 @@ class CategoryController extends Controller
 
         $data=[];
 
-        $data['rows'] = Category::where('isDeleted', 'no')->latest('id')->paginate(20);
+        $data['rows'] = Tag::where('isDeleted', 'no')->latest('id')->paginate(20);
 
         foreach($data['rows'] as $row){
             $row->hashId = Crypt::encrypt($row->id);
         }
 
-        return view('backend.pages.category.index')->with('data', $data);
+        return view('backend.pages.tag.index')->with('data', $data);
 
     }
 
@@ -37,7 +37,7 @@ class CategoryController extends Controller
      */
     public function create(Request $request){
 
-        return view('backend.pages.category.create');
+        return view('backend.pages.tag.create');
     }
 
     /**
@@ -46,16 +46,16 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CategoryRequest $request){
+    public function store(TagRequest $request){
         try{
 
-            $slug = 'category/' . str_replace(' ', '-', strtolower($request->name));
-            if(Category::where('slug', $slug)->exists()){
-                Session::flash('error', 'Category already exists');
+            $slug = 'tag/' . str_replace(' ', '-', strtolower($request->name));
+            if(Tag::where('slug', $slug)->exists()){
+                Session::flash('error', 'tag already exists');
                 return back();
             }
 
-            $create = Category::create([
+            $create = Tag::create([
                 'name' => $request->name,
                 'slug' => $slug,
                 'description' => $request->description ?? null,
@@ -67,8 +67,8 @@ class CategoryController extends Controller
                 return back();
             }
 
-            Session::flash('success', 'Category created successfully');
-            return redirect()->route('backend.category.index');
+            Session::flash('success', 'tag created successfully');
+            return redirect()->route('backend.tag.index');
 
         }catch(\Exception $e){
             Session::flash('error', $e->getMessage());
@@ -98,15 +98,15 @@ class CategoryController extends Controller
 
             $data = [];
 
-            $data['row'] = Category::find($id);
+            $data['row'] = Tag::find($id);
             if(!$data['row']){
-                Session::flash('error', 'Category not found');
+                Session::flash('error', 'Tag not found');
                 return back();
             }
 
             $data['row']->hashId = Crypt::encrypt($data['row']->id);
 
-            return view('backend.pages.category.edit')->with('data', $data);
+            return view('backend.pages.tag.edit')->with('data', $data);
 
         }catch(\Exception $e){
             Session::flash('error', $e->getMessage());
@@ -121,27 +121,27 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(CategoryRequest $request, $id){
+    public function update(TagRequest $request, $id){
         try{
 
-            $category = Category::find($id);
-            if(!$category){
-                Session::flash('error', 'Category not found');
+            $tag = Tag::find($id);
+            if(!$tag){
+                Session::flash('error', 'tag not found');
                 return back();
             }
 
-            if($category->name == $request->name){
-                $slug = $category->slug;
+            if($tag->name == $request->name){
+                $slug = $tag->slug;
             }else{
-                $slug = 'category/' . str_replace(' ', '-', strtolower($request->name));
+                $slug = 'tag/' . str_replace(' ', '-', strtolower($request->name));
 
-                if(Category::where('slug', $slug)->exists()){
-                    Session::flash('error', 'Category already exists');
+                if(Tag::where('slug', $slug)->exists()){
+                    Session::flash('error', 'tag already exists');
                     return back();
                 }
             }
 
-            $update = $category->update([
+            $update = $tag->update([
                 'name' => $request->name,
                 'slug' => $slug,
                 'description' => $request->description ?? null,
@@ -153,8 +153,8 @@ class CategoryController extends Controller
                 return back();
             }
 
-            Session::flash('success', 'Category updated successfully');
-            return redirect()->route('backend.category.index');
+            Session::flash('success', 'tag updated successfully');
+            return redirect()->route('backend.tag.index');
 
         }catch(\Exception $e){
             Session::flash('error', $e->getMessage());
@@ -170,13 +170,13 @@ class CategoryController extends Controller
      */
     public function destroy(Request $request, $id){
         try{
-            $category = Category::find($id);
-            if(!$category){
-                Session::flash('error', 'Category not found');
+            $tag = Tag::find($id);
+            if(!$tag){
+                Session::flash('error', 'tag not found');
                 return back();
             }
 
-            $delete = $category->update([
+            $delete = $tag->update([
                 'isDeleted' => 'yes',
             ]);
 
@@ -185,8 +185,8 @@ class CategoryController extends Controller
                 return back();
             }
 
-            Session::flash('success', 'Category deleted successfully');
-            return redirect()->route('backend.category.index');
+            Session::flash('success', 'tag deleted successfully');
+            return redirect()->route('backend.tag.index');
 
         }catch(\Exception $e){
             Session::flash('error', $e->getMessage());

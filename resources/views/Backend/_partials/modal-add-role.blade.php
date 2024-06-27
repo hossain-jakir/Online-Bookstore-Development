@@ -13,7 +13,7 @@
                     <p>Set role permissions</p>
                 </div>
                 <!-- Add role form -->
-                <form id="addRoleForm" class="row g-3 addRoleForm" action="{{ route('admin.role.store') }}"
+                <form id="addRoleForm" class="row g-3 addRoleForm" action="{{ route('backend.role.store') }}"
                     method="POST">
                     @csrf
                     <div class="col-12 mb-4">
@@ -21,7 +21,7 @@
                         <input type="text" id="modalRoleName" name="name" class="form-control"
                             placeholder="Enter a role name" tabindex="-1" />
                     </div>
-                    @can('admin.role.assign.permission')
+                    @can('backend.role.assign.permission')
                         <div class="col-12">
                             <h4>Role Permissions</h4>
                             <!-- Permission table -->

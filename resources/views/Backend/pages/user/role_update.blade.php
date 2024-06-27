@@ -24,7 +24,7 @@
             </div>
             <hr class="mx-md-n5 mx-n3">
             <div class="modal-body">
-                <h6 class="mb-0">You can set the permission from <a href="{{ route('admin.role.index') }}">Role
+                <h6 class="mb-0">You can set the permission from <a href="{{ route('backend.role.index') }}">Role
                         Management</a></h6>
             </div>
             <div class="modal-footer justify-content-between">

@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class BookTag extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'book_id',
+        'tag_id',
+    ];
+    
+    public $timestamps = false;
 }

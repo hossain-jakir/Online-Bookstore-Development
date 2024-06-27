@@ -15,12 +15,17 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    protected $data = [];
+    function __construct(){
+        $data = [];
+        $this->data = array_merge($data, $this->frontendItems());
+    }
     /**
      * Display the registration view.
      */
     public function create(): View
     {
-        return view('Frontend.Register.index');
+        return view('Frontend.Register.index')->with('data', $this->data);
     }
 
     /**
