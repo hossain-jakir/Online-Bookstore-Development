@@ -25,7 +25,7 @@ class MainController extends Controller{
         if (auth()->check()) {
             $data['wishlistCount'] = Wishlist::where('user_id', auth()->id())->where('status', 'active')->where('isDeleted', 'no')->count();
 
-            $cartList = Cart::with('book')->where('user_id', auth()->id())->where('isDeleted', 'no')->where('status', 'active')->get();
+            $cartList = Cart::with('book')->where('user_id', auth()->id())->where('isDeleted', 'no')->where('status', 'active')->latest('id')->get();
             foreach ($cartList as $cart) {
                 // Generate image path for the book
                 $cart->book->image = ImageHelper::generateImage($cart->book->image, 'grid');
@@ -44,6 +44,9 @@ class MainController extends Controller{
                     'title' => $cart->book->title,
                     'quantity' => $cart->quantity,
                     'price' => $price, // Use the determined price
+                    'total_price' => $cart->quantity * $price,
+                    'discounted_price' => $cart->book->discounted_price,
+                    'sale_price' => $cart->book->sale_price,
                     'image' => $cart->book->image,
                 ];
             }

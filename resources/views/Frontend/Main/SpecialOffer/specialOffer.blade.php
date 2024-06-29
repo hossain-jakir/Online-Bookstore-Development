@@ -14,17 +14,16 @@
                     <div class="swiper-slide">
                         <div class="dz-card style-2 wow fadeInUp" data-wow-delay="0.1s">
                             <div class="dz-media">
-                                <a href="books-detail.html"><img src="{{ $offer->image_path }}" alt="/" style="height: 222px;"></a>
-                                <a href="javascript:void(0);" class="btn-outline-danger btnhover add-to-wishlist @if($offer->isInWishlist) active @endif" data-id="{{ $offer->id }}" data-type="offer">
-                                    <i class="flaticon-heart"></i>
-                                </a>
+                                <a href="{{ route('book.show', ['id' => base64_encode($offer->id)]) }}"><img src="{{ $offer->image_path }}" alt="/" style="height: 222px;"></a>
                             </div>
                             <div class="dz-info">
-                                <h4 class="dz-title"><a href="books-detail.html">{{ $offer->title }}</a></h4>
+                                <h4 class="dz-title"><a href="{{ route('book.show', ['id' => base64_encode($offer->id)]) }}">{{ $offer->title }}</a></h4>
                                 <div class="dz-meta">
                                     <ul class="dz-tags">
                                         @foreach ($offer->category as $category)
-                                            <li><a href="books-detail.html">{{ $category->name }}</a></li>
+                                            <li><a href="{{ URL::to($category->slug) }}">
+                                                {{ $category->name }}
+                                            </a></li>
                                         @endforeach
                                     </ul>
                                 </div>
@@ -32,7 +31,10 @@
                                     {{ Str::limit($offer->description, 200) }}
                                 </p>
                                 <div class="bookcard-footer">
-                                    <a href="shop-cart.html" class="btn btn-primary m-t15 btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
+                                    <button class="btn btn-primary m-t15 btnhover2 add-to-cart" data-id="{{ base64_encode($offer->id) }}">
+                                        <i class="flaticon-shopping-cart-1 m-r10"></i>
+                                        Add To Cart
+                                    </button>
                                     <div class="price-details">
                                         @if ($offer->discounted_price)
                                             £{{ $offer->discounted_price }} <del>${{ $offer->sale_price }}</del>

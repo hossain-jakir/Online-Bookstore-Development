@@ -12,12 +12,16 @@
                                     <div class="swiper-content">
                                         <div class="content-info">
                                             <h6 class="sub-title" data-swiper-parallax="-10">BEST MANAGEMENT </h6>
-                                            <h1 class="title mb-0" data-swiper-parallax="-20">{{$banner->title}}</h1>
+                                            <h1 class="title mb-0" data-swiper-parallax="-20">
+                                                <a href="{{ route('book.show', ['id' => base64_encode($banner->id)]) }}" class="title mb-0">
+                                                    {{$banner->title}}
+                                                </a>
+                                            </h1>
                                             <ul class="dz-tags" data-swiper-parallax="-30">
                                                 @foreach ($banner->category as $cat)
                                                     {{-- show max 3 tags --}}
                                                     @if ($loop->index < 3)
-                                                        <li><a href="javascript:void(0);">{{$cat->name}}</a></li>
+                                                        <li><a href="{{ URL::to($cat->slug) }}">{{$cat->name}}</a></li>
                                                     @endif
                                                 @endforeach
                                             </ul>
@@ -49,8 +53,10 @@
 
                                             </div>
                                             <div class="content-btn" data-swiper-parallax="-60">
-                                                <a class="btn btn-primary btnhover" href="books-grid-view.html">Buy Now</a>
-                                                <a class="btn border btnhover ms-4 text-white" href="books-detail.html">See Details</a>
+                                                <button class="btn btn-primary btnhover add-to-cart" data-id="{{ base64_encode($banner->id) }}">Add To Cart</button>
+                                                <a class="btn border btnhover ms-4 text-white" href="{{ route('book.show', ['id' => base64_encode($banner->id)]) }}">
+                                                    See Details
+                                                </a>
 
                                                 <!-- Love Icon -->
                                                 <a href="javascript:void(0);" class="btn btn-outline-danger btnhover add-to-wishlist @if($banner->isInWishlist) active @endif" data-id="{{ $banner->id }}" data-type="large">
@@ -83,10 +89,16 @@
                 <div class="swiper-slide">
                     <div class="books-card">
                         <div class="dz-media">
-                            <img src="{{ $bannerSmall->image_path }}" alt="book" style="width: 250px; height: 110px !important;">
+                            <a href="{{ route('book.show', ['id' => base64_encode($bannerSmall->id)]) }}">
+                                <img src="{{ $bannerSmall->image_path }}" alt="book" style="width: 250px; height: 110px !important;">
+                            </a>
                         </div>
                         <div class="dz-content">
-                            <h5 class="title mb-0">{{ $bannerSmall->title }}</h5>
+                            <h5 class="title mb-0">
+                                <a href="{{ route('book.show', ['id' => base64_encode($bannerSmall->id)]) }}" class="title mb-0">
+                                    {{ $bannerSmall->title }}
+                                </a>
+                                </h5>
                             <div class="dz-meta">
                                 <ul>
                                     <li>
@@ -113,11 +125,6 @@
                                         @endif
                                     @endfor
                                 </div>
-                                <!-- Love Icon -->
-                                <a href="javascript:void(0);" class="btn-outline-danger btnhover add-to-wishlist @if($bannerSmall->isInWishlist) active @endif"
-                                    data-id="{{ $bannerSmall->id }}">
-                                    <i class="flaticon-heart"></i>
-                                </a>
                             </div>
                         </div>
                     </div>

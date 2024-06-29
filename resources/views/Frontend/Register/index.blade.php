@@ -1,6 +1,6 @@
 @extends('Frontend/Main/index')
 
-@section('title', 'About Us')
+@section('title', 'Registration')
 
 @section('content')
 

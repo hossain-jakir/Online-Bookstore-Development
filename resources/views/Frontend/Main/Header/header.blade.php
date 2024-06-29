@@ -5,7 +5,7 @@
         <div class="container clearfix">
             <!-- Website Logo -->
             <div class="logo-header logo-dark">
-                <a href="index.html"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt="logo"></a>
+                <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt="logo"></a>
             </div>
 
             <!-- EXTRA NAV -->
@@ -34,19 +34,9 @@
                     <div class="input-group search-input">
                         <select class="default-select">
                             <option>Category</option>
-                            <option>Photography </option>
-                            <option>Arts</option>
-                            <option>Adventure</option>
-                            <option>Action</option>
-                            <option>Games</option>
-                            <option>Movies</option>
-                            <option>Comics</option>
-                            <option>Biographies</option>
-                            <option>Children’s Books</option>
-                            <option>Historical</option>
-                            <option>Contemporary</option>
-                            <option>Classics</option>
-                            <option>Education</option>
+                            @foreach ( $data['categories'] as $category )
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
                         </select>
                         <input type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Search Books Here">
                         <button class="btn" type="button"><i class="flaticon-loupe"></i></button>

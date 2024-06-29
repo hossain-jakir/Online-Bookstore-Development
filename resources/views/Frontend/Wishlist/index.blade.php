@@ -36,7 +36,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($data['wishlist'] as $wishlist)
+                                @forelse  ($data['wishlist'] as $wishlist)
                                     <tr id="wishlist-item-{{ $wishlist->id }}">
                                         <td class="product-item-img"><img src="{{ $wishlist->book->image }}" alt=""></td>
                                         <td class="product-item-name">{{ $wishlist->book->title }}</td>
@@ -51,14 +51,33 @@
                                                 £{{ $wishlist->book->sale_price }}
                                             @endif
                                         </td>
-                                        <td class="product-item-totle"><a href="shop-cart.html" class="btn btn-primary btnhover">Add To Cart</a></td>
+                                        <td class="product-item-totle">
+                                            <button class="btn btn-primary btnhover add-to-cart" data-id="{{ base64_encode($wishlist->book->id) }}">Add To Cart</button>
+                                        </td>
                                         <td class="product-item-close" style="text-align: center;">
                                             <button type="button" class="btn btn-danger delete-wishlist-item" data-id="{{ $wishlist->id }}">
                                                 <i class="ti-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="5" style="text-align: center;">No items found in wishlist.</td>
+                                    </tr>
+                                @endforelse
+                                @if ($data['wishlist']->count() > 0)
+                                    <tr>
+                                        <td colspan="5" style="text-align: right;">
+                                            {{-- delete all button at right side--}}
+                                            <form action="{{ route('wishlist.delete.all') }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-danger">
+                                                    Delete All
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -74,10 +93,10 @@
 <script src="{{ asset('assets/frontend/vendor/countdown/counter.js')}}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Handle Delete Wishlist Item
         document.querySelectorAll('.delete-wishlist-item').forEach(button => {
             button.addEventListener('click', function() {
                 const itemId = this.getAttribute('data-id');
-
                 if (confirm('Are you sure you want to delete this item?')) {
                     fetch(`/wishlist/delete/${itemId}`, {
                         method: 'POST',
@@ -90,9 +109,9 @@
                     .then(data => {
                         if (data.success) {
                             document.getElementById(`wishlist-item-${itemId}`).remove();
-                            alert(data.message);
+                            showToast('success', 'Item deleted successfully.');
                         } else {
-                            alert('An error occurred while trying to delete the item.');
+                            showToast('error', 'Failed to delete item.');
                         }
                     })
                     .catch(error => {
@@ -102,9 +121,18 @@
             });
         });
     });
+
+    function showToast(type, message) {
+        // Show toast message (using a library like toastr)
+        if (type === 'success') {
+            toastr.success(message);
+        } else if (type === 'error') {
+            toastr.error(message);
+        }
+    }
 </script>
 @endsection
 
 @section('addStyle')
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/frontend/icons/themify/themify-icons.css')}}">
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/frontend/icons/themify/themify-icons.css')}}">
 @endsection

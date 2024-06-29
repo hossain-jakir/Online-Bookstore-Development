@@ -5,11 +5,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Backend\TagController;
 use App\Http\Controllers\Backend\BookController;
 use App\Http\Controllers\Backend\HomeController;
+use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\Role\RoleController;
 use App\Http\Controllers\Backend\User\UserController;
 use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
+use App\Http\Controllers\Frontend\BookController as FrontendBookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +24,7 @@ use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
 |
 */
 
-Route::get('/', [FrontendHomeController::class, 'index']);
+Route::get('/', [FrontendHomeController::class, 'index'])->name('home');
 Route::get('/clear-cache', [FrontendHomeController::class, 'clearCache']);
 
 
@@ -30,9 +32,28 @@ Route::prefix('wishlist')->middleware(['auth'])->group(function () {
     Route::get('/', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/store', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::post('/delete/{id}', [WishlistController::class, 'delete'])->name('wishlist.delete');
-    Route::post('/delete/all', [WishlistController::class, 'deleteAll'])->name('wishlist.delete.all');
+    Route::post('/deleteAll', [WishlistController::class, 'deleteAll'])->name('wishlist.delete.all');
 });
 
+Route::prefix('cart')->middleware(['auth'])->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/get-cart-items', [CartController::class, 'getCartItems'])->name('cart.get-cart-items');
+    Route::post('/store', [CartController::class, 'store'])->name('cart.store');
+    Route::post('/update-cart', [CartController::class, 'updateQuantity'])->name('update-cart');
+    Route::post('/remove-cart-item', [CartController::class, 'removeItem'])->name('remove-cart-item');
+});
+
+Route::prefix('book')->group(function () {
+    Route::get('book-list', [FrontendBookController::class, 'bookList'])->name('book.bookList');
+    Route::get('/grid', [FrontendBookController::class, 'index'])->name('book.grid');
+    Route::get('/list', [FrontendBookController::class, 'index'])->name('book.list');
+    Route::get('/', [FrontendBookController::class, 'index'])->name('book.index');
+    Route::get('/{id}', [FrontendBookController::class, 'show'])->name('book.show');
+});
+
+Route::prefix('category')->group(function () {
+    Route::get('/{slug}', [FrontendBookController::class, 'showByCategory'])->name('category');
+});
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

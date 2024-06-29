@@ -51,4 +51,36 @@ class Book extends Model
         return $this->hasMany(Wishlist::class, 'book_id');
     }
 
+    public function reviews(){
+        return $this->hasMany(Review::class, 'book_id');
+    }
+
+    public function orders(){
+        return $this->hasMany(Order::class, 'book_id');
+    }
+
+    public function orderItems(){
+        return $this->hasMany(OrderItems::class, 'book_id');
+    }
+
+    public function cartItems(){
+        return $this->hasMany(Cart::class, 'book_id');
+    }
+
+    public function cartItemsCount(){
+        return $this->cartItems()->count();
+    }
+
+    public function wishlistItemsCount(){
+        return $this->wishlistItems()->count();
+    }
+
+    public function reviewsCount(){
+        return $this->reviews()->count();
+    }
+
+    public function ordersCount(){
+        return $this->orders()->count();
+    }
+
 }

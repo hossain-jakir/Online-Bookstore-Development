@@ -21419,6 +21419,20 @@ pre {
       width: 100%;
       margin-bottom: 0; } }
 
+.book-grid-row .col-book.style-grid-view {
+width: 25%;
+margin-bottom: 30px; }
+@media only screen and (max-width: 991px) {
+    .book-grid-row .col-book.style-grid-view {
+    width: 50%; } }
+@media only screen and (max-width: 767px) {
+    .book-grid-row .col-book.style-grid-view {
+    width: 50%; } }
+@media only screen and (max-width: 575px) {
+    .book-grid-row .col-book.style-grid-view {
+    width: 100%;
+    margin-bottom: 0; } }
+
 .tabs-site-button .nav-tabs {
   margin-bottom: 32px; }
   .tabs-site-button .nav-tabs a {

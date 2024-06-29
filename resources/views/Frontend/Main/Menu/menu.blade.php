@@ -4,7 +4,7 @@
         <div class="container clearfix">
             <!-- Website Logo -->
             <div class="logo-header logo-dark">
-                <a href="index.html"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt="logo"></a>
+                <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt="logo"></a>
             </div>
 
             <!-- Nav Toggle Button -->
@@ -24,7 +24,7 @@
             <!-- Main Nav -->
             <div class="header-nav navbar-collapse collapse justify-content-start" id="navbarNavDropdown">
                 <div class="logo-header logo-dark">
-                    <a href="index.html"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt=""></a>
+                    <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt=""></a>
                 </div>
                 <div class="search-input">
                     <div class="input-group">
@@ -38,6 +38,7 @@
                             <span>Home</span>
                         </a>
                     </li>
+                    <li><a href="{{ route('book.index') }}"><span>Books</span></a></li>
                     <li><a href="about-us.html"><span>About Us</span></a></li>
                     <li class="sub-menu-down"><a href="javascript:void(0);"><span>Pages</span></a>
                         <ul class="sub-menu">

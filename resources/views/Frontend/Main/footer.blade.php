@@ -11,7 +11,7 @@
                             @foreach ($data['categories'] as $footerCategory)
                                 @if ($loop->index < 24)
                                     <li>
-                                        <a href="books-grid-view.html">
+                                        <a href="{{ URL::to($footerCategory->slug) }}">
                                             {{ $footerCategory->name }}
                                         </a>
                                     </li>
@@ -32,7 +32,7 @@
                 <div class="col-xl-3 col-lg-12 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="widget widget_about">
                         <div class="footer-logo logo-white">
-                            <a href="index.html"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt=""></a>
+                            <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt=""></a>
                         </div>
                         <p class="text">Bookland is a Book Store Ecommerce Website Template by DexignZone lorem ipsum dolor sit</p>
                         <div class="dz-social-icon style-1">
@@ -61,7 +61,7 @@
                     <div class="widget widget_services">
                         <h5 class="footer-title">Bookland ?</h5>
                         <ul>
-                            <li><a href="index.html">Bookland</a></li>
+                            <li><a href="{{ route('home') }}">Bookland</a></li>
                             <li><a href="services.html">Services</a></li>
                             <li><a href="books-detail.html">Book Details</a></li>
                             <li><a href="blog-detail.html">Blog Details</a></li>

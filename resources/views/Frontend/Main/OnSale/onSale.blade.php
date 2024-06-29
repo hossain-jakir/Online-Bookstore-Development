@@ -15,18 +15,20 @@
                     <div class="swiper-slide">
                         <div class="books-card style-3 wow fadeInUp" data-wow-delay="0.1s">
                             <div class="dz-media">
-                                <img src="{{ $onSale->image_path }}" alt="book" style="height: 300px; ">
+                                <a href="{{ route('book.show', ['id' => base64_encode($onSale->id)]) }}">
+                                    <img src="{{ $onSale->image_path }}" alt="book" style="height: 300px; ">
+                                </a>
                             </div>
                             <div class="dz-content">
                                 <h5 class="title" style="font-size: 16px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block;">
-                                    <a href="books-grid-view.html" style="text-decoration: none; color: inherit;">{{ $onSale->title }}</a>
+                                    <a href="{{ route('book.show', ['id' => base64_encode($onSale->id)]) }}" style="text-decoration: none; color: inherit;">{{ $onSale->title }}</a>
                                 </h5>
 
                                 <ul class="dz-tags">
                                     @foreach ($onSale->category as $category)
                                         {{-- max 3 categories --}}
                                         @if ($loop->index < 3)
-                                            <li><a href="books-grid-view.html">{{ $category->name }},</a></li>
+                                            <li><a href="{{ URL::to($category->slug) }}">{{ $category->name }},</a></li>
                                         @endif
                                     @endforeach
                                 </ul>
@@ -55,8 +57,10 @@
                                     <i class="flaticon-heart"></i>
                                 </a>
                                 <!-- Love Icon -->
-                                <a href="shop-cart.html" class="btn btn-secondary btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
-
+                                <button class="btn btn-secondary btnhover2 add-to-cart" data-id="{{ base64_encode($onSale->id) }}">
+                                    <i class="flaticon-shopping-cart-1 m-r10"></i>
+                                    Add To Cart
+                                </button>
                             </div>
                         </div>
                     </div>

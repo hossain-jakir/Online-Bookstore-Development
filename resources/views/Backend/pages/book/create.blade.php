@@ -255,17 +255,6 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="image">Image <span class="text-danger">*</span></label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input @error('image') is-invalid @enderror" id="image" name="image">
-                                        <label class="custom-file-label" for="image">Choose file</label>
-                                    </div>
-                                    @error('image')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
                                     <label for="availability">Availability <span class="text-danger">*</span></label>
                                     <select class="form-control @error('availability') is-invalid @enderror" id="availability" name="availability">
                                         <option value="0" {{ old('availability') == '0' ? 'selected' : '' }}>Unavailable</option>
@@ -326,6 +315,17 @@
                                         @endforeach
                                     </select>
                                     @error('categories')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="image">Image <span class="text-danger">*</span></label>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input @error('image') is-invalid @enderror" id="image" name="image">
+                                        <label class="custom-file-label" for="image">Choose file</label>
+                                    </div>
+                                    @error('image')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>

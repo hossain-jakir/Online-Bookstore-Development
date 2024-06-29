@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Auth;
 
 class WishlistController extends MainController{
@@ -71,6 +72,6 @@ class WishlistController extends MainController{
             $row->save();
         }
 
-        return response()->json(['success' => true, 'message' => 'All books removed from wishlist']);
+        return redirect()->back()->with('success', 'All books removed from wishlist');
     }
 }

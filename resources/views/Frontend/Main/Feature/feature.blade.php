@@ -57,7 +57,7 @@
                             </div>
                             <div class="bookcard-footer">
                                 <a href="shop-cart.html" class="btn btn-primary btnhover m-t15 m-r10">Buy Now</a>
-                                <a href="books-detail.html" class="btn btn-outline-secondary btnhover m-t15">See Details</a>
+                                <a href="{{ route('book.show', ['id' => base64_encode($feature->id)]) }}" class="btn btn-outline-secondary btnhover m-t15">See Details</a>
 
                                 <!-- Love Icon -->
                                 <a href="javascript:void(0);" class="btn btn-outline-danger btnhover add-to-wishlist @if($feature->isInWishlist) active @endif" data-id="{{ $feature->id }}" data-type="large" style="margin-top: 15px;">
