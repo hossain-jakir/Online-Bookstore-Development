@@ -45,34 +45,69 @@
                         </ul>
                     </div>
                 </div>
-                <div class="category">
+                <div class="category day-filters">
                     <div class="form-group">
                         <i class="fas fa-sort-amount-down me-2 text-secondary"></i>
-                        <select class="default-select">
-                            <option>Newest</option>
-                            <option>1 Day</option>
-                            <option>1 Week</option>
-                            <option>3 Weeks</option>
-                            <option>1 Month</option>
-                            <option>3 Months</option>
+                        <select class="default-select" id="day-filter">
+                            <option value="newest">Newest</option>
+                            <option value="1_day" {{ request()->day_filter == '1_day' ? 'selected' : '' }}>1 Day</option>
+                            <option value="1_week" {{ request()->day_filter == '1_week' ? 'selected' : '' }}>1 Week</option>
+                            <option value="3_weeks" {{ request()->day_filter == '3_weeks' ? 'selected' : '' }}>3 Weeks</option>
+                            <option value="1_month" {{ request()->day_filter == '1_month' ? 'selected' : '' }}>1 Month</option>
+                            <option value="3_months" {{ request()->day_filter == '3_months' ? 'selected' : '' }}>3 Months</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="row book-grid-row">
-                {{-- Books data will be rendered here --}}
+                @forelse ($data['data']['books'] as $book)
+                    <div class="col-book style-2">
+                        <div class="dz-shop-card style-1">
+                            <div class="dz-media">
+                                <a href="{{ route('book.show', ['id' => base64_encode($book->id)]) }}">
+                                    <img src="{{ $book->image }}" alt="book" style="height: 250px;">
+                                </a>
+                            </div>
+                            <div class="dz-content">
+                                <h5 class="title" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis; font-size: larger"><a href="{{ route('book.show', $book->id) }}">{{ $book->title }}</a></h5>
+                                <ul class="dz-tags">
+                                    @foreach ($book->category as $category)
+                                        <li>{{ $category->name }}</li>
+                                    @endforeach
+                                </ul>
+                                <ul class="dz-rating">
+                                    @for ($i = 0; $i < 5; $i++) @if ($i < $book->rating)
+                                        <li><i class="flaticon-star text-yellow"></i></li>
+                                        @else
+                                        <li><i class="flaticon-star text-yellow"></i></li>
+                                        @endif
+                                        @endfor
+                                </ul>
+                                <div class="book-footer">
+                                    <div class="price">
+                                        @if ($book->discounted_price)
+                                            <span class="price-num">${{ $book->discounted_price }}</span>
+                                            <del>${{ $book->sale_price }}</del>
+                                        @else
+                                            <span class="price-num">${{ $book->sale_price }}</span>
+                                        @endif
+                                    </div>
+                                    <button id="flexCheckDefault1" class="btn btn-outline-danger btnhover add-to-wishlist" data-id="{{ base64_encode($book->id) }}"><i class="flaticon-heart"></i></button>
+                                    <a class="btn btn-secondary box-btn btnhover2 add-to-cart" data-id="{{ base64_encode($book->id) }}" href="javascript:void(0);"><i class="flaticon-shopping-cart-1 m-r10"></i>Add To Cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center" role="alert">
+                            No books found!
+                        </div>
+                    </div>
+                @endforelse
             </div>
             <div class="row page mt-0">
-                <div class="col-md-6">
-                    <p class="page-text">Showing 12 from 50 data</p>
-                </div>
-                <div class="col-md-6">
-                    <nav aria-label="Blog Pagination">
-                        <ul class="pagination style-1 p-t20">
-                            <!-- Pagination links will be dynamically generated here -->
-                        </ul>
-                    </nav>
-                </div>
+                {!! $data['data']['books']->withQueryString()->links('pagination::default') !!}
             </div>
         </div>
     </div>
@@ -101,6 +136,7 @@
 <script>
     $(document).ready(function() {
         var currentPage = 1; // Initialize current page
+        let per_Page; // Number of items per page
         var filters ={
             categories: [],
             price_range: {
@@ -110,224 +146,70 @@
             publishers: [],
             years: [],
             featured: [],
-            best_sellers: []
+            best_sellers: [],
+            day_filter: 'newest'
         };
-        // Function to fetch data based on page number
-        function fetchData(page, filters) {
-            $.ajax({
-                url: "{{ route('book.bookList') }}",
-                type: 'GET',
-                data: {
-                    page: page,      // Current page number
-                    per_page: 12,     // Number of items per page (adjust as per your requirement)
-                    filters: filters // Send filters object to the backend
-                },
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                dataType: 'json',
-                success: function(response) {
-                    console.log('Data fetched successfully:', response);
-                    var data = response.data; // Assuming 'data' contains your fetched data
-                    var clientFilters = response.filter;
 
-                    // Render books in the HTML
-                    renderBook(data.books.data);
-
-                    // Update pagination controls based on response
-                    updatePagination(response);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching book data:', error);
-                }
-            });
+        // Initialize data if provided in page load
+        var initialData = {!! json_encode($data) !!};
+        if (initialData && initialData.data) {
+            console.log('Initial data:', initialData);
+            console.log('Initial books:', initialData.data.books);
+            // renderBook(initialData.data.books.data);
+            // updatePagination(initialData.data.books);
+        } else {
+            console.error('No initial data found!');
+            fetchData(currentPage, filters);
         }
 
-        // Initial data fetch on page load
-        fetchData(currentPage, filters);
-
-        // Function to update pagination controls
-        function updatePagination(response) {
-            var currentPage = response.data.books.current_page;
-            var lastPage = response.data.books.last_page;
-
-            // Update 'Showing X from Y data' text
-            var totalRecords = response.data.books.total;
-            var perPage = response.data.books.per_page;
-            var startRecord = (currentPage - 1) * perPage + 1;
-            var endRecord = Math.min(currentPage * perPage, totalRecords);
-            $('.page-text').text('Showing ' + startRecord + ' to ' + endRecord + ' of ' + totalRecords + ' data');
-
-            // Update pagination links
-            var paginationHtml = '';
-            if (currentPage > 1) {
-                paginationHtml += '<li class="page-item"><a class="page-link prev" href="javascript:void(0);" data-page="' + (currentPage - 1) + '">Prev</a></li>';
-            } else {
-                paginationHtml += '<li class="page-item disabled"><a class="page-link prev" href="#">Prev</a></li>';
-            }
-
-            for (var i = 1; i <= lastPage; i++) {
-                if (i === currentPage) {
-                    paginationHtml += '<li class="page-item active"><a class="page-link" href="javascript:void(0);" style="color: #ffffff;background-color: #1a1668;border-color: #1a1668;">' + i + '</a></li>';
-                } else {
-                    paginationHtml += '<li class="page-item"><a class="page-link" href="javascript:void(0);" data-page="' + i + '">' + i + '</a></li>';
+        // Function to update URL without refreshing the page
+        function updateURL(filters) {
+            var queryParams = new URLSearchParams();
+            if (filters) {
+                if (filters.day_filter) {
+                    queryParams.set('day_filter', encodeURIComponent(filters.day_filter));
                 }
-            }
 
-            if (currentPage < lastPage) {
-                paginationHtml += '<li class="page-item"><a class="page-link next" href="javascript:void(0);" data-page="' + (currentPage + 1) + '">Next</a></li>';
-            } else {
-                paginationHtml += '<li class="page-item disabled"><a class="page-link next" href="#">Next</a></li>';
-            }
+                var newUrl = window.location.pathname + '?' + queryParams.toString();
+                history.pushState(null, '', newUrl);
 
-            $('.pagination').html(paginationHtml);
+                console.log('Updated URL:', newUrl);
+
+                //refresh the page
+                window.location.reload();
+
+            }
         }
 
-        // Event delegation for pagination links
-        $(document).on('click', '.pagination .page-link', function(e) {
-            e.preventDefault();
-            var page = $(this).data('page');
-            if (page) {
-                fetchData(page);
-            }
+        // Event listener for day filter changes
+        document.getElementById('day-filter').addEventListener('change', function() {
+            // Update the day_filter in the filters object
+            filters.day_filter = this.value;
+
+            // Call a function to apply filters or perform additional actions
+            applyFilters();
         });
 
-        // Function to render books in HTML
-        function renderBook(books) {
-            var html = '';
+        // Function to apply filters
+        function applyFilters() {
+            //day filter
+            var dayFilter = $('#day-filter').val();
 
-            books.forEach(function(book) {
-                var encodedId = btoa(book.id);
 
-                html += '<div class="col-book style-grid-view">';
-                html += '<div class="dz-shop-card style-1">';
-                html += '<div class="dz-media">';
-                html += '<a href="' + book.url + '">';
-                html += '<img src="' + book.image + '" alt="book" style="height: 250px;">';
-                html += '</a>';
-                html += '</div>';
-                html += '<div class="dz-content">';
-                html += '<h5 class="title" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis; font-size: larger"><a href="' + book.url + '">' + book.title + '</a></h5>';
-                html += '<ul class="dz-tags">';
+            // Prepare filter object to send to backend or manipulate data locally
+            var filters = {
+                day_filter: dayFilter
+            };
 
-                if (book.category && Array.isArray(book.category)) {
-                    book.category.slice(0, 3).forEach(function(category) {
-                        html += '<li>' + category.name + '</li>';
-                    });
-                } else {
-                    console.warn('Invalid or empty categories for book:', book);
-                }
+            console.log('Applying filters:', filters);
 
-                html += '</ul>';
-                html += '<ul class="dz-rating">';
-                for (var i = 0; i < 5; i++) {
-                    if (i < book.rating) {
-                        html += '<li><i class="flaticon-star text-yellow"></i></li>';
-                    } else {
-                        html += '<li><i class="flaticon-star text-muted"></i></li>';
-                    }
-                }
-                html += '</ul>';
-                html += '<div class="book-footer">';
-                html += '<div class="price">';
-                if (book.discounted_price) {
-                    html += '<span class="price-num">£' + book.discounted_price + '</span>';
-                    html += '<del>£' + book.sale_price + '</del>';
-                } else {
-                    html += '<span class="price-num">£' + book.sale_price + '</span>';
-                }
-                html += '</div>';
-                html += '<button id="flexCheckDefault1" class="btn btn-outline-danger btnhover add-to-wishlist ' + (book.isWishlisted ? 'active' : '') + '" data-id="' + book.id + '" data-type="large" style="margin-right: 5px;">';
-                html += '<i class="flaticon-heart"></i>';
-                html += '</button>';
-                html += '<a class="btn btn-secondary box-btn btnhover2 add-to-cart" data-id="'
-                    + encodedId + '" data-type="large">';
-                html += '<i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart';
-                html += '</a>';
-                html += '</div>';
-                html += '</div>';
-                html += '</div>';
-                html += '</div>';
-            });
+            // Call a function to fetch data based on the applied filters
+            // fetchData(currentPage, filters);
 
-            $('.book-grid-row').html(html);
+            //Update the URL
+            updateURL(filters);
         }
 
-        // Event listener for 'Add to Wishlist' button
-        $(document).on('click', '.add-to-wishlist', function(e) {
-            e.preventDefault();
-            var bookId = $(this).data('id');
-            var button = $(this);
-
-            @if (!auth()->check())
-                showToast('error', 'Please login to add this book to your wishlist.');
-            @endif
-
-            fetch('{{ route('wishlist.store') }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ book_id: bookId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', data.message);
-                    if (button.hasClass('active')) {
-                        button.removeClass('active');
-                    } else {
-                        button.addClass('active');
-                    }
-                } else {
-                    showToast('error', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-
-        // Event listener for 'Add to Cart' button
-        $(document).on('click', '.add-to-cart', function(e) {
-            e.preventDefault();
-            @if (!auth()->check())
-                button.addEventListener('click', function() {
-                    showToast('error', 'Please login to add this book to your cart.');
-                });
-                return;
-            @endif
-
-            const bookId = $(this).data('id');
-            const quantity = 1;
-
-            $.ajax({
-                url: '/cart/store',
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                data: JSON.stringify({
-                    book_id: bookId,
-                    quantity: quantity
-                }),
-                success: function(data) {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        getCartDetails(); // Update cart details in UI
-                    } else {
-                        showToast('error', data.message);
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error('AJAX Error:', textStatus, errorThrown);
-                    showToast('error', 'An error occurred while adding to cart.');
-                }
-            });
-        });
 
         // get new cart details
         function getCartDetails() {

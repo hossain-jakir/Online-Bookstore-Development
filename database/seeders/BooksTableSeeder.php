@@ -19,7 +19,7 @@ class BooksTableSeeder extends Seeder
             [
                 'code' => 'FIC001',
                 'title' => 'Adventures in Fiction',
-                'description' => 'A captivating tale of adventure and fantasy.',
+                'description' => 'A captivating tale of adventure and fantasy. Adventures in Fiction is a thrilling story that takes readers on a journey to far-off lands and magical realms. From dragons to wizards, the book is filled with enchanting characters and exciting adventures. Each chapter is filled with vivid descriptions and engaging dialogue, making it easy to lose yourself in the story. Whether you are a fan of fantasy fiction or just looking for an escape from reality, Adventures in Fiction has something for everyone.',
                 'author_id' => 11,
                 'isbn' => '9781234567890',
                 'edition_language' => 'English',
@@ -47,7 +47,7 @@ class BooksTableSeeder extends Seeder
             [
                 'code' => 'NF001',
                 'title' => 'The World of Facts',
-                'description' => 'An exploration of fascinating facts from around the globe.',
+                'description' => 'An exploration of fascinating facts from around the globe. The World of Facts is a collection of interesting and informative tidbits about the world we live in. From geography to history, the book covers a wide range of topics in an engaging and accessible style. Each fact is accompanied by colorful illustrations and fun anecdotes, making it easy to learn something new every day. Whether you are a trivia buff or just curious about the world, The World of Facts has something for everyone.',
                 'author_id' => 12,
                 'isbn' => '9782345678901',
                 'edition_language' => 'English',
@@ -75,7 +75,7 @@ class BooksTableSeeder extends Seeder
             [
                 'code' => 'SCI001',
                 'title' => 'Discovering the Universe',
-                'description' => 'An in-depth look into the wonders of the cosmos.',
+                'description' => 'An in-depth look into the wonders of the cosmos. Discovering the Universe is a comprehensive guide to the mysteries of space and time. From the Big Bang to black holes, the book covers a wide range of topics in astronomy and astrophysics. Each chapter is filled with stunning photographs and detailed explanations, making it easy to understand the complex concepts of the universe. Whether you are a science enthusiast or just curious about the cosmos, Discovering the Universe has something for everyone.',
                 'author_id' => 3,
                 'isbn' => '9783456789012',
                 'edition_language' => 'English',
@@ -103,7 +103,7 @@ class BooksTableSeeder extends Seeder
             [
                 'code' => 'HIS001',
                 'title' => 'History of Civilizations',
-                'description' => 'A comprehensive guide to the rise and fall of civilizations.',
+                'description' => 'A comprehensive guide to the rise and fall of civilizations. History of Civilizations is a detailed account of the major civilizations that have shaped human history. From ancient Mesopotamia to modern-day America, the book covers a wide range of cultures and societies. Each chapter is filled with fascinating facts and insights, making it easy to learn about the key events and figures of each era. Whether you are a history buff or just curious about the world, History of Civilizations has something for everyone.',
                 'author_id' => 4,
                 'isbn' => '9784567890123',
                 'edition_language' => 'English',
@@ -131,7 +131,7 @@ class BooksTableSeeder extends Seeder
             [
                 'code' => 'FAN001',
                 'title' => 'Magical Realms',
-                'description' => 'A journey into worlds of magic and wonder.',
+                'description' => 'A journey into worlds of magic and wonder. Magical Realms is a collection of fantasy stories that transport readers to far-off lands and mystical realms. From dragons to wizards, the book is filled with enchanting characters and captivating adventures. Each story is written in a vivid and imaginative style, making it easy to lose yourself in the magic. Whether you are a fan of fantasy fiction or just looking for an escape from reality, Magical Realms has something for everyone.',
                 'author_id' => 5,
                 'isbn' => '9785678901234',
                 'edition_language' => 'English',
@@ -159,7 +159,7 @@ class BooksTableSeeder extends Seeder
             [
                 'code' => 'BIO001',
                 'title' => 'Life of Legends',
-                'description' => 'Biographies of people who shaped history.',
+                'description' => 'Biographies of people who shaped history. Life of Legends is a collection of biographies that tells the stories of some of the most influential figures in history. From political leaders to cultural icons, the book covers a wide range of personalities and achievements. Each biography is written in an engaging and informative style, making it easy to learn about the lives and legacies of these remarkable individuals. Whether you are a history buff or just curious about the world, Life of Legends has something for everyone.',
                 'author_id' => 6,
                 'isbn' => '9786789012345',
                 'edition_language' => 'English',
@@ -187,7 +187,7 @@ class BooksTableSeeder extends Seeder
             [
                 'code' => 'SPO001',
                 'title' => 'Winning Spirit',
-                'description' => 'Stories and strategies from the world of sports.',
+                'description' => 'Strategies for success in sports and life. Winning Spirit is a motivational book that offers practical advice on how to achieve success in sports and life. It covers a wide range of topics, including goal setting, mental toughness, and teamwork. The book is written by a former professional athlete who shares his personal experiences and insights. Whether you are an athlete, coach, or sports enthusiast, Winning Spirit can help you reach your full potential and achieve your goals.',
                 'author_id' => 7,
                 'isbn' => '9787890123456',
                 'edition_language' => 'English',

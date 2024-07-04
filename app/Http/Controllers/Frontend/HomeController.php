@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Models\Book;
+use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Wishlist;
+use App\Models\ContactUs;
 use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Cart;
+use App\Models\Subscriber;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class HomeController extends MainController{
 
@@ -47,6 +51,96 @@ class HomeController extends MainController{
         }
 
         return view('Frontend.Home.index', compact('data'));
+    }
+
+    public function aboutUs(){
+        $data = [];
+        $data = parent::frontendItems();
+        // dd($data);
+        return view('Frontend.About.index')->with('data', $data);
+    }
+
+    public function privacyPolicy(){
+        $data = [];
+        $data = parent::frontendItems();
+        return view('Frontend.PrivacyPolicy.index')->with('data', $data);
+    }
+
+    public function contactUs(){
+        $data = [];
+        $data = parent::frontendItems();
+        return view('Frontend.ContactUs.index')->with('data', $data);
+    }
+
+    public function sendContactUs(Request $request){
+        $validator = Validator::make($request->all(),
+            [
+                'name' => 'required',
+                'email' => 'required|email',
+                'phone' => 'required',
+                'message' => 'required'
+            ]
+        );
+
+        if ($validator->fails()) {
+            Session::flash('error', 'Please fill all the fields.');
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $contactUs = new ContactUs();
+        $contactUs->name = $request->name;
+        $contactUs->email = $request->email;
+        $contactUs->phone = $request->phone;
+        $contactUs->message = $request->message;
+        $save = $contactUs->save();
+        if (!$save) {
+            Session::flash('error', 'Failed to send message. Please try again.');
+            return redirect()->back();
+        }
+
+        Session::flash('success', 'Message sent successfully.');
+        return redirect()->back();
+    }
+
+    public function subscribe(Request $request){
+        $validator = Validator::make($request->all(),
+            [
+                'email' => 'required|email|unique:subscribers,email'
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'msg' => $validator->errors()->first(),
+                'errors' => $validator->errors()
+            ]);
+        }
+
+        // Save email to database
+        $subscribe = new Subscriber();
+        $subscribe->email = $request->email;
+        $save = $subscribe->save();
+
+        // Check if saving to database fails
+        if (!$save) {
+            return response()->json([
+                'status' => 0,
+                'msg' => 'Failed to subscribe. Please try again.'
+            ]);
+        }
+
+        // If successfully saved to database
+        return response()->json([
+            'status' => 1,
+            'msg' => 'Subscribed successfully.'
+        ]);
+    }
+
+    public function faq(){
+        $data = [];
+        $data = parent::frontendItems();
+        return view('Frontend.Faq.index')->with('data', $data);
     }
 
     /**

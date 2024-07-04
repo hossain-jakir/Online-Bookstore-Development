@@ -34,26 +34,20 @@
                         <div class="footer-logo logo-white">
                             <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt=""></a>
                         </div>
-                        <p class="text">Bookland is a Book Store Ecommerce Website Template by DexignZone lorem ipsum dolor sit</p>
-                        <div class="dz-social-icon style-1">
-                            <ul>
-                                <li><a href="https://www.facebook.com/dexignzone" target="_blank" ><i class="fa-brands fa-facebook-f"></i></a></li>
-                                <li><a href="https://www.youtube.com/channel/UCGL8V6uxNNMRrk3oZfVct1g" target="_blank"><i class="fa-brands fa-youtube"></i></a></li>
-                                <li><a href="https://www.linkedin.com/showcase/3686700/admin/" target="_blank"><i class="fa-brands fa-linkedin"></i></a></li>
-                                <li><a href="https://www.instagram.com/website_templates__/" target="_blank"><i class="fa-brands fa-instagram"></i></a></li>
-                            </ul>
-                        </div>
+                        <p class="text">
+                            Bookland is a best and largest online book store. We have a vast collection of books in different categories.
+                        </p>
                     </div>
                 </div>
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="widget widget_services">
                         <h5 class="footer-title">Our Links</h5>
                         <ul>
-                            <li><a href="about-us.html">About us</a></li>
-                            <li><a href="contact-us.html">Contact us</a></li>
-                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="{{ route('about-us') }}">About us</a></li>
+                            <li><a href="{{ route('contact-us') }}">Contact us</a></li>
+                            <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
                             <li><a href="pricing.html">Pricing Table</a></li>
-                            <li><a href="faq.html">FAQ</a></li>
+                            <li><a href="{{ route('faq') }}">FAQ</a></li>
                         </ul>
                     </div>
                 </div>
@@ -63,14 +57,12 @@
                         <ul>
                             <li><a href="{{ route('home') }}">Bookland</a></li>
                             <li><a href="services.html">Services</a></li>
-                            <li><a href="books-detail.html">Book Details</a></li>
-                            <li><a href="blog-detail.html">Blog Details</a></li>
-                            <li><a href="books-grid-view.html">Shop</a></li>
+                            <li><a href="{{ route('book.index') }}">Shop</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 wow fadeInUp" data-wow-delay="0.4s">
-                    <div class="widget widget_services">
+                    {{-- <div class="widget widget_services">
                         <h5 class="footer-title">Resources</h5>
                         <ul>
                             <li><a href="services.html">Download</a></li>
@@ -79,7 +71,7 @@
                             <li><a href="shop-login.html">Login</a></li>
                             <li><a href="about-us.html">Partner</a></li>
                         </ul>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="widget widget_getintuch">
@@ -112,10 +104,7 @@
         <div class="container">
             <div class="row fb-inner">
                 <div class="col-lg-6 col-md-12 text-start">
-                    <p class="copyright-text">Bookland Book Store Ecommerce Website - © 2022 All Rights Reserved</p>
-                </div>
-                <div class="col-lg-6 col-md-12 text-end">
-                    <p>Made with <span class="heart"></span> by <a href="https://dexignzone.com/">DexignZone</a></p>
+                    <p class="copyright-text">Bookland | Book Store Ecommerce Website - © {{ date('Y') }} All Rights Reserved</p>
                 </div>
             </div>
         </div>

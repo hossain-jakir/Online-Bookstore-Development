@@ -62,8 +62,8 @@
 												<input class="cart-quantity-input" id="cart-quantity-input" type="number" value="{{ $cart['quantity'] }}" name="demo_vertical2" data-cart-id="{{ $cart['cart_id'] }}" min="1" step="1"/>
 											</div>
                                         </td>
-                                        <td class="product-item-total">${{ $cart['total_price'] }}</td>
-                                        <td class="product-item-close"><a href="javascript:void(0);" class="ti-close remove-cart-item" data-cart-id="{{ $cart['cart_id'] }}"></a></td>
+                                        <td class="product-item-total">£{{ number_format($cart['total_price'], 2) }}</td>
+                                        <td class="product-item-close"><a href="javascript:void(0);" class="ti-close remove-cart-item" data-cart-id="{{ $cart['cart_id'] }}" data-type="cartPage"></a></td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -79,31 +79,16 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="widget">
-                        <form class="shop-form">
+                        <div class="shop-form">
                             <h4 class="widget-title">Calculate Shipping</h4>
                             <div class="form-group">
-                                <select class="default-select">
-                                    <option selected>Shipping Method</option>
-                                    <option value="1">Standard Shipping</option>
-                                    <option value="2">Express Shipping</option>
-                                    <option value="3">Overnight Shipping</option>
+                                <select class="form-control" id="deliveryFeeSelect">
+                                    @foreach ($data['DeliveryFees'] as $deliveryFee)
+                                        <option value="{{ $deliveryFee->id }}" @if($deliveryFee->default) selected @endif data-fee="{{ $deliveryFee->price }}">{{ $deliveryFee->name }} - £{{ $deliveryFee->price }}</option>
+                                    @endforeach
                                 </select>
                             </div>
-                            <div class="row">
-                                <div class="form-group col-lg-6">
-                                    <input type="text" class="form-control" placeholder="Postal Code">
-                                </div>
-                                <div class="form-group col-lg-6">
-                                    <input type="text" class="form-control" placeholder="Country">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Coupon Code">
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-primary btnhover" type="button">Apply Coupon</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -113,23 +98,19 @@
                             <tbody>
                                 <tr>
                                     <td>Order Subtotal</td>
-                                    <td id="order-subtotal">${{ $data['cartList']['totalPrice'] }}</td>
+                                    <td id="orderSubtotal">£{{ number_format($data['cartList']['subTotalPrice'], 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td>Shipping</td>
-                                    <td>Free Shipping</td>
-                                </tr>
-                                <tr>
-                                    <td>Coupon</td>
-                                    <td>$0.00</td>
+                                    <td id="shippingFee">£{{ number_format($data['cartList']['deliveryFee'],2) }}</td>
                                 </tr>
                                 <tr>
                                     <td>Total</td>
-                                    <td id="order-total">${{ $data['cartList']['totalPrice'] }}</td>
+                                    <td id="orderTotal">£{{ number_format($data['cartList']['totalPrice'], 2) }}</td>
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="form-group mb-25">
+                        <div class="form-group mb-25 mt-3">
                             <a href="{{ url('shop-checkout') }}" class="btn btn-primary btnhover" type="button">Proceed to Checkout</a>
                         </div>
                     </div>
@@ -151,10 +132,10 @@
     $(document).ready(function() {
         // Handle quantity change
         $('.cart-quantity-input').on('change', function() {
-            console.log('change');
             let cartId = $(this).data('cart-id');
             let newQuantity = $(this).val();
-            updateCartQuantity(cartId, newQuantity);
+            let deliveryFee = $('#deliveryFeeSelect option:selected').data('fee');
+            updateCartQuantity(cartId, newQuantity, deliveryFee);
         });
 
         // demo_vertical2
@@ -171,25 +152,41 @@
             postfix: '',
         });
 
+        $('#deliveryFeeSelect').change(function() {
+            var selectedOption = $(this).find(':selected');
+            var shippingFee = parseFloat(selectedOption.data('fee')); // Parse as float
+
+            // Check if shippingFee is a number before proceeding
+            if (!isNaN(shippingFee)) {
+                $('#shippingFee').text('£' + shippingFee.toFixed(2)); // Format with toFixed
+                $('#orderTotal').text('£' + (parseFloat($('#orderSubtotal').text().replace('£', '')) + shippingFee).toFixed(2)); // Update total amount
+            } else {
+                $('#shippingFee').text('Unknown'); // Handle if shippingFee is not a number
+            }
+
+        });
+
         // Function to update cart quantity
-        function updateCartQuantity(cartId, quantity) {
+        function updateCartQuantity(cartId, quantity, deliveryFee) {
             $.ajax({
                 url: "{{ route('update-cart') }}", // Update this with your route to update cart quantity
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
                     cart_id: cartId,
-                    quantity: quantity
+                    quantity: quantity,
+                    delivery_fee: deliveryFee
                 },
                 success: function(response) {
                     if (response.success) {
                         // Update the total price for the item
                         let row = $('tr[data-cart-id="' + cartId + '"]');
-                        row.find('.product-item-total').text('$' + response.item_total_price);
+                        row.find('.product-item-total').text('£' + response.item_total_price);
 
                         // Update the cart summary
-                        $('#order-subtotal').text('$' + response.cart_subtotal);
-                        $('#order-total').text('$' + response.cart_total);
+                        $('#orderSubtotal').text('£' + response.cart_subtotal);
+                        $('#orderTotal').text('£' + response.cart_total);
+                        $('#shippingFee').text('£' + response.delivery_fee);
 
                         // Optionally, show a toast notification
                         showToast('success', 'Cart updated successfully!');

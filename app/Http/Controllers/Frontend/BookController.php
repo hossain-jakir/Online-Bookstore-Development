@@ -11,51 +11,31 @@ use App\Http\Controllers\Controller;
 
 class BookController extends MainController
 {
-    public function index(){
+    public function index(Request $request){
         // Fetch frontend items from the parent controller
         $data = parent::frontendItems();
 
-        // Fetch all books with their associated categories
-        $data['books'] = Book::with('category', 'author', 'reviews')
-                            ->where('isDeleted', 'no')
-                            ->where('status', 'published')
-                            ->latest('id')
-                            ->paginate(12);
-
-        // Generate image paths for each book
-        foreach ($data['books'] as $book) {
-            $book->image = ImageHelper::generateImage($book->image, 'grid');
-            if(auth()->user()) {
-                $book->isWishlisted = Wishlist::where('book_id', $book->id)
-                    ->where('user_id', auth()->user()->id)
-                    ->where('isDeleted', 'no')
-                    ->where('status', 'active')
-                    ->first() ? true : false;
-            }else {
-                $book->isWishlisted = null;
-            }
-        }
-
-        $data['filter'] =[
+        // Extract filters from the request URL
+        $filters = [
             'price_range' => [
-                'min' => $data['books']->min('sale_price') - 100 > 0 ? $data['books']->min('sale_price') - 100 : 0,
-                'max' => $data['books']->max('sale_price') + 100,
+                'min' => $request->get('price_min', 0),
+                'max' => $request->get('price_max', 999999),
             ],
-            'categories' => $data['books']->pluck('category')->flatten()->unique()->values(), // 'flatten()' is used to flatten the collection of categories
-            'authors' => $data['books']->pluck('author')->unique()->values(),
-            'ratings' => [
-                '1' => '1 Star',
-                '2' => '2 Stars',
-                '3' => '3 Stars',
-                '4' => '4 Stars',
-                '5' => '5 Stars',
-            ],
-            'publishers' => $data['books']->pluck('publisher')->unique()->values(),
-            'languages' => $data['books']->pluck('edition_language')->unique()->values(),
-            'years' => $data['books']->pluck('publication_date')->unique()->values(),
-            'most_comment' => $data['books']->sortByDesc('reviews_count')->take(5),
+            'categories' => $request->has('categories') ? explode(',', $request->get('categories')) : [],
+            'authors' => $request->has('authors') ? array_filter(explode(',', $request->get('authors'))) : [],
+            'publishers' => $request->has('publishers') ? array_map('urldecode', explode(',', $request->get('publishers'))) : [],
+            'years' => $request->has('years') ? explode(',', $request->get('years')) : [],
+            'featured' => $request->get('featured') ? array_map('urldecode', explode(',', $request->get('featured'))) : [],
+            'best_sellers' => $request->get('best_sellers') ? array_map('trim', explode(',', urldecode($request->get('best_sellers')))): [],
+            'day_filter' => $request->get('day_filter', null),
         ];
-        // dd($data);
+        $data['filters'] = $filters;
+        // dd($filters);
+
+        $data['data'] = $this->processBookList($request, $filters);
+        // dd($data['books']);
+
+        // dd($data['data']['books']);
 
         // Return the view with the data
         if (route('book.grid') == request()->url()) {
@@ -81,45 +61,42 @@ class BookController extends MainController
     }
 
     protected function processBookList($request, $filters){
-
         $data = [];
 
+        // Initialize the query with basic conditions
         $booksQuery = Book::with('category', 'author')
-                    ->where('isDeleted', 'no')
-                    ->where('status', 'published');
+            ->where('isDeleted', 'no')
+            ->where('status', 'published');
 
+        // Check if there are filters
         if ($filters) {
-
+            // Handle price range filter
             if (isset($filters['price_range'])) {
                 $filters['price_range']['max'] == 0 ? $filters['price_range']['max'] = 999999 : $filters['price_range']['max'];
                 $booksQuery->whereBetween('sale_price', [$filters['price_range']['min'], $filters['price_range']['max']]);
             }
 
-            if (isset($filters['categories'])) {
-                // Apply category filter using whereHas
+            // Handle categories filter
+            if (isset($filters['categories']) && !empty($filters['categories'])) {
                 $booksQuery->whereHas('category', function ($query) use ($filters) {
                     $query->whereIn('categories.id', $filters['categories']);
                 });
             }
 
-            if (isset($filters['publishers'])) {
-                // Apply category filter using whereHas
+            // Handle publishers filter
+            if (isset($filters['publishers']) && !empty($filters['publishers'])) {
                 $booksQuery->whereIn('publisher', $filters['publishers']);
             }
 
-            if (isset($filters['years'])) {
-                // Extract years from filters and convert them to date ranges
+            // Handle years filter
+            if (isset($filters['years']) && !empty($filters['years'])) {
                 $years = $filters['years'];
-
-                // Create date ranges for start and end of each year
                 $dateRanges = [];
                 foreach ($years as $year) {
                     $startDate = $year . '-01-01';
                     $endDate = $year . '-12-31';
                     $dateRanges[] = [$startDate, $endDate];
                 }
-
-                // Apply where clause for publication_date within any of the selected years
                 $booksQuery->where(function ($query) use ($dateRanges) {
                     foreach ($dateRanges as $range) {
                         $query->orWhereBetween('publication_date', $range);
@@ -127,26 +104,86 @@ class BookController extends MainController
                 });
             }
 
-            if (isset($filters['featured'])) {
-                // Apply category filter using whereHas
-                $booksQuery->whereIn('id', $filters['featured']);
+            // Handle featured filter
+            if (isset($filters['featured']) && !empty($filters['featured'])) {
+                // Ensure $filters['featured'] is an array
+                if (!is_array($filters['featured'])) {
+                    $filters['featured'] = explode(',', $filters['featured']);
+                }
+
+                // Make sure it is countable now
+                if (count($filters['featured']) > 0) {
+                    $booksQuery->whereIn('id', $filters['featured']);
+                }
             }
 
-            if (isset($filters['best_sellers'])) {
-                // Apply category filter using whereHas
-                $booksQuery->whereIn('id', $filters['best_sellers']);
+            // Handle best sellers filter
+            if (isset($filters['best_sellers']) && !empty($filters['best_sellers'])) {
+                // dd($filters['best_sellers']);
+                // Ensure $filters['best_sellers'] is an array
+                if (!is_array($filters['best_sellers'])) {
+                    $filters['best_sellers'] = explode(',', $filters['best_sellers']);
+                }
+
+                // dd($filters['best_sellers']);
+
+                // Make sure it is countable now
+                if (count($filters['best_sellers']) > 0) {
+                    $booksQuery->whereIn('id', $filters['best_sellers']);
+                }
+
+                // dd($booksQuery->get());
             }
 
+            // Handle authors filter
+            if (isset($filters['authors']) && !empty($filters['authors'])) {
+                // dd($filters['authors']);
+                if (!is_array($filters['authors'])) {
+                    $filters['authors'] = explode(',', $filters['authors']);
+                }
+                if (count($filters['authors']) > 0) {
+                    $booksQuery->whereIn('author_id', $filters['authors']);
+                }
+            }
+
+            // Handle day filter based on created_at
+            if (isset($filters['day_filter'])) {
+                $dayFilter = $filters['day_filter'];
+                $currentDate = date('Y-m-d H:i:s');
+
+                switch ($dayFilter) {
+                    case 'newest':
+                        // No additional filtering for 'newest'
+                        break;
+
+                    case '1_day':
+                        $booksQuery->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 day', strtotime($currentDate))));
+                        break;
+
+                    case '1_week':
+                        $booksQuery->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 week', strtotime($currentDate))));
+                        break;
+
+                    case '3_weeks':
+                        $booksQuery->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-3 weeks', strtotime($currentDate))));
+                        break;
+
+                    case '1_month':
+                        $booksQuery->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', strtotime($currentDate))));
+                        break;
+
+                    case '3_months':
+                        $booksQuery->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-3 months', strtotime($currentDate))));
+                        break;
+
+                    default:
+                        // Handle other cases or invalid input
+                        break;
+                }
+            }
         }
 
-        $data['books'] = $booksQuery->latest('id')->paginate($request->per_page);
-
-        // Fetch all books with their associated categories
-        // $data['books'] = Book::with('category')
-        //                     ->where('isDeleted', 'no')
-        //                     ->where('status', 'published')
-        //                     ->latest('id')
-        //                     ->paginate($request->per_page);
+        $data['books'] = $booksQuery->latest('id')->paginate($request->per_page ?? 12);
 
         // Generate image paths for each book
         foreach ($data['books'] as $book) {
@@ -158,17 +195,21 @@ class BookController extends MainController
                     ->where('isDeleted', 'no')
                     ->where('status', 'active')
                     ->exists()
-                : false; // Explicitly set to false when user is not authenticated
+                : false;
         }
 
-        $FilterBooks = Book::with('category', 'author')->where('isDeleted', 'no')->where('status', 'published')->latest('id')->get();
+        $FilterBooks = Book::with('category', 'author')
+            ->where('isDeleted', 'no')
+            ->where('status', 'published')
+            ->latest('id')->get();
 
-        $data['filter'] =[
+        // Prepare filter data for the frontend
+        $data['filter'] = [
             'price_range' => [
                 'min' => $FilterBooks->min('sale_price') - 100 > 0 ? $FilterBooks->min('sale_price') - 100 : 0,
                 'max' => $FilterBooks->max('sale_price') + 100,
             ],
-            'categories' => $FilterBooks->pluck('category')->flatten()->unique()->values(), // 'flatten()' is used to flatten the collection of categories
+            'categories' => $FilterBooks->pluck('category')->flatten()->unique()->values(),
             'authors' => $FilterBooks->pluck('author')->unique()->values(),
             'ratings' => [
                 '1' => '1 Star',
@@ -179,9 +220,9 @@ class BookController extends MainController
             ],
             'publishers' => $FilterBooks->pluck('publisher')->unique()->values(),
             'languages' => $FilterBooks->pluck('edition_language')->unique()->values(),
-            'years' => $FilterBooks->pluck('publication_date')->map(function($item) {
-                            return date('Y', strtotime($item));
-                        })->unique()->sortDesc()->values()->all(),
+            'years' => $FilterBooks->pluck('publication_date')->map(function ($item) {
+                return date('Y', strtotime($item));
+            })->unique()->sortDesc()->values()->all(),
             'best_sellers' => $FilterBooks->sortByDesc('reviews_count')->take(5),
             'featured' => $FilterBooks->where('featured', 1)->take(5),
         ];
@@ -269,34 +310,71 @@ class BookController extends MainController
         return view('Frontend.Book.bookDetails')->with('data', $data);
     }
 
-    public function showByCategory(Request $request, $slug){
-        $slug ='category/'.$slug;
+    public function showByCategory(Request $request, $slug) {
 
+        $data = parent::frontendItems();
+
+        $data['title'] = $slug;
+
+        // Correct the slug format if necessary
+        $slug = 'category/' . $slug;
+
+        // Find the category by slug
         $category = Category::where('slug', $slug)->first();
         if (!$category) {
             return redirect()->route('book.index');
         }
-        $Id = $category->id;
+
         $filters = [
-            'categories' => [$Id],
             'price_range' => [
-                'min' => 0,
-                'max' => 999999,
+                'min' => $request->get('price_min', 0),
+                'max' => $request->get('price_max', 999999),
             ],
-            'publishers' => [],
-            'years' => [],
-            'featured' => [],
-            'best_sellers' => []
+            'categories' => $request->has('categories') ? array_unique(array_merge(explode(',', $request->get('categories')), [$category->id])) : [$category->id],
+            'authors' => $request->has('authors') ? array_filter(explode(',', $request->get('authors'))) : [],
+            'publishers' => $request->has('publishers') ? array_map('urldecode', explode(',', $request->get('publishers'))) : [],
+            'years' => $request->has('years') ? explode(',', $request->get('years')) : [],
+            'featured' => $request->get('featured') ? array_map('urldecode', explode(',', $request->get('featured'))) : [],
+            'best_sellers' => $request->get('best_sellers') ? array_map('trim', explode(',', urldecode($request->get('best_sellers')))): [],
+            'day_filter' => $request->get('day_filter', null),
         ];
-        // dd($filters);
 
-        $data = $this->processBookList($request, $filters);
+        $data['filters'] = $filters;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Books fetched successfully',
-            'data' => $data,
-            'filter' => $filters
-        ]);
+        $data['data'] = $this->processBookList($request, $filters);
+
+
+        // Return the view with the data
+        return view('Frontend.Book.index-grid-sidebar')->with('data', $data);
     }
+
+    public function showByAuthor(Request $request, $authorId){
+
+        $data = parent::frontendItems();
+
+        $data['title'] = 'Author';
+
+        $filters = [
+            'price_range' => [
+                'min' => $request->get('price_min', 0),
+                'max' => $request->get('price_max', 999999),
+            ],
+            'categories' => $request->has('categories') ? explode(',', $request->get('categories')) : [],
+            'authors' => $request->has('authors') ? array_unique(array_merge(explode(',', $request->get('authors')), [$authorId])) : [$authorId],
+            'publishers' => $request->has('publishers') ? array_map('urldecode', explode(',', $request->get('publishers'))) : [],
+            'years' => $request->has('years') ? explode(',', $request->get('years')) : [],
+            'featured' => $request->get('featured') ? array_map('urldecode', explode(',', $request->get('featured'))) : [],
+            'best_sellers' => $request->get('best_sellers') ? array_map('trim', explode(',', urldecode($request->get('best_sellers')))): [],
+            'day_filter' => $request->get('day_filter', null),
+        ];
+
+        $data['filters'] = $filters;
+
+        $data['data'] = $this->processBookList($request, $filters);
+
+        // Return the view with the data
+        return view('Frontend.Book.index-grid-sidebar')->with('data', $data);
+
+    }
+
 }

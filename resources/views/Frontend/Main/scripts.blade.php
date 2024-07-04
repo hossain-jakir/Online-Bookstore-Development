@@ -65,6 +65,7 @@
                 // check user login or not
                 @if (!auth()->check())
                     showToast('error', 'Please login to add this book to your wishlist.');
+                    return;
                 @endif
 
                 const bookId = this.getAttribute('data-id');
@@ -196,6 +197,8 @@
                             console.error('Error updating cart count:', error);
                         }
 
+                        updatedCartSummary();
+
                         // Optionally, show a toast notification
                         showToast('success', 'Item removed from cart.');
                         getCartDetails();
@@ -207,6 +210,27 @@
                     showToast('error', 'An error occurred while removing the item.');
                 }
             });
+        }
+
+        function updatedCartSummary() {
+            console.log('Updating cart summary');
+            let deliveryFee = parseFloat($('#deliveryFeeSelect option:selected').data('fee'));
+            // Count all the prices from elements with class="product-item-total"
+            let total = 0;
+            $('.product-item-total').each(function() {
+                total += parseFloat($(this).text().replace('£', ''));
+            });
+
+            // Update the total price
+            $('#orderSubtotal').text('£' + total.toFixed(2));
+
+            // Ensure deliveryFee is a valid number before performing addition
+            if (!isNaN(deliveryFee)) {
+                let orderTotal = total + deliveryFee;
+                $('#orderTotal').text('£' + orderTotal.toFixed(2));
+            } else {
+                $('#orderTotal').text('£' + total.toFixed(2)); // Fallback if deliveryFee is NaN
+            }
         }
 
         // get new cart details

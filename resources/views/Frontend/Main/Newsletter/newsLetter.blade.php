@@ -9,13 +9,21 @@
                     </div>
                 </div>
                 <div class="col-xl-5 col-lg-6 wow fadeInUp" data-wow-delay="0.2s">
-                    <form class="dzSubscribe style-1" action="script/mailchamp.php" method="post">
-                        <div class="dzSubscribeMsg"></div>
+                    <form class="dzSubscribe style-1" action="{{ route('newsletter.subscribe') }}" method="POST">
+                        @csrf
+                        <div class="dzSubscribeMsg">
+                            @if (session('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+                            @if (session('error'))
+                                <div class="alert alert-danger">{{ session('error') }}</div>
+                            @endif
+                        </div>
                         <div class="form-group">
                             <div class="input-group mb-0">
-                                <input name="dzEmail" required="required" type="email" class="form-control bg-transparent text-white" placeholder="Your Email Address">
+                                <input name="email" required="required" type="email" class="form-control bg-transparent text-white" placeholder="Your Email Address">
                                 <div class="input-group-addon">
-                                    <button name="submit" value="Submit" type="submit" class="btn btn-primary btnhover">
+                                    <button name="submit" value="submit" type="submit" class="btn btn-primary btnhover">
                                         <span>SUBSCRIBE</span>
                                         <i class="fa-solid fa-paper-plane"></i>
                                     </button>

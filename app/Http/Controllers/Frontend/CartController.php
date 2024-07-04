@@ -6,12 +6,16 @@ use App\Models\Cart;
 use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\DeliveryFee;
 
 class CartController extends MainController
 {
     public function index(){
         $data =[];
         $data = array_merge($data, $this->frontendItems());
+
+        $data['DeliveryFees'] = DeliveryFee::where('status', 'active')->where('isDeleted', 'no')->get();
+
         // dd($data);
         return view('frontend.cart.index')->with('data', $data);
     }
@@ -106,13 +110,14 @@ class CartController extends MainController
             $price = $cart->book->discounted_price ? $cart->book->discounted_price : $cart->book->sale_price;
             $itemTotalPrice = number_format($cart->quantity * $price, 2);
             $cartSubtotal = $this->calculateCartSubtotal();
-            $cartTotal = $this->calculateCartTotal();
+            $cartTotal = $this->calculateCartTotal($request->delivery_fee);
 
             return response()->json([
                 'success' => true,
                 'message' => $cart->book->title . ' added to cart successfully',
                 'item_total_price' => $itemTotalPrice,
                 'cart_subtotal' => number_format($cartSubtotal, 2),
+                'delivery_fee' => number_format($request->delivery_fee, 2), // Assuming you have a delivery fee
                 'cart_total' => number_format($cartTotal, 2)
             ]);
         }
@@ -149,8 +154,9 @@ class CartController extends MainController
         return $totalPrice;
     }
 
-    private function calculateCartTotal(){
+    private function calculateCartTotal($deliveryFee = 0){
         $cartSubtotal = $this->calculateCartSubtotal();
-        return (float) $cartSubtotal;
+        $cartTotal = $cartSubtotal + $deliveryFee;
+        return (float) $cartTotal;
     }
 }

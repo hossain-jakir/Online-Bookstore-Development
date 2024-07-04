@@ -9,9 +9,12 @@ use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Backend\CategoryController;
 use App\Http\Controllers\Backend\Role\RoleController;
 use App\Http\Controllers\Backend\User\UserController;
+use App\Http\Controllers\Frontend\AuthorController as FrontendAuthorController;
 use App\Http\Controllers\Frontend\WishlistController;
-use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
 use App\Http\Controllers\Frontend\BookController as FrontendBookController;
+use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
+use App\Http\Controllers\Frontend\CategoryController as FrontendCategoryController;
+use App\Http\Controllers\Frontend\ProfileController as FrontendProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,8 +28,16 @@ use App\Http\Controllers\Frontend\BookController as FrontendBookController;
 */
 
 Route::get('/', [FrontendHomeController::class, 'index'])->name('home');
+Route::get('/about-us', [FrontendHomeController::class, 'aboutUs'])->name('about-us');
+Route::get('/privacy-policy', [FrontendHomeController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::post('/subscribe', [FrontendHomeController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/faq', [FrontendHomeController::class, 'faq'])->name('faq');
 Route::get('/clear-cache', [FrontendHomeController::class, 'clearCache']);
 
+Route::prefix('contact-us')->group(function () {
+    Route::get('/', [FrontendHomeController::class, 'contactUs'])->name('contact-us');
+    Route::post('/send', [FrontendHomeController::class, 'sendContactUs'])->name('contact-us.send');
+});
 
 Route::prefix('wishlist')->middleware(['auth'])->group(function () {
     Route::get('/', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -52,7 +63,26 @@ Route::prefix('book')->group(function () {
 });
 
 Route::prefix('category')->group(function () {
+    Route::get('/', [FrontendCategoryController::class, 'showAllCategories'])->name('category.index');
+    Route::get('/all', [FrontendCategoryController::class, 'showAllCategories'])->name('category.all');
     Route::get('/{slug}', [FrontendBookController::class, 'showByCategory'])->name('category');
+});
+
+Route::prefix('author')->group(function () {
+    Route::get('/', [FrontendAuthorController::class, 'index'])->name('author.index');
+    Route::get('/all', [FrontendAuthorController::class, 'index'])->name('author.all');
+    Route::get('/{id}', [FrontendBookController::class, 'showByAuthor'])->name('author.show');
+});
+
+Route::prefix('profile')->middleware(['auth'])->group(function () {
+    Route::get('/', [FrontendProfileController::class, 'index'])->name('profile.index');
+    Route::post('/', [FrontendProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/', [FrontendProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/change-password', [FrontendProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::get('address', [FrontendProfileController::class, 'address'])->name('profile.address');
+    Route::post('/address', [FrontendProfileController::class, 'storeAddress'])->name('profile.address.store');
+    Route::post('/profile/address/default', [FrontendProfileController::class, 'updateDefaultAddress'])->name('profile.address.default');
+    Route::post('/address/delete/{id}', [FrontendProfileController::class, 'deleteAddress'])->name('profile.address.delete');
 });
 
 // Route::middleware('auth')->group(function () {

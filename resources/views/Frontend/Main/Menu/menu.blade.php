@@ -17,7 +17,7 @@
             <!-- EXTRA NAV -->
             <div class="extra-nav">
                 <div class="extra-cell">
-                    <a href="contact-us.html" class="btn btn-primary btnhover">Get In Touch</a>
+                    <a href="{{ route('contact-us') }}" class="btn btn-primary btnhover">Get In Touch</a>
                 </div>
             </div>
 
@@ -39,43 +39,40 @@
                         </a>
                     </li>
                     <li><a href="{{ route('book.index') }}"><span>Books</span></a></li>
-                    <li><a href="about-us.html"><span>About Us</span></a></li>
-                    <li class="sub-menu-down"><a href="javascript:void(0);"><span>Pages</span></a>
+                    <li class="sub-menu-down"><a href="javascript:void(0);"><span>Categories</span></a>
                         <ul class="sub-menu">
-                            <li><a href="my-profile.html">My Profile</a></li>
-                            <li><a href="services.html">Services</a></li>
-                            <li><a href="faq.html">FAQ's</a></li>
-                            <li><a href="help-desk.html">Help Desk</a></li>
-                            <li><a href="coming-soon.html">Coming Soon</a></li>
-                            <li><a href="pricing.html">Pricing</a></li>
-                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
-                            <li><a href="under-construction.html">Under Construction</a></li>
-                            <li><a href="error-404.html">Error 404</a></li>
+                            @foreach($data['categories'] as $category)
+                                @if ($loop->index < 5)
+                                    <li><a href="{{ URL::TO($category->slug) }}">{{ $category->name }}</a></li>
+                                @endif
+                                @if ($loop->index == 5)
+                                    <li><a href="{{ route('category.all') }}">Show More...</a></li>
+
+                                @endif
+                            @endforeach
                         </ul>
                     </li>
-                    <li class="sub-menu-down"><a href="javascript:void(0);"><span>Shop</span></a>
+                    <li class="sub-menu-down"><a href="javascript:void(0);"><span>Authors</span></a>
                         <ul class="sub-menu">
-                            <li><a href="books-grid-view.html">Shop Grid</a></li>
-                            <li><a href="books-grid-view-sidebar.html">Shop Grid Sidebar</a></li>
-                            <li><a href="books-list.html">Shop List</a></li>
-                            <li><a href="books-list-view-sidebar.html">Shop List Sidebar</a></li>
-                            <li><a href="books-detail.html">Shop Detail</a></li>
-                            <li><a href="shop-cart.html">Cart</a></li>
-                            <li><a href="shop-checkout.html">Checkout</a></li>
-                            <li><a href="wishlist.html">Wishlist</a></li>
-                            <li><a href="shop-login.html">Login</a></li>
-                            <li><a href="shop-registration.html">Registration</a></li>
+                            @foreach($data['authors'] as $menuAuthor)
+                                @if ($loop->index < 5)
+                                    <li><a href="{{ route('author.show', $menuAuthor->id) }}">{{ $menuAuthor->first_name }} {{ $menuAuthor->last_name }}</a></li>
+                                @endif
+                                @if ($loop->index == 5)
+                                    <li><a href="{{ route('author.all') }}">Show More...</a></li>
+
+                                @endif
+                            @endforeach
                         </ul>
                     </li>
-                    <li class="sub-menu-down"><a href="javascript:void(0);"><span>Blog</span></a>
+                    <li><a href="{{ route('about-us') }}"><span>About Us</span></a></li>
+                    <li class="sub-menu-down"><a href="javascript:void(0);"><span>Others</span></a>
                         <ul class="sub-menu">
-                            <li><a href="blog-grid.html">Blog Grid</a></li>
-                            <li><a href="blog-large-sidebar.html">Blog Large Sidebar</a></li>
-                            <li><a href="blog-list-sidebar.html">Blog List Sidebar</a></li>
-                            <li><a href="blog-detail.html">Blog Details</a></li>
+                            <li><a href="{{ route('faq')}}">FAQ's</a></li>
+                            <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
+                            <li><a href="{{ route('contact-us') }}">Contact Us</a></li>
                         </ul>
                     </li>
-                    <li><a href="contact-us.html"><span>Contact Us</span></a></li>
                 </ul>
                 <div class="dz-social-icon">
                     <ul>

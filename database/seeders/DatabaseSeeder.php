@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             TagSeeder::class,
             BookTagSeeder::class,
             RolePermissionSeeder::class,
+            DeliveryFeesSeeder::class,
         ]);
     }
 }

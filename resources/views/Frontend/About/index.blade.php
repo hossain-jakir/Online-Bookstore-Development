@@ -12,7 +12,7 @@
                 <h1>About us</h1>
                 <nav aria-label="breadcrumb" class="breadcrumb-row">
                     <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html"> Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home')}}"> Home</a></li>
                         <li class="breadcrumb-item">About us</li>
                     </ul>
                 </nav>
@@ -42,16 +42,20 @@
                             <div class="exp-bx aos-item"  data-aos="fade-up" data-aos-duration="800" data-aos-delay="500">
                                 <div class="exp-head">
                                     <div class="counter-num">
-                                        <h2><span class="counter">50</span><small>+</small></h2>
+                                        <h2><span class="counter">1</span><small>+</small></h2>
                                     </div>
                                     <h6 class="title">Years of Experience</h6>
                                 </div>
                                 <div class="exp-info">
                                     <ul class="list-check primary">
-                                        <li>Comics & Graphics</li>
-                                        <li>Biography</li>
-                                        <li>Literary Collections</li>
-                                        <li>Children Fiction</li>
+                                        @foreach ($data['categories'] as $category)
+                                            @if ($loop->index < 5)
+                                                <li>{{ $category->name }}</li>
+                                            @endif
+                                            @if ($loop->last && $loop->count > 5)
+                                                and more {{ $loop->count - 5 }} categories
+                                            @endif
+                                        @endforeach
                                     </ul>
                                 </div>
                             </div>
@@ -62,7 +66,9 @@
                     <div class="about-content px-lg-4">
                         <div class="section-head style-1">
                             <h2 class="title">Bookland Is Best Choice For Learners</h2>
-                            <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration which don’t look even slightly believable. It Is A Long Established Fact That A Reader Will Be Distracted</p>
+                            <p>
+                                We are a team of book lovers who want to share our passion with the world. We believe that books are the best way to learn and grow. That's why we created Bookland, a place where you can find all the books you need to succeed.
+                            </p>
                         </div>
                         <a href="contact-us.html" class="btn btn-primary btnhover shadow-primary">Contact Us</a>
                     </div>
@@ -77,7 +83,9 @@
         <div class="container">
             <div class="section-head text-center">
                 <h2 class="title">Our Mission</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris</p>
+                <p>
+                    Our mission is to provide the best books at the best prices. We want to make learning accessible to everyone, no matter where they are or what their budget is. That's why we offer a wide selection of books at affordable prices. We also want to make it easy for people to find the books they need, which is why we have a user-friendly website that makes it easy to search for books by category, author, or title. We believe that everyone should have the opportunity to learn and grow, and we're here to help make that happen.
+                </p>
             </div>
             <div class="row">
                 <div class="col-lg-4 col-md-6">
@@ -87,8 +95,9 @@
                         </div>
                         <div class="icon-content">
                             <h4 class="title">Best Bookstore</h4>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-                            <a href="about-us.html">Learn More <i class="fa-solid fa-angles-right"></i></a>
+                            <p style="text-align: justify; text-justify: inter-word;">
+                                Welcome to our esteemed and diverse bookstore! Discover an extensive range of books catering to all ages and interests. Whether you seek classic novels, children's stories, or insightful self-help guides, we have precisely what you're looking for.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -99,8 +108,9 @@
                         </div>
                         <div class="icon-content">
                             <h4 class="title">Trusted Seller</h4>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-                            <a href="about-us.html">Learn More <i class="fa-solid fa-angles-right"></i></a>
+                            <p style="text-align: justify; text-justify: inter-word;">
+                                As a trusted book retailer with years of experience, we pride ourselves on offering top-quality books at affordable prices. Our commitment to customer satisfaction is unwavering; we strive to meet all your literary needs reliably and affordably.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -111,17 +121,15 @@
                         </div>
                         <div class="icon-content">
                             <h4 class="title">Expand Store</h4>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-                            <a href="about-us.html">Learn More <i class="fa-solid fa-angles-right"></i></a>
+                            <p style="text-align: justify; text-justify: inter-word;">
+                                Looking to expand our store continually, we delight in enhancing our collection with fresh titles across various genres. Our dedication to diversity ensures we introduce new authors and genres regularly, enriching your browsing experience with every visit.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Testimonial -->
-    <!-- Testimonial End -->
 
     <!-- Feature Box -->
     @include('Frontend/Main/HappyCustomer/happyCustomer')

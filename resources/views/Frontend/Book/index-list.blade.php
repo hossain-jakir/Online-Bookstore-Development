@@ -1,6 +1,6 @@
 @extends('Frontend/Main/index')
 
-@section('title', 'Books')
+@section('title', isset($data['title']) ? $data['title'] : 'Books')
 
 @section('content')
 
@@ -8,7 +8,13 @@
     <section class="content-inner border-bottom">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="title">Books</h4>
+                <h4 class="title">
+                    @if(Route::currentRouteName() == 'category')
+                        Books by {{ $data['title'] }}
+                    @else
+                        Books
+                    @endif
+                </h4>
             </div>
             <div class="filter-area m-b30">
                 <div class="grid-area">
@@ -49,19 +55,19 @@
                 <div class="category">
                     <div class="form-group">
                         <i class="fas fa-sort-amount-down me-2 text-secondary"></i>
-                        <select class="default-select">
-                            <option>Newest</option>
-                            <option>1 Day</option>
-                            <option>1 Week</option>
-                            <option>3 Weeks</option>
-                            <option>1 Month</option>
-                            <option>3 Months</option>
+                        <select class="default-select" id="day-filter">
+                            <option value="newest">Newest</option>
+                            <option value="1_day" {{ request()->day_filter == '1_day' ? 'selected' : '' }}>1 Day</option>
+                            <option value="1_week" {{ request()->day_filter == '1_week' ? 'selected' : '' }}>1 Week</option>
+                            <option value="3_weeks" {{ request()->day_filter == '3_weeks' ? 'selected' : '' }}>3 Weeks</option>
+                            <option value="1_month" {{ request()->day_filter == '1_month' ? 'selected' : '' }}>1 Month</option>
+                            <option value="3_months" {{ request()->day_filter == '3_months' ? 'selected' : '' }}>3 Months</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="row row-book">
-                @forelse ($data['books'] as $book)
+                @forelse ($data['data']['books'] as $book)
                     <div class="col-md-12 col-sm-12">
                         <div class="dz-shop-card style-2">
                             <div class="dz-media">
@@ -160,7 +166,7 @@
 
             </div>
             <div class="row page mt-0">
-                {!! $data['books']->withQueryString()->links('pagination::default') !!}
+                {!! $data['data']['books']->withQueryString()->links('pagination::default') !!}
             </div>
         </div>
     </section>
@@ -180,46 +186,80 @@
 
 <script>
     $(document).ready(function() {
+        var currentPage = 1; // Initialize current page
+        let per_Page; // Number of items per page
+        var filters ={
+            categories: [],
+            price_range: {
+                min: 0,
+                max: 0,
+            },
+            publishers: [],
+            years: [],
+            featured: [],
+            best_sellers: [],
+            day_filter: 'newest'
+        };
 
+        // Initialize data if provided in page load
+        var initialData = {!! json_encode($data) !!};
+        if (initialData && initialData.data) {
+            console.log('Initial data:', initialData);
+            console.log('Initial books:', initialData.data.books);
+            // renderBook(initialData.data.books.data);
+            // updatePagination(initialData.data.books);
+        } else {
+            console.error('No initial data found!');
+            fetchData(currentPage, filters);
+        }
 
-        // Event listener for 'Add to Cart' button
-        $(document).on('click', '.add-to-cart', function(e) {
-            e.preventDefault();
-            @if (!auth()->check())
-                button.addEventListener('click', function() {
-                    showToast('error', 'Please login to add this book to your cart.');
-                });
-                return;
-            @endif
-
-            const bookId = $(this).data('id');
-            const quantity = 1;
-
-            $.ajax({
-                url: '/cart/store',
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                },
-                data: JSON.stringify({
-                    book_id: bookId,
-                    quantity: quantity
-                }),
-                success: function(data) {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        getCartDetails(); // Update cart details in UI
-                    } else {
-                        showToast('error', data.message);
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error('AJAX Error:', textStatus, errorThrown);
-                    showToast('error', 'An error occurred while adding to cart.');
+        // Function to update URL without refreshing the page
+        function updateURL(filters) {
+            var queryParams = new URLSearchParams();
+            if (filters) {
+                if (filters.day_filter) {
+                    queryParams.set('day_filter', encodeURIComponent(filters.day_filter));
                 }
-            });
+
+                var newUrl = window.location.pathname + '?' + queryParams.toString();
+                history.pushState(null, '', newUrl);
+
+                console.log('Updated URL:', newUrl);
+
+                //refresh the page
+                window.location.reload();
+
+            }
+        }
+
+        // Event listener for day filter changes
+        document.getElementById('day-filter').addEventListener('change', function() {
+            // Update the day_filter in the filters object
+            filters.day_filter = this.value;
+
+            // Call a function to apply filters or perform additional actions
+            applyFilters();
         });
+
+        // Function to apply filters
+        function applyFilters() {
+            //day filter
+            var dayFilter = $('#day-filter').val();
+
+
+            // Prepare filter object to send to backend or manipulate data locally
+            var filters = {
+                day_filter: dayFilter
+            };
+
+            console.log('Applying filters:', filters);
+
+            // Call a function to fetch data based on the applied filters
+            // fetchData(currentPage, filters);
+
+            //Update the URL
+            updateURL(filters);
+        }
 
         // get new cart details
         function getCartDetails() {
