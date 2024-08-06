@@ -61,13 +61,6 @@
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.add-to-wishlist').forEach(button => {
             button.addEventListener('click', function () {
-
-                // check user login or not
-                @if (!auth()->check())
-                    showToast('error', 'Please login to add this book to your wishlist.');
-                    return;
-                @endif
-
                 const bookId = this.getAttribute('data-id');
 
                 fetch('{{ route('wishlist.store') }}', {
@@ -126,12 +119,6 @@
 
         // Handle Add to Cart
         document.querySelectorAll('.add-to-cart').forEach(button => {
-            @if (!auth()->check())
-                button.addEventListener('click', function() {
-                    showToast('error', 'Please login to add this book to your cart.');
-                });
-                return;
-            @endif
             $(button).on('click', function() {
                 const bookId = $(this).data('id');
                 const quantity = 1; // Default quantity, adjust as needed

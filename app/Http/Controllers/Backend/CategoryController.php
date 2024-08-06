@@ -26,7 +26,7 @@ class CategoryController extends Controller
             $row->hashId = Crypt::encrypt($row->id);
         }
 
-        return view('backend.pages.category.index')->with('data', $data);
+        return view('Backend.pages.category.index')->with('data', $data);
 
     }
 
@@ -37,7 +37,7 @@ class CategoryController extends Controller
      */
     public function create(Request $request){
 
-        return view('backend.pages.category.create');
+        return view('Backend.pages.category.create');
     }
 
     /**
@@ -106,7 +106,7 @@ class CategoryController extends Controller
 
             $data['row']->hashId = Crypt::encrypt($data['row']->id);
 
-            return view('backend.pages.category.edit')->with('data', $data);
+            return view('Backend.pages.category.edit')->with('data', $data);
 
         }catch(\Exception $e){
             Session::flash('error', $e->getMessage());

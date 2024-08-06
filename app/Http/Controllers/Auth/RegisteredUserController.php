@@ -18,14 +18,15 @@ class RegisteredUserController extends MainController
 {
     protected $data = [];
     function __construct(){
-        $data = [];
-        $this->data = array_merge($data, $this->frontendItems());
+
     }
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        $data = [];
+        $this->data = array_merge($data, $this->frontendItems($request));
         return view('Frontend.Register.index')->with('data', $this->data);
     }
 

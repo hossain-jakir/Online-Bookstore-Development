@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('address_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('shipping_address_id')->constrained('addresses')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('coupon_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('set null');
+            $table->foreignId('delivery_method_id')->nullable()->constrained('delivery_fees')->onUpdate('cascade')->onDelete('set null');
 
             $table->string('order_number')->unique();
             $table->decimal('total_amount', 10, 2);

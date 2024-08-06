@@ -1,4 +1,4 @@
-@extends('backend/layouts/master')
+@extends('Backend/layouts/master')
 
 @section('title', 'Course Edit')
 
@@ -31,11 +31,11 @@
         <!-- /.content-header -->
 
         @if ($errors->any() || session('error'))
-            @include('backend._partials.errorMsg')
+            @include('Backend._partials.errorMsg')
         @endif
 
         @if (session('success'))
-            @include('backend._partials.successMsg')
+            @include('Backend._partials.successMsg')
         @endif
 
         <!-- Main content -->

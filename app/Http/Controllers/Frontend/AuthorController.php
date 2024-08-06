@@ -11,9 +11,9 @@ use App\Http\Controllers\Frontend\MainController;
 
 class AuthorController extends MainController
 {
-    public function index(){
+    public function index(Request $request){
 
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
 
         $data['AllAuthors'] = User::select('users.id', 'users.first_name', 'users.last_name', 'users.email', 'users.phone','users.image', 'users.status', 'users.isDeleted', 'users.created_at', 'users.updated_at', DB::raw('COUNT(books.author_id) as book_count'))
             ->join('books', 'users.id', '=', 'books.author_id')
@@ -27,7 +27,7 @@ class AuthorController extends MainController
             $author->image = ImageHelper::generateImage($author->image);
         }
 
-        return view('frontend.authors.index', compact('data'));
+        return view('Frontend.authors.index', compact('data'));
 
     }
 

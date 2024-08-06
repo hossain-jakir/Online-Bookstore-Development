@@ -14,6 +14,7 @@ use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Frontend\BookController as FrontendBookController;
 use App\Http\Controllers\Frontend\HomeController as FrontendHomeController;
 use App\Http\Controllers\Frontend\CategoryController as FrontendCategoryController;
+use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\ProfileController as FrontendProfileController;
 
 /*
@@ -39,19 +40,23 @@ Route::prefix('contact-us')->group(function () {
     Route::post('/send', [FrontendHomeController::class, 'sendContactUs'])->name('contact-us.send');
 });
 
-Route::prefix('wishlist')->middleware(['auth'])->group(function () {
+Route::prefix('wishlist')->group(function () {
     Route::get('/', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/store', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::post('/delete/{id}', [WishlistController::class, 'delete'])->name('wishlist.delete');
     Route::post('/deleteAll', [WishlistController::class, 'deleteAll'])->name('wishlist.delete.all');
 });
 
-Route::prefix('cart')->middleware(['auth'])->group(function () {
+Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
     Route::get('/get-cart-items', [CartController::class, 'getCartItems'])->name('cart.get-cart-items');
     Route::post('/store', [CartController::class, 'store'])->name('cart.store');
     Route::post('/update-cart', [CartController::class, 'updateQuantity'])->name('update-cart');
     Route::post('/remove-cart-item', [CartController::class, 'removeItem'])->name('remove-cart-item');
+});
+
+Route::prefix('checkout')->group(function () {
+    Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');
 });
 
 Route::prefix('book')->group(function () {

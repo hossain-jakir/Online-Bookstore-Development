@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends MainController
 {
-    public function index(){
-        $data = parent::frontendItems();
+    public function index(Request $request){
+        $data = parent::frontendItems($request);
 
         $user = User::find(auth()->user()->id);
         if(!$user){
@@ -25,24 +25,24 @@ class ProfileController extends MainController
         $data['user'] = $user;
         $data['user']['image'] = ImageHelper::generateImage($user->image, 'grid');
 
-        return view('frontend.profile.index')->with('data', $data);
+        return view('Frontend.Profile.index')->with('data', $data);
     }
 
     public function update(Request $request){
-        $validator = Validator::make($request->all(),
-            [
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'dob' => 'required|date|before:today',
-                'email' => 'required|string|email|max:255|unique:users,email,'.auth()->user()->id,
-                'phone' => 'required|string|max:255',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]
-        );
+            $validator = Validator::make($request->all(),
+                [
+                    'first_name' => 'required|string|max:255',
+                    'last_name' => 'required|string|max:255',
+                    'dob' => 'required|date|before:today',
+                    'email' => 'required|string|email|max:255|unique:users,email,'.auth()->user()->id,
+                    'phone' => 'required|string|max:255',
+                    'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                ]
+            );
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
 
         // dd($request->all());
         $user = User::find(auth()->user()->id);
@@ -141,8 +141,8 @@ class ProfileController extends MainController
         }
     }
 
-    public function address(){
-        $data = parent::frontendItems();
+    public function address(Request $request){
+        $data = parent::frontendItems($request);
 
         $user = User::find(auth()->user()->id);
         if(!$user){
@@ -154,7 +154,7 @@ class ProfileController extends MainController
 
         // dd($data['user']['address']);
 
-        return view('frontend.profile.address')->with('data', $data);
+        return view('Frontend.Profile.address')->with('data', $data);
     }
 
     public function storeAddress(Request $request){

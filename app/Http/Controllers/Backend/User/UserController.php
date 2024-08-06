@@ -44,7 +44,7 @@ class UserController extends Controller
             ];
         }
 
-        return view('backend.pages.user.index')->with('data', $data);
+        return view('Backend.pages.user.index')->with('data', $data);
     }
 
     function delete( Request $request, $id ){

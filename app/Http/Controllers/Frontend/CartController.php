@@ -7,17 +7,18 @@ use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryFee;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends MainController
 {
-    public function index(){
+    public function index(Request $request){
         $data =[];
-        $data = array_merge($data, $this->frontendItems());
+        $data = array_merge($data, $this->frontendItems($request));
 
         $data['DeliveryFees'] = DeliveryFee::where('status', 'active')->where('isDeleted', 'no')->get();
 
         // dd($data);
-        return view('frontend.cart.index')->with('data', $data);
+        return view('Frontend.cart.index')->with('data', $data);
     }
 
     public function getCartItems(){
@@ -61,8 +62,29 @@ class CartController extends MainController
     }
 
     public function store(Request $request){
+
+        $session_id = $request->session()->get('session_id');
+        if(!$session_id){
+            $session_id = session()->getId();
+            $request->session()->put('session_id', $session_id);
+        }
+
         $bookId = base64_decode($request->book_id);
-        $cart = Cart::where('book_id', $bookId)->where('user_id', auth()->id())->where('isDeleted', 'no')->where('status', 'active')->first();
+        if(!$bookId){
+            return response()->json(['success' => false, 'message' => 'Invalid book']);
+        }
+
+        $cart = Cart::where('book_id', $bookId)
+        ->where(function($query) use ($session_id){
+            if(auth()->check()){
+                $query->where('user_id', auth()->id());
+            }else{
+                $query->where('session_id', $session_id);
+            }
+        })
+        ->where('user_id', auth()->id())
+        ->where('isDeleted', 'no')->where('status', 'active')->first();
+
         if ($cart) {
             $cart->quantity += $request->quantity;
             $saved = $cart->save();
@@ -72,7 +94,11 @@ class CartController extends MainController
         } else {
             $cart = new Cart();
             $cart->book_id = $bookId;
-            $cart->user_id = auth()->id();
+            if (auth()->check()) {
+                $cart->user_id = auth()->id();
+            } else {
+                $cart->session_id = $session_id;
+            }
             $cart->quantity = $request->quantity;
             $saved = $cart->save();
 
@@ -98,7 +124,14 @@ class CartController extends MainController
 
     public function updateQuantity(Request $request){
         $cart = Cart::find($request->cart_id);
-        if ($cart && $cart->user_id == auth()->id()) {
+        if ($cart) {
+
+            if(Auth::check() && $cart->user_id != auth()->id()){
+                return response()->json(['success' => false, 'message' => 'Unauthorized']);
+            }elseif(!$cart->session_id && $cart->session_id != $request->session()->get('session_id')){
+                return response()->json(['success' => false, 'message' => 'Unauthorized']);
+            }
+
             $cart->quantity = $request->quantity;
             $saved = $cart->save();
 
@@ -127,7 +160,14 @@ class CartController extends MainController
 
     public function removeItem(Request $request){
         $cart = Cart::find($request->cart_id);
-        if ($cart && $cart->user_id == auth()->id()) {
+        if ($cart) {
+
+            if(Auth::check() && $cart->user_id != auth()->id()){
+                return response()->json(['success' => false, 'message' => 'Unauthorized']);
+            }elseif(!$cart->session_id && $cart->session_id != $request->session()->get('session_id')){
+                return response()->json(['success' => false, 'message' => 'Unauthorized']);
+            }
+
             $cart->delete();
 
             // Assuming you have methods to calculate these values

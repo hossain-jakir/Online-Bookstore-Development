@@ -111,7 +111,7 @@
                             </tbody>
                         </table>
                         <div class="form-group mb-25 mt-3">
-                            <a href="{{ url('shop-checkout') }}" class="btn btn-primary btnhover" type="button">Proceed to Checkout</a>
+                            <a href="{{ route('checkout.index') }}" class="btn btn-primary btnhover" type="button">Proceed to Checkout</a>
                         </div>
                     </div>
                 </div>

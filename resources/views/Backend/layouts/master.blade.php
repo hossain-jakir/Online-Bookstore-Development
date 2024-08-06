@@ -1,4 +1,4 @@
-@extends('backend/layouts/app')
+@extends('Backend/layouts/app')
 
 @section('layoutContent')
 
@@ -9,13 +9,13 @@
                 height="80px" width="auto">
         </div>
 
-        @include('backend/layouts/sections/navbar/navbar')
+        @include('Backend/layouts/sections/navbar/navbar')
 
-        @include('backend/layouts/sections/sidebar/sidebar')
+        @include('Backend/layouts/sections/sidebar/sidebar')
 
         @yield('content')
 
-        @include('backend/layouts/sections/footer/footer')
+        @include('Backend/layouts/sections/footer/footer')
 
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">

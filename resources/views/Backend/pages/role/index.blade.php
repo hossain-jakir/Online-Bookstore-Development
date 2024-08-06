@@ -1,4 +1,4 @@
-@extends('backend/layouts/master')
+@extends('Backend/layouts/master')
 
 @section('title', 'Role List')
 
@@ -74,11 +74,11 @@
         <!-- /.content-header -->
 
         @if ($errors->any() || session('error'))
-            @include('backend._partials.errorMsg')
+            @include('Backend._partials.errorMsg')
         @endif
 
         @if (session('success'))
-            @include('backend._partials.successMsg')
+            @include('Backend._partials.successMsg')
         @endif
 
         <section class="content">
@@ -168,6 +168,6 @@
     </div>
 
     <!-- Add Role Modal -->
-    @include('backend/_partials/modal-add-role')
+    @include('Backend/_partials/modal-add-role')
     <!-- / Add Role Modal -->
 @endsection

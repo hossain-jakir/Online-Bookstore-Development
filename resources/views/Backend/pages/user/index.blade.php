@@ -1,4 +1,4 @@
-@extends('backend/layouts/master')
+@extends('Backend/layouts/master')
 
 @section('title', 'User List')
 
@@ -113,11 +113,11 @@
         <!-- /.content-header -->
 
         @if ($errors->any() || session('error'))
-            @include('backend._partials.errorMsg')
+            @include('Backend._partials.errorMsg')
         @endif
 
         @if (session('success'))
-            @include('backend._partials.successMsg')
+            @include('Backend._partials.successMsg')
         @endif
 
         <!-- Main content -->
@@ -209,6 +209,6 @@
         <!-- /.content -->
     </div>
 
-    @include('backend.pages.user.role_update')
+    @include('Backend.pages.user.role_update')
 
 @endsection

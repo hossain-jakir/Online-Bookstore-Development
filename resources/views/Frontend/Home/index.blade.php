@@ -5,7 +5,7 @@
 @section('content')
 
     <!--Swiper Banner Start -->
-    @include('Frontend/Main/Slider/slider')
+    @include('Frontend/Main/Slider/Slider')
     <!--Swiper Banner End -->
 
     <!--Recommend Section Start-->
