@@ -73,31 +73,6 @@
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item {{ Route::is('backend.tag.*')  ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ Route::is('backend.tag.*')  ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-list"></i>
-                        <p>
-                            Tag
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ route('backend.tag.index') }}"
-                                class="nav-link @if (Route::currentRouteName() == 'backend.tag.index') active @endif">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>List</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('backend.tag.create') }}"
-                                class="nav-link @if (Route::currentRouteName() == 'backend.tag.create') active @endif">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Create</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
                 <li class="nav-item {{ Route::is('backend.book.*')  ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Route::is('backend.book.*')  ? 'active' : '' }}">
                         <i class="nav-icon fas fa-list"></i>
@@ -137,7 +112,7 @@
                         class="nav-link @if (Route::currentRouteName() == 'backend.role.index') active @endif">
                         <i class="nav-icon fas fa-shield-alt"></i>
                         <p>
-                            Role & Permission
+                            Role Permission
                         </p>
                     </a>
                 </li>

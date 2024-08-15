@@ -61,13 +61,6 @@
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.add-to-wishlist').forEach(button => {
             button.addEventListener('click', function () {
-
-                // check user login or not
-                @if (!auth()->check())
-                    showToast('error', 'Please login to add this book to your wishlist.');
-                    return;
-                @endif
-
                 const bookId = this.getAttribute('data-id');
 
                 fetch('{{ route('wishlist.store') }}', {
@@ -126,12 +119,6 @@
 
         // Handle Add to Cart
         document.querySelectorAll('.add-to-cart').forEach(button => {
-            @if (!auth()->check())
-                button.addEventListener('click', function() {
-                    showToast('error', 'Please login to add this book to your cart.');
-                });
-                return;
-            @endif
             $(button).on('click', function() {
                 const bookId = $(this).data('id');
                 const quantity = 1; // Default quantity, adjust as needed
@@ -174,6 +161,7 @@
         });
 
         function removeCartItem(cartId) {
+            console.log('Removing cart item:', cartId);
             $.ajax({
                 url: "{{ route('remove-cart-item') }}", // Update this with your route to remove cart item
                 type: "POST",
@@ -233,88 +221,88 @@
             }
         }
 
-        // get new cart details
+        // Function to get and update cart details
         function getCartDetails() {
             fetch('{{ route('cart.get-cart-items') }}')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.querySelector('.cart-item-total').textContent = data.data.count;
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.querySelector('.cart-item-total').textContent = data.data.count;
 
-                    // Check if .cart-item-total-price exists before updating its textContent
-                    let totalPriceElement = document.querySelector('.cart-item-total-price');
-                    if (totalPriceElement) {
-                        totalPriceElement.textContent = 'Total = £' + data.data.totalPrice;
-                    } else {
-                        console.error('.cart-item-total-price element not found in the DOM');
-                    }
-
-                    // Prepare the cart items dropdown
-                    let cartDropdown = document.querySelector('.cart-list');
-                    cartDropdown.innerHTML = ''; // Clear existing items
-
-                    if (data.data.items.length === 0) {
-                        // Display no items message if cart is empty
-                        cartDropdown.innerHTML = '<li class="cart-item text-center"><h6 class="text-secondary" style="font-weight: 400;">No items in cart</h6></li>';
-                    } else {
-                        // Loop through cart items and append them to the dropdown
-                        data.data.items.slice(0, 3).forEach(item => {
-                            let listItem = document.createElement('li');
-                            listItem.classList.add('cart-item');
-
-                            listItem.innerHTML = `
-                                <div class="media">
-                                    <div class="media-left">
-                                        <a href="books-detail.html">
-                                            <img alt="" class="media-object" src="${item.image}">
-                                        </a>
-                                    </div>
-                                    <div class="media-body">
-                                        <h6 class="dz-title"><a href="books-detail.html" class="media-heading">${item.title}</a></h6>
-                                        <span class="dz-price">
-                                            ${item.quantity} x £${item.price}
-                                        </span>
-                                        <span class="item-close remove-cart-item" data-cart-id="${item.cart_id}">&times;</span>
-                                    </div>
-                                </div>
-                            `;
-                            cartDropdown.appendChild(listItem);
-
-                            // Add event listener to the remove button
-                            listItem.querySelector('.remove-cart-item').addEventListener('click', function() {
-                                let cartItemId = item.cart_id;
-                                removeCartItem(cartItemId); // Call function to remove the item from cart
-                            });
-                        });
-
-                        // Display a message if there are more than 3 items
-                        if (data.data.items.length > 3) {
-                            let moreItems = data.data.count - 3;
-                            let moreItemsElement = document.createElement('li');
-                            moreItemsElement.classList.add('cart-item', 'text-center');
-                            moreItemsElement.innerHTML = `<h6 class="text-secondary" style="font-weight: 400;">And ${moreItems} more items</h6>`;
-                            cartDropdown.appendChild(moreItemsElement);
+                        // Check if .cart-item-total-price exists before updating its textContent
+                        let totalPriceElement = document.querySelector('.cart-item-total-price');
+                        if (totalPriceElement) {
+                            totalPriceElement.textContent = 'Total = £' + data.data.totalPrice;
+                        } else {
+                            console.error('.cart-item-total-price element not found in the DOM');
                         }
 
-                        // Add the total price and action buttons
-                        let totalPriceElement = document.createElement('li');
-                        totalPriceElement.classList.add('cart-item', 'text-center', 'cart-item-total-price'); // Ensure cart-item-total-price class
-                        totalPriceElement.innerHTML = `<h6 class="text-secondary">Total = £${data.data.totalPrice}</h6>`;
-                        cartDropdown.appendChild(totalPriceElement);
+                        // Prepare the cart items dropdown
+                        let cartDropdown = document.querySelector('.cart-list');
+                        cartDropdown.innerHTML = ''; // Clear existing items
 
-                        let actionButtonsElement = document.createElement('li');
-                        actionButtonsElement.classList.add('text-center', 'd-flex');
-                        actionButtonsElement.innerHTML = `
-                            <a href="cart" class="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</a>
-                            <a href="shop-checkout.html" class="btn btn-sm btn-outline-primary btnhover w-100">Checkout</a>
-                        `;
-                        cartDropdown.appendChild(actionButtonsElement);
+                        if (data.data.items.length === 0) {
+                            // Display no items message if cart is empty
+                            cartDropdown.innerHTML = '<li class="cart-item text-center"><h6 class="text-secondary" style="font-weight: 400;">No items in cart</h6></li>';
+                        } else {
+                            // Loop through cart items and append them to the dropdown
+                            data.data.items.slice(0, 3).forEach(item => {
+                                let listItem = document.createElement('li');
+                                listItem.classList.add('cart-item');
+
+                                listItem.innerHTML = `
+                                    <div class="media">
+                                        <div class="media-left">
+                                            <a href="books-detail.html">
+                                                <img alt="" class="media-object" src="${item.image}">
+                                            </a>
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 class="dz-title"><a href="books-detail.html" class="media-heading">${item.title}</a></h6>
+                                            <span class="dz-price">
+                                                ${item.quantity} x £${item.price}
+                                            </span>
+                                            <span class="item-close remove-cart-item" data-cart-id="${item.cart_item_id}">&times;</span>
+                                        </div>
+                                    </div>
+                                `;
+                                cartDropdown.appendChild(listItem);
+
+                                // Add event listener to the remove button
+                                listItem.querySelector('.remove-cart-item').addEventListener('click', function() {
+                                    let cartItemId = item.cart_item_id;
+                                    removeCartItem(cartItemId); // Call function to remove the item from cart
+                                });
+                            });
+
+                            // Display a message if there are more than 3 items
+                            if (data.data.items.length > 3) {
+                                let moreItems = data.data.count - 3;
+                                let moreItemsElement = document.createElement('li');
+                                moreItemsElement.classList.add('cart-item', 'text-center');
+                                moreItemsElement.innerHTML = `<h6 class="text-secondary" style="font-weight: 400;">And ${moreItems} more items</h6>`;
+                                cartDropdown.appendChild(moreItemsElement);
+                            }
+
+                            // Add the total price and action buttons
+                            let totalPriceElement = document.createElement('li');
+                            totalPriceElement.classList.add('cart-item', 'text-center', 'cart-item-total-price'); // Ensure cart-item-total-price class
+                            totalPriceElement.innerHTML = `<h6 class="text-secondary">Total = £${data.data.totalPrice}</h6>`;
+                            cartDropdown.appendChild(totalPriceElement);
+
+                            let actionButtonsElement = document.createElement('li');
+                            actionButtonsElement.classList.add('text-center', 'd-flex');
+                            actionButtonsElement.innerHTML = `
+                                <a href="cart" class="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</a>
+                                <a href="{{route('checkout.index')}}" class="btn btn-sm btn-outline-primary btnhover w-100">Checkout</a>
+                            `;
+                            cartDropdown.appendChild(actionButtonsElement);
+                        }
                     }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
 
         // Initialize cart details when the page loads

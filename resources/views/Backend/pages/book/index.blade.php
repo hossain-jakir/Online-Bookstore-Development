@@ -1,4 +1,4 @@
-@extends('backend/layouts/master')
+@extends('Backend/layouts/master')
 
 @section('title', 'Book List')
 
@@ -23,11 +23,11 @@
         <!-- /.content-header -->
 
         @if ($errors->any() || session('error'))
-            @include('backend._partials.errorMsg')
+            @include('Backend._partials.errorMsg')
         @endif
 
         @if (session('success'))
-            @include('backend._partials.successMsg')
+            @include('Backend._partials.successMsg')
         @endif
 
         <!-- Main content -->
@@ -225,12 +225,12 @@
                                         {{ $item['pages'] }}
                                     </td>
                                 </tr>
-                                {{-- tags --}}
+                                {{-- Category --}}
                                 <tr>
-                                    <th>Tags</th>
+                                    <th>Catagory</th>
                                     <td>
-                                        @foreach ($item['tag'] as $tag)
-                                            <span class="badge badge-primary">{{ $tag['name'] }}</span>
+                                        @foreach ($item['categories'] as $category)
+                                            <span class="badge badge-primary">{{ $category->name }}</span>
                                         @endforeach
                                     </td>
                                 </tr>
@@ -329,7 +329,7 @@
         </div>
     @endforeach
 
-    @include('backend.pages.user.role_update')
+    @include('Backend.pages.user.role_update')
 
 @endsection
 

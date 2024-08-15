@@ -18,7 +18,7 @@
                             <span class="dz-price">
                                 {{ $item['quantity'] }} x £{{ $item['price'] }}
                             </span>
-                            <span class="item-close remove-cart-item" data-cart-id="{{ $item['cart_id'] }}">&times;</span>
+                            <span class="item-close remove-cart-item" data-cart-id="{{ $item['cart_item_id'] }}">&times;</span>
                         </div>
                     </div>
                 </li>
@@ -36,11 +36,11 @@
         @endif
 
         <li class="cart-item text-center">
-            <h6 class="text-secondary cart-item-total-price">Totle = £{{$data['cartList']['totalPrice']}}</h6>
+            <h6 class="text-secondary cart-item-total-price">Total = £{{ $data['cartList']['totalPrice'] }}</h6>
         </li>
         <li class="text-center d-flex">
-            <a href="cart" class="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</a>
-            <a href="shop-checkout.html" class="btn btn-sm btn-outline-primary btnhover w-100">Checkout</a>
+            <a href="{{ route('cart.index') }}" class="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</a>
+            <a href="{{ route('checkout.index') }}" class="btn btn-sm btn-outline-primary btnhover w-100">Checkout</a>
         </li>
     </ul>
 </li>

@@ -15,7 +15,7 @@ class CategoryController extends MainController
 
     public function showAllCategories(Request $request) {
 
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
 
         $data['AllCategories'] = Category::select('categories.id', 'categories.name', 'categories.slug', 'categories.description', 'categories.status', 'categories.isDeleted', 'categories.created_at', 'categories.updated_at', DB::raw('COUNT(book_categories.book_id) as book_count'))
                             ->join('book_categories', 'categories.id', '=', 'book_categories.category_id')
@@ -31,7 +31,7 @@ class CategoryController extends MainController
 
     public function showByCategory(Request $request, $slug) {
 
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
 
         $data['title'] = $slug;
 

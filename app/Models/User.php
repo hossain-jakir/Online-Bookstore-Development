@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Paddle\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -11,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles,Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -58,5 +59,9 @@ class User extends Authenticatable
 
     public function address(){
         return $this->hasMany(Address::class);
+    }
+
+    public function defaultAddress(){
+        return $this->hasOne(Address::class)->where('is_default', 1);
     }
 }

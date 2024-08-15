@@ -92,7 +92,7 @@
                                             <span class="price-num">${{ $book->sale_price }}</span>
                                         @endif
                                     </div>
-                                    <button id="flexCheckDefault1" class="btn btn-outline-danger btnhover add-to-wishlist" data-id="{{ base64_encode($book->id) }}"><i class="flaticon-heart"></i></button>
+                                    <button id="flexCheckDefault1" class="btn btn-outline-danger btnhover add-to-wishlist" data-id="{{ $book->id }}"><i class="flaticon-heart"></i></button>
                                     <a class="btn btn-secondary box-btn btnhover2 add-to-cart" data-id="{{ base64_encode($book->id) }}" href="javascript:void(0);"><i class="flaticon-shopping-cart-1 m-r10"></i>Add To Cart</a>
                                 </div>
                             </div>
@@ -284,7 +284,7 @@
                         actionButtonsElement.classList.add('text-center', 'd-flex');
                         actionButtonsElement.innerHTML = `
                             <a href="cart" class="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</a>
-                            <a href="shop-checkout.html" class="btn btn-sm btn-outline-primary btnhover w-100">Checkout</a>
+                            <a href="{{ route('checkout.index') }}" class="btn btn-sm btn-outline-primary btnhover w-100">Checkout</a>
                         `;
                         cartDropdown.appendChild(actionButtonsElement);
                     }

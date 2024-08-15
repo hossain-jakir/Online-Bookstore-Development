@@ -120,13 +120,13 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="first_name" class="form-label">First Name: <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="first_name" name="first_name" required placeholder="First name" value="{{ old('first_name') }}">
+                                            <input type="text" class="form-control" id="first_name" name="first_name" required placeholder="First name" value="{{ old('first_name', auth()->user()->first_name) }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="last_name" class="form-label">Last Name: <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="last_name" name="last_name" required placeholder="Last name" value="{{ old('last_name') }}">
+                                            <input type="text" class="form-control" id="last_name" name="last_name" required placeholder="Last name" value="{{ old('last_name', auth()->user()->last_name) }}">
                                         </div>
                                     </div>
                                 </div>
@@ -168,7 +168,12 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="country" class="form-label">Country: <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="country" name="country" required placeholder="Country name" value="{{ old('country') }}">
+                                            <select name="country" id="country" class="form-control" required>
+                                                <option value="">Select Country</option>
+                                                @foreach ($data['countries'] as $country)
+                                                    <option value="{{ $country->id }}" @if (old('country') == $country->name) selected @endif>{{ $country->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -176,7 +181,7 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="phone_number" class="form-label">Phone Number: <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="phone_number" name="phone_number" required placeholder="Phone number" value="{{ old('phone_number') }}">
+                                            <input type="text" class="form-control" id="phone_number" name="phone_number" required placeholder="Phone number" value="{{ old('phone_number', auth()->user()->phone_number) }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">

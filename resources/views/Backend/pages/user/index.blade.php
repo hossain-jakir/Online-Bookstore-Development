@@ -1,4 +1,4 @@
-@extends('backend/layouts/master')
+@extends('Backend/layouts/master')
 
 @section('title', 'User List')
 
@@ -113,11 +113,11 @@
         <!-- /.content-header -->
 
         @if ($errors->any() || session('error'))
-            @include('backend._partials.errorMsg')
+            @include('Backend._partials.errorMsg')
         @endif
 
         @if (session('success'))
-            @include('backend._partials.successMsg')
+            @include('Backend._partials.successMsg')
         @endif
 
         <!-- Main content -->
@@ -136,8 +136,6 @@
                                         <tr>
                                             <th></th>
                                             <th>User</th>
-                                            <th>Role</th>
-                                            <th>Phone</th>
                                             <th>Email</th>
                                             <th>Status</th>
                                             <th>Actions</th>
@@ -157,7 +155,20 @@
                                                     </div>
 
                                                 </td>
+                                                <td>{{ $user['email'] }}</td>
                                                 <td>
+                                                    @if ($user['status'] == 'active')
+                                                        <span class="badge badge-success">{{ $user['status'] }}</span>
+                                                    @else
+                                                        <span class="badge badge-danger">{{ $user['status'] }}</span>
+                                                    @endif
+                                                <td>
+                                                    <a href="#"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-eye">
+                                                        </i>
+                                                        View
+                                                    </a>
                                                     @if ($user['role'] == null)
                                                         <span class="badge badge-danger">No Role</span>
                                                         <span class='badge badge-center rounded-pill bg-label-success w-px-30 h-px-30 me-2' id='roleEditSpan' style='cursor: pointer;' onclick='roleUpdate("{{ $user['hashId'] }}","{{ $user['role'] }}")'>
@@ -173,22 +184,6 @@
                                                             </span>
                                                         @endif
                                                     @endif
-                                                </td>
-                                                <td>{{ $user['phone'] }}</td>
-                                                <td>{{ $user['email'] }}</td>
-                                                <td>
-                                                    @if ($user['status'] == 'active')
-                                                        <span class="badge badge-success">{{ $user['status'] }}</span>
-                                                    @else
-                                                        <span class="badge badge-danger">{{ $user['status'] }}</span>
-                                                    @endif
-                                                <td>
-                                                    <a href="#"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-eye">
-                                                        </i>
-                                                        View
-                                                    </a>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -209,6 +204,6 @@
         <!-- /.content -->
     </div>
 
-    @include('backend.pages.user.role_update')
+    @include('Backend.pages.user.role_update')
 
 @endsection

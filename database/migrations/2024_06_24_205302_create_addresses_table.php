@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('address_line_2')->nullable();
             $table->string('city');
             $table->string('state')->nullable();
-            $table->string('country');
+            $table->foreignId('country_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('zip_code');
 
             $table->string('phone_number');

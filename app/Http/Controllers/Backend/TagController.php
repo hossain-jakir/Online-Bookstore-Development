@@ -26,7 +26,7 @@ class TagController extends Controller
             $row->hashId = Crypt::encrypt($row->id);
         }
 
-        return view('backend.pages.tag.index')->with('data', $data);
+        return view('Backend.pages.tag.index')->with('data', $data);
 
     }
 
@@ -37,7 +37,7 @@ class TagController extends Controller
      */
     public function create(Request $request){
 
-        return view('backend.pages.tag.create');
+        return view('Backend.pages.tag.create');
     }
 
     /**
@@ -106,7 +106,7 @@ class TagController extends Controller
 
             $data['row']->hashId = Crypt::encrypt($data['row']->id);
 
-            return view('backend.pages.tag.edit')->with('data', $data);
+            return view('Backend.pages.tag.edit')->with('data', $data);
 
         }catch(\Exception $e){
             Session::flash('error', $e->getMessage());

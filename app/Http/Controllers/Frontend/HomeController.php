@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Validator;
 
 class HomeController extends MainController{
 
-    public function index(){
+    public function index(Request $request){
         $data = [];
-        $data = array_merge($data, $this->frontendItems());
+        $data = array_merge($data, $this->frontendItems($request));
 
         // Fetch banner books
         $data['banner'] = $this->getBooks('banner', 5, 'banner');
@@ -53,22 +53,22 @@ class HomeController extends MainController{
         return view('Frontend.Home.index', compact('data'));
     }
 
-    public function aboutUs(){
+    public function aboutUs(Request $request){
         $data = [];
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
         // dd($data);
         return view('Frontend.About.index')->with('data', $data);
     }
 
-    public function privacyPolicy(){
+    public function privacyPolicy(Request $request){
         $data = [];
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
         return view('Frontend.PrivacyPolicy.index')->with('data', $data);
     }
 
-    public function contactUs(){
+    public function contactUs(Request $request){
         $data = [];
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
         return view('Frontend.ContactUs.index')->with('data', $data);
     }
 
@@ -137,9 +137,9 @@ class HomeController extends MainController{
         ]);
     }
 
-    public function faq(){
+    public function faq(Request $request){
         $data = [];
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
         return view('Frontend.Faq.index')->with('data', $data);
     }
 

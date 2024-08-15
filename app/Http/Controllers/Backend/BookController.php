@@ -50,9 +50,6 @@ class BookController extends Controller
         // Get All Categories
         $data['categories'] = Category::where('isDeleted', 'no')->get();
 
-        // Get All Tags
-        $data['tags'] = Tag::where('isDeleted', 'no')->get();
-
         return view('Backend.pages.book.create')->with('data', $data);
     }
 
@@ -135,20 +132,6 @@ class BookController extends Controller
         // Attach categories
         $book->category()->attach($request->input('categories'));
 
-        // Sync tags with the book
-        $tags = json_decode($request->input('tags'), true);
-        $tagIds = [];
-        foreach ($tags as $tagName) {
-            // get only the value of the key
-            $tagName = $tagName['value'];
-            $tag = Tag::firstOrCreate([
-                'name' => $tagName,
-                'slug' => 'tag/'.Str::slug($tagName),
-            ]);
-            $tagIds[] = $tag->id;
-        }
-        $book->tag()->sync($tagIds);
-
         if ($saved) {
             return redirect()->route('backend.book.index')->with('success', 'Book added successfully');
         } else {
@@ -168,9 +151,6 @@ class BookController extends Controller
 
         // Get All Categories
         $data['categories'] = Category::where('isDeleted', 'no')->get();
-
-        // Get All Tags
-        $data['tags'] = Tag::where('isDeleted', 'no')->get();
 
         return view('Backend.pages.book.edit')->with('data', $data);
     }
@@ -227,7 +207,7 @@ class BookController extends Controller
         $book->lessons = $request->input('lessons');
         $book->rating = $request->input('rating');
         $book->min_age = $request->input('min_age');
-        $book->quantity = $request->input('quantity');
+        $book->quantity = $request->input('quantity') ?? 0;
         $book->purchase_price = $request->input('purchase_price');
         $book->sale_price = $request->input('sale_price');
         $book->discounted_price = $request->input('discounted_price');
@@ -243,20 +223,6 @@ class BookController extends Controller
 
         // Attach categories
         $book->category()->sync($request->input('categories'));
-
-        // Sync tags with the book
-        $tags = json_decode($request->input('tags'), true);
-        $tagIds = [];
-        foreach ($tags as $tagName) {
-            // get only the value of the key
-            $tagName = $tagName['value'];
-            $tag = Tag::firstOrCreate([
-                'name' => $tagName,
-                'slug' => 'tag/'.Str::slug($tagName),
-            ]);
-            $tagIds[] = $tag->id;
-        }
-        $book->tag()->sync($tagIds);
 
         if ($saved) {
             return redirect()->route('backend.book.index')->with('success', 'Book updated successfully');

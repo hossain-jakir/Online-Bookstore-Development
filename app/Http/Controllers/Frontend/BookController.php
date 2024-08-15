@@ -13,7 +13,7 @@ class BookController extends MainController
 {
     public function index(Request $request){
         // Fetch frontend items from the parent controller
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
 
         // Extract filters from the request URL
         $filters = [
@@ -230,10 +230,10 @@ class BookController extends MainController
         return $data;
     }
 
-    public function show($id){
+    public function show(Request $request, $id){
 
         $data = [];
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
 
         $bookId = base64_decode($id);
 
@@ -312,7 +312,7 @@ class BookController extends MainController
 
     public function showByCategory(Request $request, $slug) {
 
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
 
         $data['title'] = $slug;
 
@@ -350,7 +350,7 @@ class BookController extends MainController
 
     public function showByAuthor(Request $request, $authorId){
 
-        $data = parent::frontendItems();
+        $data = parent::frontendItems($request);
 
         $data['title'] = 'Author';
 

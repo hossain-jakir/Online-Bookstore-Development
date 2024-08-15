@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('wishlists', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->string('session_id')->uniqid()->nullable()->default(null);
+            $table->foreignId('user_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->unique(['user_id', 'book_id']);
             $table->integer('quantity')->default(1);

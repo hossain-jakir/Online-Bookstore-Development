@@ -10,7 +10,7 @@
         <link rel="icon" type="image/x-icon" href="{{ asset('assets/frontend/images/favicon.png')}}" />
 
         <!-- Include Styles -->
-        @include('backend/layouts/sections/styles')
+        @include('Backend/layouts/sections/styles')
 
     </head>
 
@@ -19,7 +19,7 @@
         @yield('layoutContent')
 
         <!-- Include Scripts -->
-        @include('backend/layouts/sections/scripts')
+        @include('Backend/layouts/sections/scripts')
 
     </body>
 

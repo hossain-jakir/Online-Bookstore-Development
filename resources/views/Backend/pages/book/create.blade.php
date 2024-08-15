@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+@extends('Backend.layouts.master')
 
 @section('title', 'Create Book')
 
@@ -22,10 +22,6 @@
                 allowClear: true,
                 multiple: true
             });
-
-            // Initialize Tagify for tags
-            var input = document.querySelector('#tags');
-            new Tagify(input);
         });
     </script>
     <style>
@@ -111,11 +107,11 @@
         </div>
 
         @if ($errors->any() || session('error'))
-            @include('backend._partials.errorMsg')
+            @include('Backend._partials.errorMsg')
         @endif
 
         @if (session('success'))
-            @include('backend._partials.successMsg')
+            @include('Backend._partials.successMsg')
         @endif
 
         <!-- Main content -->
@@ -294,14 +290,6 @@
                                         <option value="1" {{ old('free_delivery') == '1' ? 'selected' : '' }}>Yes</option>
                                     </select>
                                     @error('free_delivery')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="tags">Tags <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('tags') is-invalid @enderror" id="tags" name="tags" placeholder="Enter tags" value="{{ old('tags') }}">
-                                    @error('tags')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>

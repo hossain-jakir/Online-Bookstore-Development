@@ -43,7 +43,7 @@ class RoleController extends Controller
 
         // parent::log($request , 'View Roles');
 
-        return view('backend.pages.role.index')->with('data', $data);
+        return view('Backend.pages.role.index')->with('data', $data);
 
     }
 
