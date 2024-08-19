@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Backend\Role;
+namespace App\Http\Controllers\Backend;
 
 use App\Models\User;
 use App\Helpers\ImageHelper;
@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Services\ServeImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
@@ -34,7 +35,7 @@ class RoleController extends Controller
 
             foreach($role->users as $user){
                 $user->hashId = Crypt::encrypt($user->id);
-                $user->image = ImageHelper::getProfileImage($user, 'thumbnail');
+                $user->image = ServeImage::profile($user, 'thumbnail');
             }
 
             $role->userCount = $role->users()->count();

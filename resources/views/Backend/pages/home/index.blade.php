@@ -4,6 +4,289 @@
 
 @section('page-script')
     <script src="{{ asset('assets/backend/js/pages/dashboard.js')}}"></script>
+    <script>
+        $(function () {
+            'use strict'
+
+            // Area Chart
+            var revenueChartCanvas = document.getElementById('revenue-chart-canvas').getContext('2d');
+            var revenueChartData = {
+                labels: @json($orderDates),
+                datasets: [
+                    {
+                        label: 'Order Amounts',
+                        backgroundColor: 'rgba(60,141,188,0.9)',
+                        borderColor: 'rgba(60,141,188,0.8)',
+                        pointRadius: false,
+                        pointColor: '#3b8bba',
+                        pointStrokeColor: 'rgba(60,141,188,1)',
+                        pointHighlightFill: '#fff',
+                        pointHighlightStroke: 'rgba(60,141,188,1)',
+                        data: @json($orderAmountsByDate)
+                    }
+                ]
+            };
+
+            var revenueChartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            display: false
+                        }
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            display: false
+                        }
+                    }]
+                }
+            };
+
+            new Chart(revenueChartCanvas, {
+                type: 'line',
+                data: revenueChartData,
+                options: revenueChartOptions
+            });
+
+            // Donut Chart
+            var salesChartCanvas = document.getElementById('sales-chart-canvas').getContext('2d');
+            var salesChartData = {
+                labels: @json($salesLabels),
+                datasets: [
+                    {
+                        data: @json($salesAmounts),
+                        backgroundColor: ['#f56954', '#00a65a', '#f39c12']
+                    }
+                ]
+            };
+
+            var salesChartOptions = {
+                legend: {
+                    display: false
+                },
+                maintainAspectRatio: false,
+                responsive: true
+            };
+
+            new Chart(salesChartCanvas, {
+                type: 'doughnut',
+                data: salesChartData,
+                options: salesChartOptions
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            'use strict'
+
+            // Sales Graph Chart
+            var salesGraphChartCanvas = $('#line-chart').get(0).getContext('2d');
+
+            var salesGraphChartData = {
+                labels: @json($orderMonths), // Use monthly data here
+                datasets: [
+                    {
+                        label: 'Sales Amount',
+                        fill: false,
+                        borderWidth: 2,
+                        lineTension: 0,
+                        spanGaps: true,
+                        borderColor: '#efefef',
+                        pointRadius: 3,
+                        pointHoverRadius: 7,
+                        pointColor: '#efefef',
+                        pointBackgroundColor: '#efefef',
+                        data: @json($orderAmounts) // Use amounts data here
+                    }
+                ]
+            };
+
+            var salesGraphChartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            fontColor: '#efefef'
+                        },
+                        gridLines: {
+                            display: false,
+                            color: '#efefef',
+                            drawBorder: false
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            stepSize: 5000,
+                            fontColor: '#efefef'
+                        },
+                        gridLines: {
+                            display: true,
+                            color: '#efefef',
+                            drawBorder: false
+                        }
+                    }]
+                }
+            };
+
+            new Chart(salesGraphChartCanvas, {
+                type: 'line',
+                data: salesGraphChartData,
+                options: salesGraphChartOptions
+            });
+
+            // Sales by Gateway Chart
+            var salesPieChartCanvas = $('#sales-chart-canvas').get(0).getContext('2d');
+
+            var salesPieData = {
+                labels: @json($salesLabels),
+                datasets: [
+                    {
+                        data: @json($salesAmounts),
+                        backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc'],
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            var salesPieOptions = {
+                legend: {
+                    display: true
+                },
+                maintainAspectRatio: false,
+                responsive: true
+            };
+
+            new Chart(salesPieChartCanvas, {
+                type: 'doughnut',
+                data: salesPieData,
+                options: salesPieOptions
+            });
+        });
+    </script>
+    <script>
+        function updateStats() {
+            var period = document.getElementById('timePeriod').value;
+            $.ajax({
+                url: "{{ route('backend.home.getStats') }}",
+                type: "GET",
+                data: { period: period },
+                success: function (data) {
+                    $('#stats-boxes').html(data);
+                }
+            });
+        }
+    </script>
+    <script>
+        function addTask() {
+            const taskData = {
+                task: document.getElementById('taskName').value,
+                due_date: document.getElementById('dueDate').value,
+                _token: '{{ csrf_token() }}'
+            };
+
+            $.ajax({
+                url: "{{ route('backend.home.addToDo') }}",
+                method: 'POST',
+                data: taskData,
+                success: function (response) {
+                    // Function to format the date
+                    function formatDate(dateString) {
+                        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                        return new Date(dateString).toLocaleDateString(undefined, options);
+                    }
+
+                    // Determine the appropriate badge color and text based on due date
+                    let badgeClass = response.due_date ? 'danger' : 'secondary';
+                    let dueDateText = response.due_date ? formatDate(response.due_date) : 'No deadline';
+
+                    // Append the new task to the to-do list
+                    $('#todo-list').append(`
+                        <li data-id="${response.id}">
+                            <span class="handle">
+                                <i class="fas fa-ellipsis-v"></i>
+                                <i class="fas fa-ellipsis-v"></i>
+                            </span>
+                            <div class="icheck-primary d-inline ml-2">
+                                <input type="checkbox" id="todoCheck${response.id}" onchange="toggleStatus(${response.id})">
+                                <label for="todoCheck${response.id}"></label>
+                            </div>
+                            <span class="text">${response.task}</span>
+                            <small class="badge badge-${badgeClass}">
+                                <i class="far fa-clock"></i>
+                                ${dueDateText}
+                            </small>
+                            <div class="tools">
+                                <i class="fas fa-edit" onclick="editTask(${response.id})"></i>
+                                <i class="fas fa-trash-o" onclick="deleteTask(${response.id})"></i>
+                            </div>
+                        </li>
+                    `);
+
+                    // Hide the modal after adding the task
+                    $('#addTaskModal').modal('hide');
+
+                    // Optionally, reset the form fields in the modal
+                    $('#addTaskForm')[0].reset();
+                },
+                error: function (error) {
+                    console.error('Error adding task:', error);
+                    // Handle error (e.g., show error message to the user)
+                }
+            });
+
+        }
+
+        function toggleStatus(id) {
+            const status = $(`#todoCheck${id}`).is(':checked') ? 'completed' : 'pending';
+            $url = `{{ route('backend.home.updateToDo.status', ':toDo') }}`;
+            $.ajax({
+                url: $url.replace(':toDo', id),
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    status: status
+                },
+                success: function () {
+                    // Update the task status if needed
+                }
+            });
+        }
+
+        function deleteTask(id) {
+
+            // confirm alert
+            if (!confirm('Are you sure you want to delete this task?')) {
+                return;
+            }
+
+            $url = `{{ route('backend.home.deleteToDo', ':toDo') }}`;
+            $.ajax({
+                url: $url.replace(':toDo', id),
+                method: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function () {
+                    $(`li[data-id='${id}']`).remove();
+                }
+            });
+        }
+
+        function editTask(id) {
+            // You can open a modal or another interface to edit the task
+            // Use similar AJAX logic as above to update the task
+        }
+    </script>
 @endsection
 
 @section('content')
@@ -29,79 +312,29 @@
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
-                <!-- Small boxes (Stat box) -->
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-info">
-                            <div class="inner">
-                                <h3>150</h3>
-
-                                <p>New Orders</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-bag"></i>
-                            </div>
-                            <a href="#" class="small-box-footer">More info <i
-                                    class="fas fa-arrow-circle-right"></i></a>
+                <!-- Dropdown Menu to Select Time Period -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <select id="timePeriod" class="form-control" onchange="updateStats()">
+                                <option value="day">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
                         </div>
                     </div>
-                    <!-- ./col -->
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-success">
-                            <div class="inner">
-                                <h3>53<sup style="font-size: 20px">%</sup></h3>
-
-                                <p>Bounce Rate</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-stats-bars"></i>
-                            </div>
-                            <a href="#" class="small-box-footer">More info <i
-                                    class="fas fa-arrow-circle-right"></i></a>
-                        </div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-warning">
-                            <div class="inner">
-                                <h3>44</h3>
-
-                                <p>User Registrations</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-person-add"></i>
-                            </div>
-                            <a href="#" class="small-box-footer">More info <i
-                                    class="fas fa-arrow-circle-right"></i></a>
-                        </div>
-                    </div>
-                    <!-- ./col -->
-                    <div class="col-lg-3 col-6">
-                        <!-- small box -->
-                        <div class="small-box bg-danger">
-                            <div class="inner">
-                                <h3>65</h3>
-
-                                <p>Unique Visitors</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-pie-graph"></i>
-                            </div>
-                            <a href="#" class="small-box-footer">More info <i
-                                    class="fas fa-arrow-circle-right"></i></a>
-                        </div>
-                    </div>
-                    <!-- ./col -->
                 </div>
-                <!-- /.row -->
+
+                <!-- Small boxes (Stat box) -->
+                <div id="stats-boxes">
+                    @include('Backend.pages.home.partials.stats', ['array' => $array])
+                </div>
                 <!-- Main row -->
                 <div class="row">
                     <!-- Left col -->
                     <section class="col-lg-7 connectedSortable">
-                        <!-- Custom tabs (Charts with tabs)-->
+                        <!-- Custom tabs (Charts with tabs) -->
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">
@@ -121,232 +354,18 @@
                             </div><!-- /.card-header -->
                             <div class="card-body">
                                 <div class="tab-content p-0">
-                                    <!-- Morris chart - Sales -->
-                                    <div class="chart tab-pane active" id="revenue-chart"
-                                        style="position: relative; height: 300px;">
+                                    <!-- Area Chart -->
+                                    <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;">
                                         <canvas id="revenue-chart-canvas" height="300" style="height: 300px;"></canvas>
                                     </div>
+                                    <!-- Donut Chart -->
                                     <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;">
                                         <canvas id="sales-chart-canvas" height="300" style="height: 300px;"></canvas>
                                     </div>
                                 </div>
                             </div><!-- /.card-body -->
-                        </div>
-                        <!-- /.card -->
+                        </div><!-- /.card -->
 
-                        <!-- DIRECT CHAT -->
-                        <div class="card direct-chat direct-chat-primary">
-                            <div class="card-header">
-                                <h3 class="card-title">Direct Chat</h3>
-
-                                <div class="card-tools">
-                                    <span title="3 New Messages" class="badge badge-primary">3</span>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-tool" title="Contacts"
-                                        data-widget="chat-pane-toggle">
-                                        <i class="fas fa-comments"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <!-- Conversations are loaded here -->
-                                <div class="direct-chat-messages">
-                                    <!-- Message. Default to the left -->
-                                    <div class="direct-chat-msg">
-                                        <div class="direct-chat-infos clearfix">
-                                            <span class="direct-chat-name float-left">Alexander Pierce</span>
-                                            <span class="direct-chat-timestamp float-right">23 Jan 2:00 pm</span>
-                                        </div>
-                                        <!-- /.direct-chat-infos -->
-                                        <img class="direct-chat-img" src="{{Storage::url('assets/images/avatars/2.png')}}"
-                                            alt="message user image">
-                                        <!-- /.direct-chat-img -->
-                                        <div class="direct-chat-text">
-                                            Is this template really for free? That's unbelievable!
-                                        </div>
-                                        <!-- /.direct-chat-text -->
-                                    </div>
-                                    <!-- /.direct-chat-msg -->
-
-                                    <!-- Message to the right -->
-                                    <div class="direct-chat-msg right">
-                                        <div class="direct-chat-infos clearfix">
-                                            <span class="direct-chat-name float-right">Sarah Bullock</span>
-                                            <span class="direct-chat-timestamp float-left">23 Jan 2:05 pm</span>
-                                        </div>
-                                        <!-- /.direct-chat-infos -->
-                                        <img class="direct-chat-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                            alt="message user image">
-                                        <!-- /.direct-chat-img -->
-                                        <div class="direct-chat-text">
-                                            You better believe it!
-                                        </div>
-                                        <!-- /.direct-chat-text -->
-                                    </div>
-                                    <!-- /.direct-chat-msg -->
-
-                                    <!-- Message. Default to the left -->
-                                    <div class="direct-chat-msg">
-                                        <div class="direct-chat-infos clearfix">
-                                            <span class="direct-chat-name float-left">Alexander Pierce</span>
-                                            <span class="direct-chat-timestamp float-right">23 Jan 5:37 pm</span>
-                                        </div>
-                                        <!-- /.direct-chat-infos -->
-                                        <img class="direct-chat-img" src="{{Storage::url('assets/images/avatars/2.png')}}"
-                                            alt="message user image">
-                                        <!-- /.direct-chat-img -->
-                                        <div class="direct-chat-text">
-                                            Working with on a great new app! Wanna join?
-                                        </div>
-                                        <!-- /.direct-chat-text -->
-                                    </div>
-                                    <!-- /.direct-chat-msg -->
-
-                                    <!-- Message to the right -->
-                                    <div class="direct-chat-msg right">
-                                        <div class="direct-chat-infos clearfix">
-                                            <span class="direct-chat-name float-right">Sarah Bullock</span>
-                                            <span class="direct-chat-timestamp float-left">23 Jan 6:10 pm</span>
-                                        </div>
-                                        <!-- /.direct-chat-infos -->
-                                        <img class="direct-chat-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                            alt="message user image">
-                                        <!-- /.direct-chat-img -->
-                                        <div class="direct-chat-text">
-                                            I would love to.
-                                        </div>
-                                        <!-- /.direct-chat-text -->
-                                    </div>
-                                    <!-- /.direct-chat-msg -->
-
-                                </div>
-                                <!--/.direct-chat-messages-->
-
-                                <!-- Contacts are loaded here -->
-                                <div class="direct-chat-contacts">
-                                    <ul class="contacts-list">
-                                        <li>
-                                            <a href="#">
-                                                <img class="contacts-list-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                                    alt="User Avatar">
-
-                                                <div class="contacts-list-info">
-                                                    <span class="contacts-list-name">
-                                                        Count Dracula
-                                                        <small class="contacts-list-date float-right">2/28/2015</small>
-                                                    </span>
-                                                    <span class="contacts-list-msg">How have you been? I was...</span>
-                                                </div>
-                                                <!-- /.contacts-list-info -->
-                                            </a>
-                                        </li>
-                                        <!-- End Contact Item -->
-                                        <li>
-                                            <a href="#">
-                                                <img class="contacts-list-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                                    alt="User Avatar">
-
-                                                <div class="contacts-list-info">
-                                                    <span class="contacts-list-name">
-                                                        Sarah Doe
-                                                        <small class="contacts-list-date float-right">2/23/2015</small>
-                                                    </span>
-                                                    <span class="contacts-list-msg">I will be waiting for...</span>
-                                                </div>
-                                                <!-- /.contacts-list-info -->
-                                            </a>
-                                        </li>
-                                        <!-- End Contact Item -->
-                                        <li>
-                                            <a href="#">
-                                                <img class="contacts-list-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                                    alt="User Avatar">
-
-                                                <div class="contacts-list-info">
-                                                    <span class="contacts-list-name">
-                                                        Nadia Jolie
-                                                        <small class="contacts-list-date float-right">2/20/2015</small>
-                                                    </span>
-                                                    <span class="contacts-list-msg">I'll call you back at...</span>
-                                                </div>
-                                                <!-- /.contacts-list-info -->
-                                            </a>
-                                        </li>
-                                        <!-- End Contact Item -->
-                                        <li>
-                                            <a href="#">
-                                                <img class="contacts-list-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                                    alt="User Avatar">
-
-                                                <div class="contacts-list-info">
-                                                    <span class="contacts-list-name">
-                                                        Nora S. Vans
-                                                        <small class="contacts-list-date float-right">2/10/2015</small>
-                                                    </span>
-                                                    <span class="contacts-list-msg">Where is your new...</span>
-                                                </div>
-                                                <!-- /.contacts-list-info -->
-                                            </a>
-                                        </li>
-                                        <!-- End Contact Item -->
-                                        <li>
-                                            <a href="#">
-                                                <img class="contacts-list-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                                    alt="User Avatar">
-
-                                                <div class="contacts-list-info">
-                                                    <span class="contacts-list-name">
-                                                        John K.
-                                                        <small class="contacts-list-date float-right">1/27/2015</small>
-                                                    </span>
-                                                    <span class="contacts-list-msg">Can I take a look at...</span>
-                                                </div>
-                                                <!-- /.contacts-list-info -->
-                                            </a>
-                                        </li>
-                                        <!-- End Contact Item -->
-                                        <li>
-                                            <a href="#">
-                                                <img class="contacts-list-img" src="{{Storage::url('assets/images/avatars/1.png')}}"
-                                                    alt="User Avatar">
-
-                                                <div class="contacts-list-info">
-                                                    <span class="contacts-list-name">
-                                                        Kenneth M.
-                                                        <small class="contacts-list-date float-right">1/4/2015</small>
-                                                    </span>
-                                                    <span class="contacts-list-msg">Never mind I found...</span>
-                                                </div>
-                                                <!-- /.contacts-list-info -->
-                                            </a>
-                                        </li>
-                                        <!-- End Contact Item -->
-                                    </ul>
-                                    <!-- /.contacts-list -->
-                                </div>
-                                <!-- /.direct-chat-pane -->
-                            </div>
-                            <!-- /.card-body -->
-                            <div class="card-footer">
-                                <form action="#" method="post">
-                                    <div class="input-group">
-                                        <input type="text" name="message" placeholder="Type Message ..."
-                                            class="form-control">
-                                        <span class="input-group-append">
-                                            <button type="button" class="btn btn-primary">Send</button>
-                                        </span>
-                                    </div>
-                                </form>
-                            </div>
-                            <!-- /.card-footer-->
-                        </div>
-                        <!--/.direct-chat -->
 
                         <!-- TO DO List -->
                         <div class="card">
@@ -355,129 +374,42 @@
                                     <i class="ion ion-clipboard mr-1"></i>
                                     To Do List
                                 </h3>
-
-                                <div class="card-tools">
-                                    <ul class="pagination pagination-sm">
-                                        <li class="page-item"><a href="#" class="page-link">&laquo;</a></li>
-                                        <li class="page-item"><a href="#" class="page-link">1</a></li>
-                                        <li class="page-item"><a href="#" class="page-link">2</a></li>
-                                        <li class="page-item"><a href="#" class="page-link">3</a></li>
-                                        <li class="page-item"><a href="#" class="page-link">&raquo;</a></li>
-                                    </ul>
-                                </div>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <ul class="todo-list" data-widget="todo-list">
-                                    <li>
-                                        <!-- drag handle -->
-                                        <span class="handle">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </span>
-                                        <!-- checkbox -->
-                                        <div class="icheck-primary d-inline ml-2">
-                                            <input type="checkbox" value="" name="todo1" id="todoCheck1">
-                                            <label for="todoCheck1"></label>
-                                        </div>
-                                        <!-- todo text -->
-                                        <span class="text">Design a nice theme</span>
-                                        <!-- Emphasis label -->
-                                        <small class="badge badge-danger"><i class="far fa-clock"></i> 2 mins</small>
-                                        <!-- General tools such as edit or delete-->
-                                        <div class="tools">
-                                            <i class="fas fa-edit"></i>
-                                            <i class="fas fa-trash-o"></i>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <span class="handle">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </span>
-                                        <div class="icheck-primary d-inline ml-2">
-                                            <input type="checkbox" value="" name="todo2" id="todoCheck2"
-                                                checked>
-                                            <label for="todoCheck2"></label>
-                                        </div>
-                                        <span class="text">Make the theme responsive</span>
-                                        <small class="badge badge-info"><i class="far fa-clock"></i> 4 hours</small>
-                                        <div class="tools">
-                                            <i class="fas fa-edit"></i>
-                                            <i class="fas fa-trash-o"></i>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <span class="handle">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </span>
-                                        <div class="icheck-primary d-inline ml-2">
-                                            <input type="checkbox" value="" name="todo3" id="todoCheck3">
-                                            <label for="todoCheck3"></label>
-                                        </div>
-                                        <span class="text">Let theme shine like a star</span>
-                                        <small class="badge badge-warning"><i class="far fa-clock"></i> 1 day</small>
-                                        <div class="tools">
-                                            <i class="fas fa-edit"></i>
-                                            <i class="fas fa-trash-o"></i>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <span class="handle">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </span>
-                                        <div class="icheck-primary d-inline ml-2">
-                                            <input type="checkbox" value="" name="todo4" id="todoCheck4">
-                                            <label for="todoCheck4"></label>
-                                        </div>
-                                        <span class="text">Let theme shine like a star</span>
-                                        <small class="badge badge-success"><i class="far fa-clock"></i> 3 days</small>
-                                        <div class="tools">
-                                            <i class="fas fa-edit"></i>
-                                            <i class="fas fa-trash-o"></i>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <span class="handle">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </span>
-                                        <div class="icheck-primary d-inline ml-2">
-                                            <input type="checkbox" value="" name="todo5" id="todoCheck5">
-                                            <label for="todoCheck5"></label>
-                                        </div>
-                                        <span class="text">Check your messages and notifications</span>
-                                        <small class="badge badge-primary"><i class="far fa-clock"></i> 1 week</small>
-                                        <div class="tools">
-                                            <i class="fas fa-edit"></i>
-                                            <i class="fas fa-trash-o"></i>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <span class="handle">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </span>
-                                        <div class="icheck-primary d-inline ml-2">
-                                            <input type="checkbox" value="" name="todo6" id="todoCheck6">
-                                            <label for="todoCheck6"></label>
-                                        </div>
-                                        <span class="text">Let theme shine like a star</span>
-                                        <small class="badge badge-secondary"><i class="far fa-clock"></i> 1 month</small>
-                                        <div class="tools">
-                                            <i class="fas fa-edit"></i>
-                                            <i class="fas fa-trash-o"></i>
-                                        </div>
-                                    </li>
+                                <ul id="todo-list" class="todo-list" data-widget="todo-list">
+                                    @foreach ($toDos as $toDo)
+                                        <li data-id="{{ $toDo->id }}">
+                                            <!-- drag handle -->
+                                            <span class="handle">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </span>
+                                            <!-- checkbox -->
+                                            <div class="icheck-primary d-inline ml-2">
+                                                <input type="checkbox" id="todoCheck{{ $toDo->id }}" {{ $toDo->status === 'completed' ? 'checked' : '' }} onchange="toggleStatus({{ $toDo->id }})">
+                                                <label for="todoCheck{{ $toDo->id }}"></label>
+                                            </div>
+                                            <!-- todo text -->
+                                            <span class="text">{{ $toDo->task }}</span>
+                                            <!-- Emphasis label -->
+                                            <small class="badge badge-{{ $toDo->due_date ? 'danger' : 'secondary' }}">
+                                                <i class="far fa-clock"></i>
+                                                {{ $toDo->due_date ? $toDo->due_date->diffForHumans() : 'No deadline' }}
+                                            </small>
+                                            <!-- General tools such as edit or delete-->
+                                            <div class="tools">
+                                                <i class="fas fa-trash-o" onclick="deleteTask({{ $toDo->id }})">
+                                                    Delete
+                                                </i>
+                                            </div>
+                                        </li>
+                                    @endforeach
                                 </ul>
                             </div>
                             <!-- /.card-body -->
                             <div class="card-footer clearfix">
-                                <button type="button" class="btn btn-primary float-right"><i class="fas fa-plus"></i>
-                                    Add
-                                    item</button>
+                                <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addTaskModal"><i class="fas fa-plus"></i> Add item</button>
                             </div>
                         </div>
                         <!-- /.card -->
@@ -485,53 +417,6 @@
                     <!-- /.Left col -->
                     <!-- right col (We are only adding the ID to make the widgets sortable)-->
                     <section class="col-lg-5 connectedSortable">
-
-                        <!-- Map card -->
-                        <div class="card bg-gradient-primary">
-                            <div class="card-header border-0">
-                                <h3 class="card-title">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    Visitors
-                                </h3>
-                                <!-- card tools -->
-                                <div class="card-tools">
-                                    <button type="button" class="btn btn-primary btn-sm daterange" title="Date range">
-                                        <i class="far fa-calendar-alt"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-sm" data-card-widget="collapse"
-                                        title="Collapse">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                </div>
-                                <!-- /.card-tools -->
-                            </div>
-                            <div class="card-body">
-                                <div id="world-map" style="height: 250px; width: 100%;"></div>
-                            </div>
-                            <!-- /.card-body-->
-                            <div class="card-footer bg-transparent">
-                                <div class="row">
-                                    <div class="col-4 text-center">
-                                        <div id="sparkline-1"></div>
-                                        <div class="text-white">Visitors</div>
-                                    </div>
-                                    <!-- ./col -->
-                                    <div class="col-4 text-center">
-                                        <div id="sparkline-2"></div>
-                                        <div class="text-white">Online</div>
-                                    </div>
-                                    <!-- ./col -->
-                                    <div class="col-4 text-center">
-                                        <div id="sparkline-3"></div>
-                                        <div class="text-white">Sales</div>
-                                    </div>
-                                    <!-- ./col -->
-                                </div>
-                                <!-- /.row -->
-                            </div>
-                        </div>
-                        <!-- /.card -->
-
                         <!-- solid sales graph -->
                         <div class="card bg-gradient-info">
                             <div class="card-header border-0">
@@ -556,25 +441,16 @@
                             <!-- /.card-body -->
                             <div class="card-footer bg-transparent">
                                 <div class="row">
-                                    <div class="col-4 text-center">
-                                        <input type="text" class="knob" data-readonly="true" value="20"
+                                    <div class="col-6 text-center">
+                                        <input type="text" class="knob" data-readonly="true" value="{{ $array['newOrders'] }}"
                                             data-width="60" data-height="60" data-fgColor="#39CCCC">
-
-                                        <div class="text-white">Mail-Orders</div>
+                                        <div class="text-white">New Orders</div>
                                     </div>
                                     <!-- ./col -->
-                                    <div class="col-4 text-center">
-                                        <input type="text" class="knob" data-readonly="true" value="50"
+                                    <div class="col-6 text-center">
+                                        <input type="text" class="knob" data-readonly="true" value="{{ $array['totalSales'] }}"
                                             data-width="60" data-height="60" data-fgColor="#39CCCC">
-
-                                        <div class="text-white">Online</div>
-                                    </div>
-                                    <!-- ./col -->
-                                    <div class="col-4 text-center">
-                                        <input type="text" class="knob" data-readonly="true" value="30"
-                                            data-width="60" data-height="60" data-fgColor="#39CCCC">
-
-                                        <div class="text-white">In-Store</div>
+                                        <div class="text-white">Total Sales</div>
                                     </div>
                                     <!-- ./col -->
                                 </div>
@@ -595,18 +471,6 @@
                                 <!-- tools card -->
                                 <div class="card-tools">
                                     <!-- button with a dropdown -->
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-success btn-sm dropdown-toggle"
-                                            data-toggle="dropdown" data-offset="-52">
-                                            <i class="fas fa-bars"></i>
-                                        </button>
-                                        <div class="dropdown-menu" role="menu">
-                                            <a href="#" class="dropdown-item">Add new event</a>
-                                            <a href="#" class="dropdown-item">Clear events</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a href="#" class="dropdown-item">View calendar</a>
-                                        </div>
-                                    </div>
                                     <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -630,6 +494,34 @@
                 <!-- /.row (main row) -->
             </div><!-- /.container-fluid -->
         </section>
+
+        <!-- Add Task Modal -->
+        <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addTaskModalLabel">Add Task</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addTaskForm">
+                            <div class="mb-3">
+                                <label for="taskName" class="form-label">Task Name</label>
+                                <input type="text" class="form-control" id="taskName" name="task">
+                            </div>
+                            <div class="mb-3">
+                                <label for="dueDate" class="form-label">Due Date</label>
+                                <input type="datetime-local" class="form-control" id="dueDate" name="due_date">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addTask()">Add Task</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- /.content -->
     </div>
 @endsection

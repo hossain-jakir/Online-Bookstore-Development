@@ -25,6 +25,20 @@ class CheckoutController extends MainController
 {
     public function index(Request $request)
     {
+
+        $cart = $this->getCart();
+        if (!$cart) {
+            session()->flash('error', 'Cart is empty');
+            return redirect()->route('home')->with('error', 'Cart is empty');
+        }
+
+        // check cart has items
+        $cartItems = CartItem::where('cart_id', $cart->id)->get();
+        if ($cartItems->count() == 0) {
+            session()->flash('error', 'Cart is empty. Please add items to cart');
+            return redirect()->route('home')->with('error', 'Cart is empty');
+        }
+
         $data = [];
         $data = array_merge($data, $this->frontendItems($request));
         $data['addresses'] = null;
@@ -70,7 +84,7 @@ class CheckoutController extends MainController
             // check if user exists with the email
             $user = User::where('email', $request->email)->first();
             if ($user) {
-                return $user;
+                return null;
             } else {
 
                 $password = $request->password ? Hash::make($request->password) : Hash::make('password');
@@ -90,6 +104,8 @@ class CheckoutController extends MainController
 
                 if ($user) {
 
+                    // asisgn role to user
+                    $user->assignRole('user');
 
                     // update all the cart items with the user id
                     $cart = Cart::where('session_id', $sessionId)->where('status', 'active')->where('isDeleted', 'no')->first();
@@ -179,11 +195,16 @@ class CheckoutController extends MainController
         return $newAddress;
     }
 
-
     public function process(Request $request){
         DB::beginTransaction();
 
         try {
+
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                session()->flash('error', 'User already exists');
+                return redirect()->back()->with('error', 'User already exists')->withInput();
+            }
 
             $sessionId = session()->getId();
             $user = $this->checkUserAndCreate($request, $sessionId);
@@ -206,6 +227,7 @@ class CheckoutController extends MainController
                 $query->where('user_id', $user->id)
                     ->orWhere('session_id', session()->getId());
             })->where('isDeleted', 'no')
+            ->orderBy('id', 'desc')
             ->where('status', 'active')->where('isDeleted', 'no')->first();
             if (!$cart) {
                 return redirect()->back()->with('error', 'Cart not found')->withInput();
@@ -221,10 +243,15 @@ class CheckoutController extends MainController
 
             $discountAmount = 0;
             $couponAmount = $cart->coupon_discount;
+            Log::info('Coupon Amount: ' . $couponAmount);
             $taxAmount = 0;
             $shippingAmount = DeliveryFee::find($cart->delivery_fee_id)->price;
             $subTotal = $cartTotal + $shippingAmount - $couponAmount - $discountAmount;
             $grandTotal = $subTotal + $taxAmount;
+
+            if ($grandTotal < 0) {
+                $grandTotal = 0;
+            }
 
             $order = Order::create([
                 'user_id' => $user->id,
@@ -244,7 +271,7 @@ class CheckoutController extends MainController
                 'shipping_date' => Carbon::now()->addDays(2),
                 'delivery_date' => Carbon::now()->addDays(2),
                 'shipping_status' => 'pending',
-                'status' => 'processing',
+                'status' => 'pending',
                 'isDeleted' => 'no',
             ]);
 
@@ -266,10 +293,9 @@ class CheckoutController extends MainController
                 ]);
             }
 
-            // $cart->status = 'inactive';
-            // $cart->save();
 
-            session()->put('order_id', $order->id);
+            $key = 'order_id_' . Auth::id();
+            session()->put($key, $order->id);
 
             DB::commit();
             return redirect()->route('checkout.paypal.form');

@@ -21,7 +21,12 @@
     </div>
     <div class="content-inner-2 pt-0">
         <div class="map-iframe">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6305.217186520197!2d-3.1672832!3d51.4835532!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCNDgzNTUzLTIuMTY3MjgzMjUgMTnCsDUzJzQ4LjIwMDEyLCBOQkUgTMOqcmnFnw!5e0!3m2!1sen!2suk!4v1625045835101" style="border:0; width:100%; min-height:100%; margin-bottom: -8px;" allowfullscreen></iframe>
+            @php
+                $latitude = $data['shop']->latitude ?? 51.4835532;
+                $longitude = $data['shop']->longitude ?? -3.1672832;
+                $iframe = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6305.217186520197!2d$longitude!3d$latitude!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCNDgzNTUzLTIuMTY3MjgzMjUgMTnCsDUzJzQ4LjIwMDEyLCBOQkUgTMOqcmnFnw!5e0!3m2!1sen!2suk!4v1625045835101";
+            @endphp
+            <iframe src="{{ $iframe }}" style="border:0; width:100%; min-height:100%; margin-bottom: -8px;" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -43,7 +48,7 @@
                                 </div>
                                 <div class="icon-content">
                                     <h5 class=" dz-tilte text-white">Our Address</h5>
-                                    <p>1247/Plot No. 39, 15th Phase, Huab Colony, Kukatpally, Hyderabad</p>
+                                    <p>{{ $data['shop']->address }}</p>
                                 </div>
                             </li>
                             <li class="icon-bx-wraper text-white left m-b30">
@@ -54,7 +59,7 @@
                                 </div>
                                 <div class="icon-content">
                                     <h5 class="dz-tilte text-white">Our Email</h5>
-                                    <p>info@gmail<br>services@gmail.com</p>
+                                    <p>{{ $data['shop']->email }}</p>
                                 </div>
                             </li>
                         </ul>

@@ -7,10 +7,10 @@ use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Wishlist;
 use App\Models\ContactUs;
-use App\Helpers\ImageHelper;
+use App\Models\Subscriber;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Subscriber;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -161,7 +161,7 @@ class HomeController extends MainController{
         $books = $query->get();
 
         foreach ($books as $book) {
-            $book->image_path = ImageHelper::generateImage($book->image, $imageType);
+            $book->image_path = ServeImage::image($book->image, $imageType);
         }
 
         return $books;

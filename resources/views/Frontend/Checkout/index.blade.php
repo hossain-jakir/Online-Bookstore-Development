@@ -100,7 +100,7 @@
                                     </div>
                                 @else
                                 <h5>Select a Shipping Address</h5>
-                                @foreach ($data['addresses'] as $address)
+                                @forelse ($data['addresses'] as $address)
                                     <div class="form-group mb-3">
                                         <input type="radio" id="address{{ $address->id }}" name="address_id" value="{{ $address->id }}"
                                             @if($address->is_default == 1)
@@ -111,11 +111,67 @@
                                             {{ $address->address_line_1 }}, {{ $address->city }}, {{ $address->state }}, {{ $address->zip_code }}
                                         </label>
                                     </div>
-                                @endforeach
 
-                                <div class="form-group">
-                                    <button type="button" class="btn btn-primary btnhover" onclick="location.href='{{ route('profile.address') }}'">Add New Address</button>
-                                </div>
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-primary btnhover" onclick="location.href='{{ route('profile.address') }}'">Add New Address</button>
+                                    </div>
+                                @empty
+                                    <div class="form-group mb-3">
+                                        <p>No address found. Please add a new address.</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="default-select" name="country_id">
+                                            @foreach ($data['Countries'] as $country)
+                                                <option value="{{ $country->id }}"
+                                                    @if(old('country_id') == $country->id)
+                                                        selected
+                                                    @endif
+                                                >
+                                                    {{ $country->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <input type="text" class="form-control" placeholder="First Name" name="first_name" value="{{ old('first_name') }}" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <input type="text" class="form-control" placeholder="Last Name" name="last_name" value="{{ old('last_name') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="Address" name="address_line_1" value="{{ old('address_line_1') }}" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <input type="text" class="form-control" placeholder="Apartment, suite, unit etc." name="address_line_2" value="{{ old('address_line_2') }}">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <input type="text" class="form-control" placeholder="Town / City" name="city" value="{{ old('city') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <input type="text" class="form-control" placeholder="State / County" name="state" value="{{ old('state') }}" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <input type="text" class="form-control" placeholder="Postcode / Zip" name="zip_code" value="{{ old('zip_code') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <input type="text" class="form-control" placeholder="Phone" required name="phone" value="{{ old('phone') }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <input type="email" class="form-control" placeholder="Email" name="email" required value="{{ old('email') }}">
+                                    </div>
+                                @endforelse
+
+
                                 @endif
                             </div>
                         </div>

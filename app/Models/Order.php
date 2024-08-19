@@ -20,6 +20,8 @@ class Order extends Model
         'discount_amount',
         'coupon_amount',
         'tax_amount',
+        'paid_amount',
+        'due_amount',
         'shipping_amount',
         'grand_total',
         'payment_method',
@@ -62,8 +64,34 @@ class Order extends Model
         return $this->belongsTo(DeliveryFee::class);
     }
 
-    public function items()
+    public function orderItems()
     {
         return $this->hasMany(OrderItems::class);
+    }
+
+    public function tracks()
+    {
+        return $this->hasMany(OrderTrack::class)->orderBy('created_at', 'desc');
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class)->orderBy('created_at', 'desc');
+    }
+
+    public function scopeWhereTimeframe($query, $column, $period)
+    {
+        if ($period == 'day') {
+            return $query->whereDate($column, today());
+        }elseif ($period == 'week') {
+            return $query->whereBetween($column, [now()->startOfWeek(), now()->endOfWeek()]);
+        } elseif ($period == 'month') {
+            return $query->whereMonth($column, now()->month)
+                        ->whereYear($column, now()->year);
+        } elseif ($period == 'year') {
+            return $query->whereYear($column, now()->year);
+        }
+
+        return $query;
     }
 }

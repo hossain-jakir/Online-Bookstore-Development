@@ -8,7 +8,7 @@
                         <i class="fa-solid fa-users icon-cell"></i>
                     </div>
                     <div class="icon-content">
-                        <h2 class="dz-title counter m-b0">125,663</h2>
+                        <h2 class="dz-title counter m-b0">{{$data['happyCustomerData']['happyCustomerCount']}}</h2>
                         <p class="font-20">Happy Customers</p>
                     </div>
                 </div>
@@ -19,7 +19,7 @@
                         <i class="fa-solid fa-book icon-cell"></i>
                     </div>
                     <div class="icon-content">
-                        <h2 class="dz-title counter m-b0">50,672</h2>
+                        <h2 class="dz-title counter m-b0">{{$data['happyCustomerData']['totalBookCount']}}</h2>
                         <p class="font-20">Book Collections</p>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
                         <i class="fa-solid fa-store icon-cell"></i>
                     </div>
                     <div class="icon-content">
-                        <h2 class="dz-title counter m-b0">1,562</h2>
+                        <h2 class="dz-title counter m-b0">{{$data['happyCustomerData']['totalStoreCount']}}</h2>
                         <p class="font-20">Our Stores</p>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                         <i class="fa-solid fa-leaf icon-cell"></i>
                     </div>
                     <div class="icon-content">
-                        <h2 class="dz-title counter m-b0">457</h2>
+                        <h2 class="dz-title counter m-b0">{{$data['happyCustomerData']['totalWriter']}}</h2>
                         <p class="font-20">Famous Writers</p>
                     </div>
                 </div>

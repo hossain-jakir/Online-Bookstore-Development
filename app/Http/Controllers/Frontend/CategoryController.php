@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Wishlist;
-use App\Helpers\ImageHelper;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -56,7 +56,7 @@ class CategoryController extends MainController
 
         // Generate image paths for each book
         foreach ($data['books'] as $book) {
-            $book->image = ImageHelper::generateImage($book->image, 'grid');
+            $book->image = ServeImage::image($book->image, 'grid');
             if(auth()->user()) {
                 $book->isWishlisted = Wishlist::where('book_id', $book->id)
                     ->where('user_id', auth()->user()->id)

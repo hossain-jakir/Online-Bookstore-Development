@@ -39,6 +39,11 @@ return new class extends Migration
             $table->text('error')->nullable();
             $table->text('error_message')->nullable();
 
+            $table->text('refund_id')->nullable();
+            $table->text('refund_status')->nullable();
+            $table->text('refund_amount')->nullable();
+            $table->text('refund_currency')->nullable();
+
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('order_id')->nullable()->constrained()->onDelete('set null');
 

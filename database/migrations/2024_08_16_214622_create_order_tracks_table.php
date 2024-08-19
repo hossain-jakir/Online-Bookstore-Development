@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('order_tracks', function (Blueprint $table) {
             $table->id();
-            $table->morphs('billable');
-            $table->string('type');
-            $table->string('paddle_id')->unique();
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->string('status');
-            $table->timestamp('trial_ends_at')->nullable();
-            $table->timestamp('paused_at')->nullable();
-            $table->timestamp('ends_at')->nullable();
+            $table->string('message');
+
+            $table->enum('isDeleted', ['yes', 'no'])->default('no');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('order_tracks');
     }
 };

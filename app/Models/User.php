@@ -64,4 +64,20 @@ class User extends Authenticatable
     public function defaultAddress(){
         return $this->hasOne(Address::class)->where('is_default', 1);
     }
+
+    public function scopeWhereTimeframe($query, $column, $period)
+    {
+        if ($period == 'day') {
+            return $query->whereDate($column, today());
+        }elseif ($period == 'week') {
+            return $query->whereBetween($column, [now()->startOfWeek(), now()->endOfWeek()]);
+        } elseif ($period == 'month') {
+            return $query->whereMonth($column, now()->month)
+                        ->whereYear($column, now()->year);
+        } elseif ($period == 'year') {
+            return $query->whereYear($column, now()->year);
+        }
+
+        return $query;
+    }
 }

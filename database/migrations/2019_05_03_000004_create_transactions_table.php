@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->morphs('billable');
-            $table->string('paddle_id')->unique();
-            $table->string('paddle_subscription_id')->nullable()->index();
-            $table->string('invoice_number')->nullable();
-            $table->string('status');
-            $table->string('total');
-            $table->string('tax');
-            $table->string('currency', 3);
-            $table->timestamp('billed_at');
+            $table->enum('type', ['credit', 'debit']);
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('order_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('gateway')->nullable();
+            $table->string('status')->nullable();
+            $table->string('currency')->nullable();
+            $table->decimal('amount', 10, 2)->default(0);
+            $table->string('reference')->nullable();
+            $table->string('description')->nullable();
+            $table->timestamp('billed_at')->nullable();
             $table->timestamps();
         });
     }

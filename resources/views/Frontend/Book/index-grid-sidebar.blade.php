@@ -187,10 +187,10 @@
                                         <div class="book-footer">
                                             <div class="price">
                                                 @if ($book->discounted_price)
-                                                    <span class="price-num">${{ $book->discounted_price }}</span>
-                                                    <del>${{ $book->sale_price }}</del>
+                                                    <span class="price-num">£{{ $book->discounted_price }}</span>
+                                                    <del>£{{ $book->sale_price }}</del>
                                                 @else
-                                                    <span class="price-num">${{ $book->sale_price }}</span>
+                                                    <span class="price-num">£{{ $book->sale_price }}</span>
                                                 @endif
                                             </div>
                                             <button id="flexCheckDefault1" class="btn btn-outline-danger btnhover add-to-wishlist" data-id="{{ $book->id }}"><i class="flaticon-heart"></i></button>
@@ -250,7 +250,8 @@
             years: [],
             featured: [],
             best_sellers: [],
-            day_filter: 'newest'
+            day_filter: 'newest',
+            q: '{{ request()->q }}',
         };
 
         // Initialize data if provided in page load
@@ -295,6 +296,9 @@
                 }
                 if (filters.day_filter) {
                     queryParams.set('day_filter', encodeURIComponent(filters.day_filter));
+                }
+                if (filters.q) {
+                    queryParams.set('q', filters.q);
                 }
 
                 var newUrl = window.location.pathname + '?' + queryParams.toString();
@@ -371,6 +375,7 @@
             //day filter
             var dayFilter = $('#day-filter').val();
 
+            $q = $('#search').val();
 
             // Prepare filter object to send to backend or manipulate data locally
             var filters = {
@@ -384,7 +389,8 @@
                 authors: selectedAuthors,
                 featured: selectedFeaturedBooks,
                 best_sellers: selectedBestBooks,
-                day_filter: dayFilter
+                day_filter: dayFilter,
+                q: $q
             };
 
             console.log('Applying filters:', filters);

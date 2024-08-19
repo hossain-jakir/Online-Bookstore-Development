@@ -83,17 +83,27 @@
                             <div class="form-group">
                                 <select class="form-control" id="deliveryFeeSelect">
                                     @foreach ($data['DeliveryFees'] as $deliveryFee)
-                                        <option value="{{ $deliveryFee->id }}" @if($deliveryFee->default) selected @endif data-fee="{{ $deliveryFee->price }}">{{ $deliveryFee->name }} - £{{ $deliveryFee->price }}</option>
+
+                                        @php
+                                            if($data['cartList']['cart'] && $data['cartList']['cart']->delivery_fee_id != null){
+                                                $deliveryFeeId = $data['cartList']['cart']->delivery_fee_id;
+                                            }else{
+                                                $deliveryFeeId = $data['DeliveryFees'][0]->id;
+                                            }
+                                        @endphp
+                                        <option value="{{ $deliveryFee->id }}" @if($deliveryFee->id == $deliveryFeeId) selected @endif
+                                            data-fee="{{ $deliveryFee->price }}">{{ $deliveryFee->name }} - £{{ $deliveryFee->price }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Coupon Code" id="couponCode" name="couponCode">
+                                <input type="text" class="form-control" placeholder="Coupon Code" id="couponCode" name="couponCode"
+                                    @if(isset($data['cartList']['couponDiscount']) && $data['cartList']['couponDiscount'] > 0) disabled @endif>
                             </div>
                             <div class="form-group">
 
-                                @if($data['cartList']['couponDiscount'] > 0)
+                                @if(isset($data['cartList']['couponDiscount']) && $data['cartList']['couponDiscount'] > 0)
                                     <button class="btn btn-primary btnhover" type="button" id="applyCoupon" style="display: none;">Apply Coupon</button>
                                     <button class="btn btn-secondary btnhover" type="button" id="removeCoupon">Remove Coupon</button>
                                 @else
@@ -269,6 +279,7 @@
                         $('#couponDiscount').text('£' + parseFloat(response.couponDiscount).toFixed(2));
                         $('#orderTotal').text('£' + totalPrice.toFixed(2));
                         $('#couponCode').val(''); // Clear the coupon code input
+                        $('#couponCode').prop('disabled', true); // Disable the coupon code input
                         $('#applyCoupon').hide(); // Hide apply coupon button
                         $('#removeCoupon').show(); // Hide remove coupon button
                         showToast('success', response.message);
@@ -301,6 +312,7 @@
                         $('#couponDiscount').text('£' + parseFloat(response.couponDiscount).toFixed(2));
                         $('#orderTotal').text('£' + totalPrice.toFixed(2));
                         $('#couponCode').val(''); // Clear the coupon code input
+                        $('#couponCode').prop('disabled', false); // Enable the coupon code input
                         $('#applyCoupon').show(); // Show apply coupon button
                         $('#removeCoupon').hide(); // Hide remove coupon button
                         showToast('success', response.message);

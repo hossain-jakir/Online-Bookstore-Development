@@ -61,10 +61,10 @@
                                 <div class="book-footer">
                                     <div class="price">
                                         @if ($data['book']->discounted_price)
-                                            <h5>${{ $data['book']->discounted_price }}</h5>
-                                            <p class="p-lr10">${{ $data['book']->sale_price }}</p>
+                                            <h5>£{{ $data['book']->discounted_price }}</h5>
+                                            <p class="p-lr10">£{{ $data['book']->sale_price }}</p>
                                         @else
-                                            <h5>${{ $data['book']->sale_price }}</h5>
+                                            <h5>£{{ $data['book']->sale_price }}</h5>
                                         @endif
                                     </div>
                                     <div class="product-num">
@@ -242,7 +242,7 @@
                                                 </ul>
                                                 <div class="price">
                                                     @if ($relatedBook->discounted_price)
-                                                        <span class="price-num">${{ $relatedBook->discounted_price }}</span>
+                                                        <span class="price-num">£{{ $relatedBook->discounted_price }}</span>
                                                         <del>£{{ $relatedBook->sale_price }}</del>
                                                     @else
                                                         <span class="price-num">£{{ $relatedBook->sale_price }}</h5>

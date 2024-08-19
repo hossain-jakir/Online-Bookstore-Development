@@ -18,6 +18,11 @@
                     <span>Profile</span></a>
                 </li>
                 <li>
+                    <a href="{{ route('profile.orders') }}" @if (Route::currentRouteName() == 'profile.orders' || Route::currentRouteName() == 'profile.order.show') class="active" @endif>
+                        <i class="fa fa-shopping-bag" aria-hidden="true"></i>
+                    <span>My Order</span></a>
+                </li>
+                <li>
                     <a href="{{ route('profile.address') }}" @if (Route::currentRouteName() == 'profile.address') class="active" @endif>
                         <i class="fa fa-map-marker" aria-hidden="true"></i>
                     <span>My Address</span></a>

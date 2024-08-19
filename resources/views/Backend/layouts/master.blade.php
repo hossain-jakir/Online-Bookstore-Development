@@ -3,10 +3,12 @@
 @section('layoutContent')
 
     <div class="wrapper">
+        @php
+            $shop = DB::table('shops')->first();
+        @endphp
         <!-- Preloader -->
         <div class="preloader flex-column justify-content-center align-items-center">
-            <img class="animation__shake" src="{{ asset('assets/frontend/images/logo.png')}}" alt="AdminLTELogo"
-                height="80px" width="auto">
+            <img class="animation__shake" src="{{ Storage::url($shop->logo) }}" alt="{{ $shop->name }}" height="80px" width="auto">
         </div>
 
         @include('Backend/layouts/sections/navbar/navbar')

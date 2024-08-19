@@ -37,7 +37,7 @@
                                     </button>
                                     <div class="price-details">
                                         @if ($offer->discounted_price)
-                                            £{{ $offer->discounted_price }} <del>${{ $offer->sale_price }}</del>
+                                            £{{ $offer->discounted_price }} <del>£{{ $offer->sale_price }}</del>
                                         @else
                                             £{{ $offer->sale_price }}
                                         @endif

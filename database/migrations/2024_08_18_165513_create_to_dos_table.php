@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
+        Schema::create('to_dos', function (Blueprint $table) {
             $table->id();
-            $table->morphs('billable');
-            $table->string('paddle_id')->unique();
-            $table->string('name');
-            $table->string('email');
-            $table->timestamp('trial_ends_at')->nullable();
+            $table->string('task');
+            $table->string('status')->default('pending');
+            $table->timestamp('due_date')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('to_dos');
     }
 };

@@ -83,4 +83,54 @@ class Book extends Model
         return $this->orders()->count();
     }
 
+    // Accessor for final price after applying discount
+    public function getFinalPriceAttribute()
+    {
+        if ($this->discount_type === 'percentage') {
+            return $this->sale_price - ($this->sale_price * ($this->discounted_price / 100));
+        }
+
+        return $this->sale_price - $this->discounted_price;
+    }
+
+    // Scope to filter only available books
+    public function scopeAvailable($query)
+    {
+        return $query->where('availability', 1)->where('isDeleted', 'no');
+    }
+
+    // Scope to filter featured books
+    public function scopeFeatured($query)
+    {
+        return $query->where('featured', 1)->where('isDeleted', 'no');
+    }
+
+    // Scope to filter books on sale
+    public function scopeOnSale($query)
+    {
+        return $query->where('on_sale', 1)->where('isDeleted', 'no');
+    }
+
+    // Scope to filter books with free delivery
+    public function scopeFreeDelivery($query)
+    {
+        return $query->where('free_delivery', 1)->where('isDeleted', 'no');
+    }
+
+    public function scopeWhereTimeframe($query, $column, $period)
+    {
+        if ($period == 'day') {
+            return $query->whereDate($column, today());
+        }elseif ($period == 'week') {
+            return $query->whereBetween($column, [now()->startOfWeek(), now()->endOfWeek()]);
+        } elseif ($period == 'month') {
+            return $query->whereMonth($column, now()->month)
+                        ->whereYear($column, now()->year);
+        } elseif ($period == 'year') {
+            return $query->whereYear($column, now()->year);
+        }
+
+        return $query;
+    }
+
 }

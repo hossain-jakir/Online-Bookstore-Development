@@ -40,13 +40,13 @@
                                         <!-- Display the discounted price if available -->
                                         @if ($onSale->discounted_price)
                                             <span class="price-num" style="font-size: 18px; font-weight: bold; color: #e74c3c;">
-                                                ${{ $onSale->discounted_price }}
+                                                £{{ $onSale->discounted_price }}
                                             </span>
-                                            <del style="font-size: 16px; color: #7f8c8d;">${{ $onSale->sale_price }}</del>
+                                            <del style="font-size: 16px; color: #7f8c8d;">£{{ $onSale->sale_price }}</del>
                                         @else
                                             <!-- Display only the sale price if no discount is available -->
                                             <span class="price-num" style="font-size: 18px; font-weight: bold; color: #34495e;">
-                                                ${{ $onSale->sale_price }}
+                                                £{{ $onSale->sale_price }}
                                             </span>
                                         @endif
                                     </div>

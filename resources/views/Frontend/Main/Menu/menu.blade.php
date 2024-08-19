@@ -4,7 +4,7 @@
         <div class="container clearfix">
             <!-- Website Logo -->
             <div class="logo-header logo-dark">
-                <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt="logo"></a>
+                <a href="{{ route('home') }}"><img src="{{ Storage::url($data['shop']->logo) }}" alt="{{ $data['shop']->name }}"></a>
             </div>
 
             <!-- Nav Toggle Button -->

@@ -86,10 +86,10 @@
                                 <div class="book-footer">
                                     <div class="price">
                                         @if ($book->discounted_price)
-                                            <span class="price-num">${{ $book->discounted_price }}</span>
-                                            <del>${{ $book->sale_price }}</del>
+                                            <span class="price-num">£{{ $book->discounted_price }}</span>
+                                            <del>£{{ $book->sale_price }}</del>
                                         @else
-                                            <span class="price-num">${{ $book->sale_price }}</span>
+                                            <span class="price-num">£{{ $book->sale_price }}</span>
                                         @endif
                                     </div>
                                     <button id="flexCheckDefault1" class="btn btn-outline-danger btnhover add-to-wishlist" data-id="{{ $book->id }}"><i class="flaticon-heart"></i></button>

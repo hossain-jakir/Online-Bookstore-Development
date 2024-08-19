@@ -26,6 +26,10 @@ return new class extends Migration
             $table->decimal('tax_amount', 10, 2)->default(0);
             $table->decimal('shipping_amount', 10, 2)->default(0);
             $table->decimal('grand_total', 10, 2);
+            $table->decimal('paid_amount', 10, 2)->nullable()->default(0);
+            $table->decimal('due_amount', 10, 2)->nullable()->default(0);
+            $table->decimal('refund_amount', 10, 2)->nullable()->default(0);
+            $table->decimal('profit_amount', 10, 2)->nullable()->default(0);
 
             $table->enum('payment_method', ['cod', 'card', 'paypal', 'stripe']);
             $table->string('payment_id')->nullable();
@@ -40,7 +44,7 @@ return new class extends Migration
 
             $table->text('notes')->nullable();
 
-            $table->enum('status', ['pending', 'processing', 'completed', 'declined', 'canceled'])->default('pending');
+            $table->enum('status', ['pending', 'processing', 'completed', 'declined', 'canceled','refunded'])->default('pending');
             $table->enum('isDeleted', ['yes', 'no'])->default('no');
             $table->timestamps();
         });

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Models\User;
 use App\Models\Address;
 use App\Models\Country;
-use App\Helpers\ImageHelper;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +24,7 @@ class ProfileController extends MainController
             return redirect()->route('home');
         }
         $data['user'] = $user;
-        $data['user']['image'] = ImageHelper::generateImage($user->image, 'grid');
+        $data['user']['image'] = ServeImage::image($user->image, 'grid');
 
         return view('Frontend.Profile.index')->with('data', $data);
     }
@@ -150,7 +150,7 @@ class ProfileController extends MainController
             return redirect()->route('home');
         }
         $data['user'] = $user;
-        $data['user']['image'] = ImageHelper::generateImage($user->image, 'grid');
+        $data['user']['image'] = ServeImage::image($user->image, 'grid');
         $data['address'] = Address::where('user_id', auth()->user()->id)->where('isDeleted', 'no')->where('status', 'active')->latest()->get();
         $data['countries'] = Country::where('status', 'active')->where('isDeleted', 'no')->get();
         // dd($data['user']['address']);

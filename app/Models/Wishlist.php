@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Helpers\ImageHelper;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Services\ServeImage;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Wishlist extends Model
 {
@@ -28,6 +28,6 @@ class Wishlist extends Model
     }
 
     public function getBookImageAttribute($type = 'grid'){
-        return ImageHelper::generateImage($this->book->image, $type);
+        return ServeImage::image($this->book->image, $type);
     }
 }

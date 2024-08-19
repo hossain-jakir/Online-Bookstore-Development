@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Helpers\ImageHelper;
 use App\Models\User;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -24,7 +24,7 @@ class AuthorController extends MainController
             ->paginate(20);
 
         foreach($data['AllAuthors'] as $author){
-            $author->image = ImageHelper::generateImage($author->image);
+            $author->image = ServeImage::image($author->image);
         }
 
         return view('Frontend.authors.index', compact('data'));

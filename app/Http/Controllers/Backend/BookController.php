@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Helpers\ImageHelper;
 use App\Models\Tag;
 use App\Models\Book;
 use App\Models\User;
 use App\Models\Category;
+use Illuminate\Support\Str;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Backend\BookRequest;
-use Illuminate\Support\Str;
 
 class BookController extends Controller
 {
@@ -35,11 +35,21 @@ class BookController extends Controller
             $row->tags = $tag->pluck('name')->toArray();
 
             // Get the first image of the book
-            $row->image = ImageHelper::generateImage($row->image, 'small');
+            $row->image = ServeImage::image($row->image, 'small');
         }
 
         return view('Backend.pages.book.index')->with('data', $data);
     }
+
+    public function list()
+    {
+        $books = Book::available()->get(['id', 'title', 'sale_price', 'image']);
+        foreach ($books as $book) {
+            $book->image = ServeImage::image($book->image, 'small');
+        }
+        return response()->json($books);
+    }
+
 
     public function create(){
         $data = [];

@@ -313,5 +313,87 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search');
+        const searchResultsContainer = document.getElementById('search-results');
+        let debounceTimer;
+
+        // Debounce function to limit the number of times the search function is called
+        function debounce(func, delay) {
+            return function(...args) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        // Function to perform the search
+        function performSearch() {
+            const query = searchInput.value.trim();
+
+            if (query.length > 0) {
+                // Make an AJAX request to the search route
+                fetch(`/book/search?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear previous results
+                        searchResultsContainer.innerHTML = '';
+                        searchResultsContainer.style.display = 'block'; // Show results
+
+                        if (data.success && data.data.length > 0) {
+                            // Populate results
+                            data.data.forEach(book => {
+                                const bookElement = document.createElement('div');
+                                bookElement.classList.add('search-result-item');
+
+                                let priceDisplay = '';
+                                if (book.discount_amount > 0) {
+                                    if (book.discount_type === 'percentage') {
+                                        priceDisplay = `<p>£${book.price_display}</p>`;
+                                    } else {
+                                        priceDisplay = `<p>£${book.price_display}</p>`;
+                                    }
+                                } else {
+                                    priceDisplay = `<p>£${book.price_display}</p>`;
+                                }
+
+                                bookElement.innerHTML = `
+                                    <a href="${book.url}">
+                                        <img src="${book.image}" alt="${book.title}" />
+                                        <h5>${book.title}</h5>
+                                        <h6 class="float-right" style="color: #f91942; margin-left: 10px; font-size: 16px;">${priceDisplay}</h6>
+                                    </a>
+                                `;
+                                searchResultsContainer.appendChild(bookElement);
+                            });
+                        } else {
+                            // Show no results message
+                            searchResultsContainer.innerHTML = '<p>No books found.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        searchResultsContainer.innerHTML = '<p>Error fetching results.</p>';
+                    });
+            } else {
+                // Clear results if input is empty
+                searchResultsContainer.innerHTML = '';
+                searchResultsContainer.style.display = 'none'; // Hide results
+            }
+        }
+
+        // Attach the debounced search function to input changes
+        searchInput.addEventListener('input', debounce(performSearch, 300)); // Adjust debounce delay as needed (300ms here)
+
+        // Hide search results when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!searchResultsContainer.contains(event.target) && event.target !== searchInput) {
+                searchResultsContainer.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+
 @yield('addScript')
 

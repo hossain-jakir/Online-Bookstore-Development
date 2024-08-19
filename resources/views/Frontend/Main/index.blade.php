@@ -15,7 +15,7 @@
         <meta name="format-detection" content="telephone=no">
 
         <!-- FAVICONS ICON -->
-        <link rel="icon" type="image/x-icon" href="{{ asset('assets/frontend/images/favicon.png')}}"/>
+        <link rel="icon" type="image/x-icon" href="{{ Storage::url($data['shop']->favicon) }}" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- PAGE TITLE HERE -->

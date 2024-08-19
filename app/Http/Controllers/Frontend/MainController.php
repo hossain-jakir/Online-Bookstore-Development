@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Models\Book;
 use App\Models\Cart;
 use App\Models\User;
 use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Wishlist;
 use App\Models\DeliveryFee;
-use App\Helpers\ImageHelper;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -37,12 +38,33 @@ class MainController extends Controller{
             ->orderBy('book_count', 'desc')
             ->get();
 
+        $cacheKey = 'happy_customer_data';
+        //remember the cache for 10 minutes
+        $data['happyCustomerData'] = Cache::remember($cacheKey, 30, function () {
+            return [
+                'happyCustomerCount' => User::whereHas('roles', function($q){
+                    $q->where('name', 'user');
+                })->where('status', 'active')->where('isDeleted', 'no')->count(),
+                'totalBookCount' => Book::where('status', 'published')->where('isDeleted', 'no')->count(),
+                'totalStoreCount' => 1,
+                'totalWriter' => User::whereHas('roles', function($q){
+                    $q->where('name', 'author');
+                })->where('status', 'active')->where('isDeleted', 'no')->count(),
+            ];
+        });
+
+        $data['shop'] = Cache::remember('shop_data', 60*24, function () {
+            return DB::table('shops')->first();
+        });
+
         $data['wishlistCount'] = 0;
         $data['cartList'] = [
             'subTotalPrice' => 0,
             'deliveryFee' => 0,
             'totalPrice' => 0,
+            'couponDiscount' => 0,
             'count' => 0,
+            'cart' => null,
             'items' => []
         ];
         if(auth()->check() || $request->session()->has('session_id')){
@@ -69,6 +91,9 @@ class MainController extends Controller{
             ->first();
 
         if ($cart) {
+
+            $data['cartList']['cart'] = $cart;
+
             $cartItems = CartItem::with('book')
                 ->where('cart_id', $cart->id)
                 ->where('isDeleted', 'no')
@@ -77,7 +102,7 @@ class MainController extends Controller{
 
             foreach ($cartItems as $cartItem) {
                 // Generate image path for the book
-                $cartItem->book->image = ImageHelper::generateImage($cartItem->book->image, 'grid');
+                $cartItem->book->image = ServeImage::image($cartItem->book->image, 'grid');
 
                 // Determine price to use based on discounted_price or sale_price
                 $price = $cartItem->book->discounted_price ?? $cartItem->book->sale_price;
@@ -100,26 +125,21 @@ class MainController extends Controller{
                     'image' => $cartItem->book->image,
                 ];
             }
+
+            // Get coupon discount
+            $couponDiscount = $cart->coupon_discount ?? 0; // Assuming `coupon_discount` is a field in the Cart model
+
+            // Calculate total price
+            $deliveryFee = $cart->delivery_fee_id ? DeliveryFee::find($cart->delivery_fee_id)->price : DeliveryFee::where('isDefault', 'yes')->first()->price;
+            $data['cartList']['totalPrice'] = $data['cartList']['subTotalPrice'] + $deliveryFee - $couponDiscount;
+
+            // Add coupon discount to data
+            $data['cartList']['couponDiscount'] = $couponDiscount;
+            $data['cartList']['totalPrice'] = max(0,number_format($data['cartList']['totalPrice'], 2));
+            $data['cartList']['subTotalPrice'] = number_format($data['cartList']['subTotalPrice'], 2);
+            $data['cartList']['deliveryFee'] = number_format($deliveryFee, 2);
+
         }
-
-        // Get default delivery fee
-        $itemCount = count($data['cartList']['items']);
-        $deliveryFee = $itemCount > 0 ? DeliveryFee::where('status', 'active')->where('isDeleted', 'no')->where('default', '1')->first()->price : 0;
-
-        // Get coupon discount
-        $couponDiscount = $cart->coupon_discount ?? 0; // Assuming `coupon_discount` is a field in the Cart model
-
-        // Calculate total price
-        $data['cartList']['deliveryFee'] = $deliveryFee;
-        $data['cartList']['totalPrice'] = $data['cartList']['subTotalPrice'] + $deliveryFee - $couponDiscount;
-
-        // Add coupon discount to data
-        $data['cartList']['couponDiscount'] = $couponDiscount;
-        $data['cartList']['totalPrice'] = max(0,number_format($data['cartList']['totalPrice'], 2));
-        $data['cartList']['subTotalPrice'] = number_format($data['cartList']['subTotalPrice'], 2);
-        $data['cartList']['deliveryFee'] = number_format($deliveryFee, 2);
-
-
         return $data;
     }
 

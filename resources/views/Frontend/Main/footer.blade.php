@@ -32,10 +32,10 @@
                 <div class="col-xl-3 col-lg-12 wow fadeInUp" data-wow-delay="0.1s">
                     <div class="widget widget_about">
                         <div class="footer-logo logo-white">
-                            <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt=""></a>
+                            <a href="{{ route('home') }}"><img src="{{ Storage::url($data['shop']->logo) }}" alt="{{ $data['shop']->name }}"></a>
                         </div>
                         <p class="text">
-                            Bookland is a best and largest online book store. We have a vast collection of books in different categories.
+                            {{ $data['shop']->short_description }}
                         </p>
                     </div>
                 </div>
@@ -46,7 +46,6 @@
                             <li><a href="{{ route('about-us') }}">About us</a></li>
                             <li><a href="{{ route('contact-us') }}">Contact us</a></li>
                             <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
-                            <li><a href="pricing.html">Pricing Table</a></li>
                             <li><a href="{{ route('faq') }}">FAQ</a></li>
                         </ul>
                     </div>
@@ -56,7 +55,6 @@
                         <h5 class="footer-title">Bookland ?</h5>
                         <ul>
                             <li><a href="{{ route('home') }}">Bookland</a></li>
-                            <li><a href="services.html">Services</a></li>
                             <li><a href="{{ route('book.index') }}">Shop</a></li>
                         </ul>
                     </div>
@@ -79,17 +77,19 @@
                         <ul>
                             <li>
                                 <i class="flaticon-placeholder"></i>
-                                <span>832  Thompson Drive, San Fransisco CA 94107,US</span>
+                                <span>{{ $data['shop']->address }}</span>
                             </li>
                             <li>
                                 <i class="flaticon-phone"></i>
-                                <span>+123 345123 556<br>
-                                +123 345123 556</span>
+                                <span>
+                                    {{ $data['shop']->phone }}
+                                </span>
                             </li>
                             <li>
                                 <i class="flaticon-email"></i>
-                                <span>support@bookland.id<br>
-                                info@bookland.id</span>
+                                <span>
+                                    {{ $data['shop']->email }}
+                                </span>
                             </li>
                         </ul>
                     </div>
@@ -104,7 +104,7 @@
         <div class="container">
             <div class="row fb-inner">
                 <div class="col-lg-6 col-md-12 text-start">
-                    <p class="copyright-text">Bookland | Book Store Ecommerce Website - © {{ date('Y') }} All Rights Reserved</p>
+                    <p class="copyright-text">{{ $data['shop']->name }} - © {{ date('Y') }} All Rights Reserved</p>
                 </div>
             </div>
         </div>

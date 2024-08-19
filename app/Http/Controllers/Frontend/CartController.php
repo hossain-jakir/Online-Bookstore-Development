@@ -6,7 +6,7 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\CartItem;
 use App\Models\DeliveryFee;
-use App\Helpers\ImageHelper;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -59,7 +59,7 @@ class CartController extends HomeController
                 ->get();
 
             foreach ($cartItems as $cartItem) {
-                $cartItem->book->image = ImageHelper::generateImage($cartItem->book->image, 'grid');
+                $cartItem->book->image = ServeImage::image($cartItem->book->image, 'grid');
 
                 $price = $cartItem->book->discounted_price ?? $cartItem->book->sale_price;
                 $itemTotalPrice = $cartItem->quantity * $price;
@@ -268,7 +268,11 @@ class CartController extends HomeController
 
         if ($cart) {
             $cart->delivery_fee_id = $request->delivery_fee_id;
-            $cart->save();
+            $cartSave = $cart->save();
+
+            if (!$cartSave) {
+                return response()->json(['success' => false, 'message' => 'Failed to update delivery fee']);
+            }
 
             // Get the new delivery fee
             $deliveryFee = DeliveryFee::find($request->delivery_fee_id);
@@ -329,12 +333,7 @@ class CartController extends HomeController
             ->first();
 
         if ($coupon) {
-            $items = $cart->items ?? collect();
-
-            $subTotal = $items->sum(function($item) {
-                return $item->quantity * ($item->book->discounted_price ?? $item->book->sale_price);
-            });
-
+            $subTotal = $this->calculateCartSubtotal($cart->id);
             $couponDiscount = $this->calculateCouponDiscount($coupon, $subTotal);
             $cart->coupon_code = $couponCode;
             $cart->coupon_discount = $couponDiscount;

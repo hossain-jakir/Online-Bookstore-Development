@@ -57,6 +57,8 @@ class RegisteredUserController extends MainController
 
         Auth::login($user);
 
+        $user->assignRole('user');
+
         return redirect(RouteServiceProvider::FRONTEND);
     }
 }

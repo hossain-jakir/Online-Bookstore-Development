@@ -5,7 +5,7 @@
         <div class="container clearfix">
             <!-- Website Logo -->
             <div class="logo-header logo-dark">
-                <a href="{{ route('home') }}"><img src="{{ asset('assets/frontend/images/logo.png')}}" alt="logo"></a>
+                <a href="{{ route('home') }}"><img src="{{ Storage::url($data['shop']->logo) }}" alt="{{ $data['shop']->name }}"></a>
             </div>
 
             <!-- EXTRA NAV -->
@@ -29,20 +29,18 @@
             </div>
 
             <!-- header search nav -->
-            <div class="header-search-nav">
-                <div class="header-item-search">
-                    <div class="input-group search-input">
-                        <select class="default-select">
-                            <option>Category</option>
-                            @foreach ( $data['categories'] as $category )
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Search Books Here">
-                        <button class="btn" type="button"><i class="flaticon-loupe"></i></button>
+            <form action="{{ route('book.index') }}" method="get">
+                <div class="header-search-nav">
+                    <div class="header-item-search">
+                        <div class="input-group search-input">
+                            <input type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Search Books Here" name="q" value="{{ request()->q }}" id="search" autocomplete="off">
+                            <button class="btn" type="submit"><i class="flaticon-loupe"></i></button>
+                        </div>
+                        <!-- Container for search results -->
+                        <div id="search-results"></div> <!-- Container for search results -->
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
     <!-- Main Header End -->

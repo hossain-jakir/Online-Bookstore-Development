@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Wishlist;
-use App\Helpers\ImageHelper;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -28,6 +28,7 @@ class BookController extends MainController
             'featured' => $request->get('featured') ? array_map('urldecode', explode(',', $request->get('featured'))) : [],
             'best_sellers' => $request->get('best_sellers') ? array_map('trim', explode(',', urldecode($request->get('best_sellers')))): [],
             'day_filter' => $request->get('day_filter', null),
+            'q' => urldecode($request->get('q', null)),
         ];
         $data['filters'] = $filters;
         // dd($filters);
@@ -67,6 +68,21 @@ class BookController extends MainController
         $booksQuery = Book::with('category', 'author')
             ->where('isDeleted', 'no')
             ->where('status', 'published');
+
+        if ($request->has('q')) {
+            $decodedQuery = urldecode($request->get('q'));
+            $search = $decodedQuery;
+            $booksQuery->where(function ($query) use ($search) {
+                $query->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%')
+                    ->orWhere('isbn', 'like', '%' . $search . '%')
+                    ->orWhere('publisher', 'like', '%' . $search . '%')
+                    ->orWhere('publication_date', 'like', '%' . $search . '%')
+                    ->orWhere('pages', 'like', '%' . $search . '%')
+                    ->orWhere('lessons', 'like', '%' . $search . '%')
+                    ->orWhere('edition_language', 'like', '%' . $search . '%');
+            });
+        }
 
         // Check if there are filters
         if ($filters) {
@@ -187,7 +203,7 @@ class BookController extends MainController
 
         // Generate image paths for each book
         foreach ($data['books'] as $book) {
-            $book->image = ImageHelper::generateImage($book->image, 'grid');
+            $book->image = ServeImage::image($book->image, 'grid');
             $book->url = route('book.show', base64_encode($book->id));
             $book->isWishlisted = auth()->check() ?
                 Wishlist::where('book_id', $book->id)
@@ -260,12 +276,12 @@ class BookController extends MainController
         }
 
         foreach ($data['book']->reviews as $review) {
-            $review->user->image = ImageHelper::generateImage($review->user->image, 'main');
+            $review->user->image = ServeImage::image($review->user->image, 'main');
         }
 
-        $data['book']->image = ImageHelper::generateImage($data['book']->image, 'default');
+        $data['book']->image = ServeImage::image($data['book']->image, 'default');
         if ($data['book']->author) {
-            $data['book']->author->image = ImageHelper::generateImage($data['book']->author->image, 'main');
+            $data['book']->author->image = ServeImage::image($data['book']->author->image, 'main');
         }
 
         // Fetch related books
@@ -281,9 +297,9 @@ class BookController extends MainController
             ->get();
 
         foreach ($data['relatedBooks'] as $relatedBook) {
-            $relatedBook->image = ImageHelper::generateImage($relatedBook->image, 'grid');
+            $relatedBook->image = ServeImage::image($relatedBook->image, 'grid');
             if ($relatedBook->author) {
-                $relatedBook->author->image = ImageHelper::generateImage($relatedBook->author->image, 'main');
+                $relatedBook->author->image = ServeImage::image($relatedBook->author->image, 'main');
             }
         }
 
@@ -298,9 +314,9 @@ class BookController extends MainController
             ->get();
 
         foreach ($data['recommended'] as $recommended) {
-            $recommended->image_path = ImageHelper::generateImage($recommended->image, 'grid');
+            $recommended->image_path = ServeImage::image($recommended->image, 'grid');
             if ($recommended->author) {
-                $recommended->author->image = ImageHelper::generateImage($recommended->author->image, 'main');
+                $recommended->author->image = ServeImage::image($recommended->author->image, 'main');
             }
         }
 
@@ -376,5 +392,49 @@ class BookController extends MainController
         return view('Frontend.Book.index-grid-sidebar')->with('data', $data);
 
     }
+
+    public function search(Request $request) {
+        $q = $request->q ?? '';
+
+        $booksQuery = Book::where('isDeleted', 'no')
+            ->where('status', 'published')
+            ->where(function ($query) use ($q) {
+                $query->where('title', 'like', '%' . $q . '%')
+                    ->orWhere('description', 'like', '%' . $q . '%')
+                    ->orWhere('isbn', 'like', '%' . $q . '%')
+                    ->orWhere('publisher', 'like', '%' . $q . '%')
+                    ->orWhere('publication_date', 'like', '%' . $q . '%')
+                    ->orWhere('pages', 'like', '%' . $q . '%')
+                    ->orWhere('lessons', 'like', '%' . $q . '%')
+                    ->orWhere('edition_language', 'like', '%' . $q . '%');
+            })->limit(10)->get();
+
+        foreach ($booksQuery as $book) {
+            $book->image = ServeImage::image($book->image, 'grid');
+            $book->url = route('book.show', base64_encode($book->id));
+
+            // Add price details
+            $book->price_display = $book->discounted_price > 0 ? $book->discounted_price : $book->sale_price;
+            $book->price_display = number_format($book->price_display, 2);
+
+            if ($book->discounted_price > 0) {
+                $discount = $book->sale_price - $book->discounted_price;
+                $book->discount_amount = $discount;
+                $book->discount_type = $book->discount_type; // 'fixed' or 'percentage'
+            } else {
+                $book->discount_amount = 0;
+                $book->discount_type = 'none';
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Books fetched successfully',
+            'isBookFound' => $booksQuery->count() > 0 ? true : false,
+            'count' => $booksQuery->count(),
+            'data' => $booksQuery,
+        ]);
+    }
+
 
 }

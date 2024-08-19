@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Backend\User;
+namespace App\Http\Controllers\Backend;
 
-use App\Helpers\ImageHelper;
+use App\Models\User;
 use App\Models\Profile;
+use App\Helpers\ImageHelper;
+use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Backend\BackendController;
-use App\Http\Controllers\Controller;
-use App\Models\User;
 
 class UserController extends Controller
 {
@@ -39,7 +40,7 @@ class UserController extends Controller
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'status' => $user->status,
-                'image' => ImageHelper::getProfileImage($user,'main'),
+                'image' => ServeImage::profile($user,'main'),
                 // 'permission' => Auth::user()->hasPermissionTo('admin.user.assign.role') ? true : false,
             ];
         }

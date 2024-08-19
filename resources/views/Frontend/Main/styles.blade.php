@@ -19,5 +19,57 @@
     const cartItemsRoute = "{{ route('cart.get-cart-items') }}";
     const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
 </script>
+<style>
+
+    .search-input {
+        position: relative;
+    }
+
+    #search-results {
+        position: absolute;
+        top: 100%; /* Position it directly below the input field */
+        left: 0;
+        width: 100%;
+        max-height: 400px; /* Adjust as needed */
+        overflow-y: auto;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        z-index: 1000; /* Ensure it appears above other content */
+        display: none; /* Hidden by default */
+    }
+
+    .search-result-item {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-result-item img {
+        width: 50px; /* Adjust as needed */
+        height: auto;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+
+    .search-result-item a {
+        text-decoration: none;
+        color: #333;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .search-result-item h5 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .search-result-item p {
+        margin: 5px 0 0;
+        font-size: 14px;
+    }
+</style>
 
 @yield('addStyle')
