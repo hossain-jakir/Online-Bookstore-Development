@@ -21,4 +21,12 @@ enum Permissions: string
     case RoleDelete = 'delete role';
     case RoleView = 'view role';
     case RoleAssign = 'role assign';
+    case OrderView = 'view order';
+    case OrderEdit = 'edit order';
+    case OrderDelete = 'delete order';
+    case TransactionView = 'view transaction';
+    case ShopView = 'view shop';
+    case ShopEdit = 'edit shop';
+    case ReportView = 'view report';
+
 }

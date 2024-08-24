@@ -21,6 +21,7 @@ return new class extends Migration
             $table->boolean('is_resolved')->default(false);
             $table->timestamp('resolved_at')->nullable();
             $table->string('resolved_by')->nullable();
+            $table->boolean('is_read')->nullable()->default(false);
             $table->timestamps();
         });
     }

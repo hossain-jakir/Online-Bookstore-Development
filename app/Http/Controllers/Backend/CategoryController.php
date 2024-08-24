@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use App\Http\Requests\Backend\CategoryRequest;
@@ -17,6 +18,11 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request){
+
+        // Authorization check
+        if (Gate::denies('view category')) {
+            abort(403, 'Unauthorized');
+        }
 
         $data=[];
 
@@ -36,7 +42,9 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request){
-
+        if (Gate::denies('create category')) {
+            abort(403, 'Unauthorized');
+        }
         return view('Backend.pages.category.create');
     }
 
@@ -47,6 +55,12 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(CategoryRequest $request){
+
+        // Authorization check
+        if (Gate::denies('create category')) {
+            abort(403, 'Unauthorized');
+        }
+
         try{
 
             $slug = 'category/' . str_replace(' ', '-', strtolower($request->name));
@@ -94,6 +108,12 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request, $id){
+
+        // Authorization check
+        if (Gate::denies('edit category')) {
+            abort(403, 'Unauthorized');
+        }
+
         try{
 
             $data = [];
@@ -122,6 +142,10 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(CategoryRequest $request, $id){
+        // Authorization check
+        if (Gate::denies('edit category')) {
+            abort(403, 'Unauthorized');
+        }
         try{
 
             $category = Category::find($id);
@@ -169,6 +193,11 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, $id){
+
+        // Authorization check
+        if (Gate::denies('delete category')) {
+            abort(403, 'Unauthorized');
+        }
         try{
             $category = Category::find($id);
             if(!$category){

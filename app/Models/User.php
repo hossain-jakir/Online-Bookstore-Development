@@ -76,8 +76,20 @@ class User extends Authenticatable
                         ->whereYear($column, now()->year);
         } elseif ($period == 'year') {
             return $query->whereYear($column, now()->year);
+        }elseif ($period == 'all') {
+            return $query;
         }
 
         return $query;
+    }
+
+    public function primary_address(){
+        return $this->hasOne(Address::class)->where('is_default', 1)
+        ->where('status', 'active')->where('isDeleted', 'no')->orderBy('id', 'desc');
+    }
+
+    public function secondary_address(){
+        return $this->hasOne(Address::class)->where('type', 'billing')->where('is_default', 0)
+        ->where('status', 'active')->where('isDeleted', 'no')->orderBy('id', 'desc');
     }
 }

@@ -48,35 +48,39 @@ class RoleController extends Controller
 
     }
 
-    function store(Request $request){
+    function permissionIndex(Request $request, $roleID){
+        $data = [];
+        $role = Role::find($roleID);
+
+        if(!$role || $role->id == 1){
+            Session::flash('error', 'Role not found');
+            return redirect()->back();
+        }
+
+        $role->permissions = $role->permissions()->pluck('name')->toArray();
+        $data['role'] = $role;
+
+        return view('Backend.pages.role.permission')->with('data', $data);
+    }
+
+    function updatePermissions(Request $request, $roleId){
         try{
 
-            DB::beginTransaction();
-
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|unique:roles|max:100',
-            ]);
-
-            if ($validator->fails()) {
-                Session::flash('error', $validator->errors()->first());
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-
-            $role = Role::create(['name' => $request->name]);
+            $role = Role::find($roleId);
             if(!$role){
-                Session::flash('error', 'Role not created');
+                Session::flash('error', 'Role not found');
                 return redirect()->back();
             }
+
+            DB::beginTransaction();
 
             if($request->permissions){
                 $role->givePermissionTo($request->permissions);
             }
 
-            // parent::log($request , 'Create Role. Role Name: ' . $request->name);
-
             DB::commit();
-            Session::flash('success', 'Role created successfully');
-            return redirect()->back();
+            Session::flash('success', 'Permissions updated successfully');
+            return redirect()->route('backend.role.index');
 
         }catch(\Exception $e){
             DB::rollback();

@@ -25,14 +25,14 @@ class CategoryRequest extends FormRequest
      */
     public function rules()
     {
-        if($this->route()->getName() == 'admin.category.store'){
+        if($this->route()->getName() == 'backend.category.store'){
             return [
                 'name' => 'required|string|max:50|unique:categories',
                 'description' => 'nullable|string',
                 'status' => 'required|in:active,inactive',
             ];
         }
-        if($this->route()->getName() == 'admin.category.update'){
+        if($this->route()->getName() == 'backend.category.update'){
             return [
                 'name' => ['required','string','max:50', Rule::unique('categories')->ignore($this->id)],
                 'description' => 'nullable|string',

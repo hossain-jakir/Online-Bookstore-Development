@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Frontend\Payment;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Paypal;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Frontend\MainController;
+use App\Mail\OrderMail;
 use App\Models\CartItem;
 use App\Models\Transaction;
+use Illuminate\Http\Request;
+use App\Mail\ShippingStatusMail;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\Frontend\MainController;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaymentController extends MainController
@@ -149,6 +152,21 @@ class PaymentController extends MainController
             'paid_at' => now(),
         ]);
 
+        // 'shipping_status' => 'processing',
+        if($order->shipping_status == 'pending'){
+            $order->update([
+                'shipping_status' => 'processing',
+            ]);
+
+            // create order track
+            $order->tracks()->create([
+                'status' => 'processing',
+                'message' => 'Order is processing, please wait for the confirmation email. Thank you for shopping with us.',
+            ]);
+
+            Mail::to($order->user->email)->send(new ShippingStatusMail($order, 'Order is processing, please wait for the confirmation email. Thank you for shopping with us.'));
+        }
+
         // Transaction table insert
         Transaction::create([
             'type' => 'credit',
@@ -179,6 +197,8 @@ class PaymentController extends MainController
 
         session()->forget('order_id_'.Auth::id());
         session()->forget('paypal_id_'.Auth::id());
+
+        Mail::to($order->user->email)->send(new OrderMail($order, 2));
 
         return view('Frontend.Checkout.success', [
             'order' => $order,
@@ -281,7 +301,7 @@ class PaymentController extends MainController
         ]);
 
         // find order
-        $order = Order::where('id', $response['purchase_units'][0]['reference_id'])->first();
+        $order = Order::with('orderItems')->where('id', $response['purchase_units'][0]['reference_id'])->first();
 
         $order->update([
             'paid_amount' => $paidAmount,
@@ -334,6 +354,9 @@ class PaymentController extends MainController
         session()->forget('order_id_'.Auth::id());
         session()->forget('paypal_id_'.Auth::id());
 
+        Mail::to($order->user->email)->send(new OrderMail($order, 1));
+        Mail::to($order->user->email)->send(new ShippingStatusMail($order, 'Order is processing, please wait for the confirmation email. Thank you for shopping with us.'));
+
         return view('Frontend.Checkout.success', [
             'order' => $order,
             'response' => $response,
@@ -385,6 +408,8 @@ class PaymentController extends MainController
 
             session()->forget($paypalkey);
             session()->forget($orderKey);
+
+            Mail::to($order->user->email)->send(new OrderMail($order, 3));
 
         }catch(\Exception $e){
             $error = $e->getMessage();

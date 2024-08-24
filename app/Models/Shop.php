@@ -10,7 +10,7 @@ class Shop extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'logo', 'favicon', 'address', 'phone', 'email',
+        'name', 'logo', 'favicon', 'address', 'phone', 'email','tax',
         'latitude', 'longitude', 'short_description', 'website',
         'facebook', 'twitter', 'instagram', 'linkedin', 'whatsapp'
     ];

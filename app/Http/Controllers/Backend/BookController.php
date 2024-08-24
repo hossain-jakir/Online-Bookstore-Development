@@ -6,13 +6,16 @@ use App\Models\Tag;
 use App\Models\Book;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Subscriber;
 use Illuminate\Support\Str;
 use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Backend\BookRequest;
+use App\Mail\SubscriberMail;
 
 class BookController extends Controller
 {
@@ -25,21 +28,51 @@ class BookController extends Controller
         '_offer' =>['width' => 511, 'height' => 307],
     ];
 
-    public function index(){
-        $data=[];
+    public function index(Request $request)
+    {
+        $data = [];
 
-        $data['rows'] = Book::with('author')->with('tag')->where('isDeleted', 'no')->latest('id')->paginate(20);
+        // Retrieve the search query
+        $search = $request->input('search');
+
+        // Start query with the necessary relationships
+        $query = Book::with('author')->with('tag')->where('isDeleted', 'no');
+
+        // If search query is present, apply filters
+        if ($search) {
+            $query->where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('code', 'LIKE', '%' . $search . '%')
+                ->orWhere('isbn', 'LIKE', '%' . $search . '%')
+                ->orWhere('publisher', 'LIKE', '%' . $search . '%')
+                ->orWhere('edition_language', 'LIKE', '%' . $search . '%')
+                ->orWhere('publication_date', 'LIKE', '%' . $search . '%')
+                ->orWhere('pages', 'LIKE', '%' . $search . '%')
+                ->orWhere('lessons', 'LIKE', '%' . $search . '%')
+                ->orWhere('rating', 'LIKE', '%' . $search . '%')
+                ->orWhere('min_age', 'LIKE', '%' . $search . '%')
+                ->orWhere('purchase_price', 'LIKE', '%' . $search . '%')
+                ->orWhere('sale_price', 'LIKE', '%' . $search . '%')
+                ->orWhere('discounted_price', 'LIKE', '%' . $search . '%')
+                ->orWhere('discount_type', 'LIKE', '%' . $search . '%')
+                ->orWhere('availability', 'LIKE', '%' . $search . '%')
+                ->orWhere('featured', 'LIKE', '%' . $search . '%')
+                ->orWhere('on_sale', 'LIKE', '%' . $search . '%')
+                ->orWhere('status', 'LIKE', '%' . $search . '%');
+        }
+
+        // Get paginated results
+        $data['rows'] = $query->latest('id')->paginate(20);
+
+        // Process each row
         foreach ($data['rows'] as $row) {
             $row->categories = $row->category()->get();
-            $tag = $row->tag()->get();
-            $row->tags = $tag->pluck('name')->toArray();
-
-            // Get the first image of the book
+            $row->tags = $row->tag()->pluck('name')->toArray();
             $row->image = ServeImage::image($row->image, 'small');
         }
 
-        return view('Backend.pages.book.index')->with('data', $data);
+        return view('Backend.pages.book.index')->with('data', $data)->with('search', $search);
     }
+
 
     public function list()
     {
@@ -131,7 +164,7 @@ class BookController extends Controller
             'availability' => $request->input('availability'),
             'featured' => $request->input('featured'),
             'on_sale' => $request->input('on_sale'),
-            'free_delivery' => $request->input('free_delivery'),
+            'free_delivery' => $request->input('free_delivery') ?? 0,
             'status' => $request->input('status'),
             'quantity' => '0',
         ]);
@@ -143,6 +176,17 @@ class BookController extends Controller
         $book->category()->attach($request->input('categories'));
 
         if ($saved) {
+
+            if($request->status == 'published') {
+                // Retrieve all subscribers
+                $subscribers = Subscriber::where('is_subscribed', 1)->get();
+
+                // Send email to each subscriber
+                foreach ($subscribers as $subscriber) {
+                    Mail::to($subscriber->email)->send(new SubscriberMail($book, $subscriber));
+                }
+            }
+
             return redirect()->route('backend.book.index')->with('success', 'Book added successfully');
         } else {
             return redirect()->back()->with('error', 'Failed to add book');
@@ -226,7 +270,7 @@ class BookController extends Controller
         $book->availability = $request->input('availability');
         $book->featured = $request->input('featured');
         $book->on_sale = $request->input('on_sale');
-        $book->free_delivery = $request->input('free_delivery');
+        $book->free_delivery = $request->input('free_delivery') ?? 0;
         $book->status = $request->input('status');
 
         $saved = $book->save();

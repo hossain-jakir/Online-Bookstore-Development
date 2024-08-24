@@ -16,6 +16,8 @@
 
     <body class="hold-transition sidebar-mini layout-fixed">
 
+        
+
         @yield('layoutContent')
 
         <!-- Include Scripts -->

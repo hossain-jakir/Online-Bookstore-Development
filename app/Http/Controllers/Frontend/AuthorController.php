@@ -27,7 +27,7 @@ class AuthorController extends MainController
             $author->image = ServeImage::image($author->image);
         }
 
-        return view('Frontend.authors.index', compact('data'));
+        return view('Frontend.Authors.index', compact('data'));
 
     }
 

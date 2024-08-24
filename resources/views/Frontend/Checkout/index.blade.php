@@ -103,7 +103,7 @@
                                 @forelse ($data['addresses'] as $address)
                                     <div class="form-group mb-3">
                                         <input type="radio" id="address{{ $address->id }}" name="address_id" value="{{ $address->id }}"
-                                            @if($address->is_default == 1)
+                                            @if($address->is_default == 1 || count($data['addresses']) == 1)
                                                 checked
                                             @endif
                                         >
@@ -235,6 +235,10 @@
                                     <td id="couponDiscount">£{{ number_format($data['cartList']['couponDiscount'], 2) }}</td>
                                 </tr>
                                 <tr>
+                                    <td>Tax ({{ $data['cartList']['tax'] }}%)</td>
+                                    <td id="taxAmount">£{{ number_format($data['cartList']['taxAmount'], 2) }}</td>
+                                </tr>
+                                <tr>
                                     <td>Total</td>
                                     <td id="orderTotal">£{{ number_format($data['cartList']['totalPrice'], 2) }}</td>
                                 </tr>
@@ -242,8 +246,11 @@
                         </table>
                         <input type="hidden" name="amount" value="{{ $data['cartList']['totalPrice'] }}">
                         <button type="submit" class="btn btn-primary">
-                            <img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-200px.png" border="0" alt="PayPal Logo">
+                            Place Order <i class="ti-arrow-right"></i>
                         </button>
+                        <div id="paypal-button-container mt-3">
+                            <img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png" border="0" alt="PayPal Logo">
+                        </div>
                     </div>
                 </div>
             </div>

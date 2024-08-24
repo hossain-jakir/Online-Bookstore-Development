@@ -13,6 +13,7 @@ use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Shop;
 use Illuminate\Support\Facades\Cache;
 
 class MainController extends Controller{
@@ -58,15 +59,6 @@ class MainController extends Controller{
         });
 
         $data['wishlistCount'] = 0;
-        $data['cartList'] = [
-            'subTotalPrice' => 0,
-            'deliveryFee' => 0,
-            'totalPrice' => 0,
-            'couponDiscount' => 0,
-            'count' => 0,
-            'cart' => null,
-            'items' => []
-        ];
         if(auth()->check() || $request->session()->has('session_id')){
             $data['wishlistCount'] = Wishlist::where(function($query) use ($request){
                 if(auth()->check()){
@@ -90,10 +82,22 @@ class MainController extends Controller{
             ->latest('id')
             ->first();
 
-        if ($cart) {
+        $data['cartList'] = [
+            'subTotalPrice' => 0,
+            'deliveryFee' => 0,
+            'totalPrice' => 0,
+            'couponDiscount' => 0,
+            'tax' => Shop::first()->tax ?? 0,  // Retrieve tax percentage from Shop
+            'taxAmount' => 0, // Add taxAmount key to store the calculated tax
+            'count' => 0,
+            'cart' => null,
+            'items' => []
+        ];
 
+        if ($cart) {
             $data['cartList']['cart'] = $cart;
 
+            // Fetch cart items
             $cartItems = CartItem::with('book')
                 ->where('cart_id', $cart->id)
                 ->where('isDeleted', 'no')
@@ -104,10 +108,10 @@ class MainController extends Controller{
                 // Generate image path for the book
                 $cartItem->book->image = ServeImage::image($cartItem->book->image, 'grid');
 
-                // Determine price to use based on discounted_price or sale_price
+                // Determine price based on discounted_price or sale_price
                 $price = $cartItem->book->discounted_price ?? $cartItem->book->sale_price;
 
-                // Calculate total price and count
+                // Calculate subtotal and total prices
                 $data['cartList']['subTotalPrice'] += $cartItem->quantity * $price;
                 $data['cartList']['totalPrice'] += $cartItem->quantity * $price;
                 $data['cartList']['count']++;
@@ -126,19 +130,26 @@ class MainController extends Controller{
                 ];
             }
 
-            // Get coupon discount
-            $couponDiscount = $cart->coupon_discount ?? 0; // Assuming `coupon_discount` is a field in the Cart model
+            // Calculate coupon discount if applicable
+            $couponDiscount = $cart->coupon_discount ?? 0;
 
-            // Calculate total price
-            $deliveryFee = $cart->delivery_fee_id ? DeliveryFee::find($cart->delivery_fee_id)->price : DeliveryFee::where('isDefault', 'yes')->first()->price;
-            $data['cartList']['totalPrice'] = $data['cartList']['subTotalPrice'] + $deliveryFee - $couponDiscount;
+            // Calculate delivery fee
+            $deliveryFee = $cart->delivery_fee_id
+                ? DeliveryFee::find($cart->delivery_fee_id)->price
+                : DeliveryFee::where('isDefault', 'yes')->first()->price;
 
-            // Add coupon discount to data
-            $data['cartList']['couponDiscount'] = $couponDiscount;
-            $data['cartList']['totalPrice'] = max(0,number_format($data['cartList']['totalPrice'], 2));
+            // Calculate tax amount based on subtotal price
+            $taxAmount = ($data['cartList']['subTotalPrice'] * $data['cartList']['tax']) / 100;
+            $data['cartList']['taxAmount'] = number_format($taxAmount, 2);
+
+            // Calculate total price: subtotal + delivery fee - coupon discount + tax
+            $data['cartList']['totalPrice'] = $data['cartList']['subTotalPrice'] + $deliveryFee - $couponDiscount + $taxAmount;
+
+            // Format prices to 2 decimal places
+            $data['cartList']['couponDiscount'] = number_format($couponDiscount, 2);
+            $data['cartList']['totalPrice'] = max(0, number_format($data['cartList']['totalPrice'], 2));
             $data['cartList']['subTotalPrice'] = number_format($data['cartList']['subTotalPrice'], 2);
             $data['cartList']['deliveryFee'] = number_format($deliveryFee, 2);
-
         }
         return $data;
     }

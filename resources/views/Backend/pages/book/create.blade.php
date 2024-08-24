@@ -284,17 +284,6 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="free_delivery">Free Delivery</label>
-                                    <select class="form-control @error('free_delivery') is-invalid @enderror" id="free_delivery" name="free_delivery">
-                                        <option value="0" {{ old('free_delivery') == '0' ? 'selected' : '' }}>No</option>
-                                        <option value="1" {{ old('free_delivery') == '1' ? 'selected' : '' }}>Yes</option>
-                                    </select>
-                                    @error('free_delivery')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
                                     <label for="categories">Categories <span class="text-danger">*</span></label>
                                     <select class="form-control @error('categories') is-invalid @enderror" id="categories" name="categories[]" multiple="multiple" required>
                                         <!-- Populate this with a list of categories from your database -->

@@ -40,10 +40,6 @@
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1 class="m-0">Role List</h1>
-                        <p>
-                            Roles determine access to various menus and features. Depending on the assigned role,
-                            an administrator can manage the access levels and functionalities for users.
-                        </p>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -69,45 +65,48 @@
             <div class="container-fluid">
                 <div class="row g-4">
                     <!-- Iterate over roles -->
-                    @foreach ($data['roles'] as $role)
-                        <div class="col-xl-12 col-lg-12 col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <h6 class="fw-normal">Role</h6>
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Permissions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($data['roles'] as $role)
+                                <tr>
+                                    <td>{{ $role->name }}</td>
+                                    <td>
+                                        @forelse ($role->permissions as $permission)
+                                            <span class="badge bg-primary">{{ $permission }}</span>
+                                        @empty
+                                            <span class="badge bg-secondary">No Permissions</span>
+                                        @endforelse
+                                    </td>
+                                    <td>
                                         @if ($role->id != 1)
                                             @can('edit role')
-                                                <a href="javascript:;" onclick="editRole('{{ $role->hashId }}', '{{ $role->name }}', '{{ json_encode($role->permissions) }}')"><small>Edit Role</small></a>
+                                                <a href="{{ route('backend.role.permissions', $role->id) }}">Edit Role</a>
                                             @endcan
                                             @can('delete role')
                                                 <form action="{{ route('backend.role.delete', $role->hashId) }}" method="POST" class="d-inline">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-link text-danger p-0 m-0 align-baseline" onclick="return confirm('Are you sure you want to delete this role?');"><small>Delete Role</small></button>
+                                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this role?');">Delete Role</button>
                                                 </form>
                                             @endcan
+                                        @else
+                                            <small>Super Admin Role. Cannot be deleted or edited.</small>
                                         @endif
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-end">
-                                        <div class="role-heading">
-                                            <h4 class="mb-1">{{ $role->name }}</h4>
-                                            @if ($role->id != 1)
-                                                <p class="mb-0">Permissions</p>
-                                                <hr>
-                                                <ul class="list-unstyled">
-                                                    @foreach ($role->permissions as $permission)
-                                                        <li>{{ $permission }}</li>
-                                                    @endforeach
-                                                </ul>
-                                            @else
-                                                <small>Super Admin Role. Cannot be deleted or edited.</small>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3">No roles found</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                     <!-- Add New Role Card -->
                     @can('backend.role.create')
                         <div class="col-xl-4 col-lg-6 col-md-6">

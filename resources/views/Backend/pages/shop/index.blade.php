@@ -73,7 +73,10 @@
                             <label for="email">Email</label>
                             <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $shop->email) }}">
                         </div>
-
+                        <div class="form-group">
+                            <label for="tax">Tax</label>
+                            <input type="text" class="form-control" id="tax" name="tax" value="{{ old('tax', $shop->tax) }}">
+                        </div>
                         <div class="form-group">
                             <label for="latitude">Latitude</label>
                             <input type="text" class="form-control" id="latitude" name="latitude" value="{{ old('latitude', $shop->latitude) }}">
@@ -118,8 +121,9 @@
                             <label for="whatsapp">WhatsApp</label>
                             <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="{{ old('whatsapp', $shop->whatsapp) }}">
                         </div>
-
+                        @can('edit shop')
                         <button type="submit" class="btn btn-primary">Update Shop</button>
+                        @endcan
                     </form>
                 </div>
             </div>

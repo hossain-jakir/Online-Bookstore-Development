@@ -12,11 +12,13 @@ use App\Models\OrderTrack;
 use App\Models\DeliveryFee;
 use App\Services\ServeImage;
 use Illuminate\Http\Request;
+use App\Mail\ShippingStatusMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -30,9 +32,9 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         // Authorization check
-        // if (Gate::denies('view orders')) {
-        //     abort(403, 'Unauthorized');
-        // }
+        if (Gate::denies('view order')) {
+            abort(403, 'Unauthorized');
+        }
 
         // Fetch orders with optional filters and search
         $query = Order::with('user')->where('isDeleted', 'no'); // Eager load the user relationship
@@ -73,9 +75,9 @@ class OrderController extends Controller
         }
 
         // // Authorization check
-        // if (Gate::denies('view order', $order)) {
-        //     abort(403, 'Unauthorized');
-        // }
+        if (Gate::denies('view order', $order)) {
+            abort(403, 'You are not authorized to view this page.');
+        }
 
         return view('Backend.pages.order.show', compact('order'));
     }
@@ -98,9 +100,9 @@ class OrderController extends Controller
         }
 
         // Authorization check
-        // if (Gate::denies('edit order', $order)) {
-        //     abort(403, 'Unauthorized');
-        // }
+        if (Gate::denies('edit order', $order)) {
+            abort(403, 'Unauthorized');
+        }
 
         return view('Backend.pages.order.edit', compact('order', 'countries', 'deliveryFees'));
     }
@@ -294,9 +296,9 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
 
         // Authorization check
-        // if (Gate::denies('delete order', $order)) {
-        //     abort(403, 'Unauthorized');
-        // }
+        if (Gate::denies('delete order', $order)) {
+            abort(403, 'Unauthorized');
+        }
 
         $order->update(['isDeleted' => 'yes']);
 
@@ -395,6 +397,8 @@ class OrderController extends Controller
             'status' => $order->shipping_status,
             'message' => $request->input('message'),
         ]);
+
+        Mail::to($order->user->email)->send(new ShippingStatusMail($order, $request->input('message')));
 
         return redirect()->back()->with('success', 'Status updated successfully.');
     }

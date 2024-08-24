@@ -70,7 +70,7 @@
                                 We are a team of book lovers who want to share our passion with the world. We believe that books are the best way to learn and grow. That's why we created Bookland, a place where you can find all the books you need to succeed.
                             </p>
                         </div>
-                        <a href="contact-us.html" class="btn btn-primary btnhover shadow-primary">Contact Us</a>
+                        <a href="{{ route( 'contact-us') }}" class="btn btn-primary btnhover shadow-primary">Contact Us</a>
                     </div>
                 </div>
             </div>

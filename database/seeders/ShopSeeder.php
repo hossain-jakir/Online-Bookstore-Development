@@ -22,6 +22,7 @@ class ShopSeeder extends Seeder
                 'address' => '123 Main Street, Cardiff, Wales, CF10 1AA, UK',
                 'phone' => '+44 7311 346877',
                 'email' => 'info@bookland.com',
+                'tax' => '7.5',
                 'latitude' => '51.4835532',
                 'longitude' => '-3.1672832',
                 'short_description' => 'Bookland is a best and largest online book store. We have a vast collection of books in different categories.',

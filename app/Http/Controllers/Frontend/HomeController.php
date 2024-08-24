@@ -120,6 +120,8 @@ class HomeController extends MainController{
         // Save email to database
         $subscribe = new Subscriber();
         $subscribe->email = $request->email;
+        $subscribe->is_subscribed = 1;
+        $subscribe->subscribed_at = now();
         $save = $subscribe->save();
 
         // Check if saving to database fails
@@ -137,10 +139,23 @@ class HomeController extends MainController{
         ]);
     }
 
+    public function unsubscribe(Request $request)
+    {
+        $email = urldecode($request->input('email'));
+        $subscriber = Subscriber::where('email', $email)->first();
+
+        if ($subscriber) {
+            $subscriber->delete(); // Remove the subscriber from the list
+            return redirect('/')->with('success', 'You have successfully unsubscribed from our mailing list.');
+        } else {
+            return redirect('/')->with('error', 'Subscriber not found.');
+        }
+    }
+
     public function faq(Request $request){
         $data = [];
         $data = parent::frontendItems($request);
-        return view('Frontend.Faq.index')->with('data', $data);
+        return view('Frontend.FAQ.index')->with('data', $data);
     }
 
     /**
@@ -151,6 +166,7 @@ class HomeController extends MainController{
         $query = Book::with(['category', 'tag', 'author'])
             ->where('isDeleted', 'no')
             ->where('status', 'published')
+            ->where('availability', 1)
             ->latest('id')
             ->limit($limit);
 

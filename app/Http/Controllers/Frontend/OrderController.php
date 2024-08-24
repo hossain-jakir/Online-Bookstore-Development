@@ -26,6 +26,7 @@ class OrderController extends MainController
         $data['orders'] = Order::with(['orderItems', 'orderItems.book', 'user', 'address', 'shippingAddress', 'coupon', 'deliveryMethod'])
             ->where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
+            ->where('isDeleted', 'no')
             ->paginate(10);
 
         // dd($orders);

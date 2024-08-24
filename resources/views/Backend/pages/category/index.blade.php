@@ -73,11 +73,15 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center" width="20%">
+                                                    @can('edit category')
                                                     <a href="{{ route('backend.category.edit', $item['id']) }}"
                                                         class="btn btn-sm btn-primary mb-1 mt-1" title="Edit">
                                                         <i class="fa fa-edit text-white"></i>
                                                         Edit
                                                     </a>
+                                                    @endcan
+
+                                                    @can('delete category')
                                                     <form action="{{ route('backend.category.delete', $item['id']) }}"
                                                         method="POST" class="d-inline-block">
                                                         @csrf
@@ -88,6 +92,7 @@
                                                             Delete
                                                         </button>
                                                     </form>
+                                                    @endcan
                                                 </td>
                                             </tr>
                                         @empty

@@ -4,19 +4,20 @@ namespace App\Http\Controllers\Frontend;
 
 use Carbon\Carbon;
 use App\Models\Cart;
+use App\Models\Shop;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Paypal;
 use App\Models\Address;
 use App\Models\Country;
+use App\Models\CartItem;
+use App\Models\Wishlist;
 use App\Models\OrderItems;
 use App\Models\DeliveryFee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\CartItem;
-use App\Models\Wishlist;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
@@ -62,18 +63,21 @@ class CheckoutController extends MainController
         $cartTotal = $cartSubtotal + $deliveryFee - $couponDiscount;
         $cartTotal = max(0, $cartTotal); // Ensure total is not negative
 
+        $taxAmount = $this->calculateTax($cartSubtotal);
+
         // Initialize cartList with empty items if no cart is found
         $data['CheckoutCartList'] = [
             'items' => $cart->items ?? [], // Ensure items is an array
             'subtotal' => $cartSubtotal,
             'delivery_fee' => $deliveryFee,
             'coupon_discount' => $couponDiscount,
-            'total' => $cartTotal
+            'taxAmount' => number_format($taxAmount, 2),
+            'total' => $cartTotal + $taxAmount,
         ];
 
         // dd()
 
-        return view('Frontend.checkout.index')->with('data', $data);
+        return view('Frontend.Checkout.index')->with('data', $data);
     }
 
     private function checkUserAndCreate(Request $request, $sessionId)
@@ -244,7 +248,7 @@ class CheckoutController extends MainController
             $discountAmount = 0;
             $couponAmount = $cart->coupon_discount;
             Log::info('Coupon Amount: ' . $couponAmount);
-            $taxAmount = 0;
+            $taxAmount = $this->calculateTax($cartTotal);
             $shippingAmount = DeliveryFee::find($cart->delivery_fee_id)->price;
             $subTotal = $cartTotal + $shippingAmount - $couponAmount - $discountAmount;
             $grandTotal = $subTotal + $taxAmount;
@@ -266,6 +270,8 @@ class CheckoutController extends MainController
                 'tax_amount' => $taxAmount,
                 'shipping_amount' => $shippingAmount,
                 'grand_total' => $grandTotal,
+                'paid_amount' => 0,
+                'due_amount' => $grandTotal,
                 'payment_method' => 'paypal',
                 'payment_status' => 'In Progress',
                 'shipping_date' => Carbon::now()->addDays(2),
@@ -330,4 +336,10 @@ class CheckoutController extends MainController
             return $item->quantity * ($item->book->discounted_price ?? $item->book->sale_price);
         });
     }
+
+    private function calculateTax($subTotal)
+    {
+        return $subTotal * Shop::first()->tax / 100;
+    }
+
 }

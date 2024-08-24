@@ -14,7 +14,7 @@
                 <img src="{{ \Facades\App\Services\ServeImage::profile(Auth::user(),'thumbanil') }}" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{ Auth::user()->first_name }}</a>
+                <a href="{{ route('backend.user.details', Auth::user()->id)}}" class="d-block">{{ Auth::user()->first_name }}</a>
             </div>
         </div>
 
@@ -26,6 +26,27 @@
                     <a href="{{ route('backend.dashboard') }}" class="nav-link @if (Route::currentRouteName() == 'backend.dashboard') active @endif">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('backend.message.index') }}" class="nav-link @if (Route::currentRouteName() == 'backend.message.index') active @endif">
+                        <i class="nav-icon fas fa-mail-bulk"></i>
+                        <p>Message <span class="badge badge-info right">{{App\Models\ContactUs::where('is_read', 0)->count()}}</span></p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('backend.coupon.index') }}" class="nav-link @if (Route::currentRouteName() == 'backend.coupon.index') active @endif">
+                        <i class="nav-icon fas fa-tags"></i>
+                        <p>Coupon</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('backend.subscriber.index') }}" class="nav-link @if (Route::currentRouteName() == 'backend.subscriber.index') active @endif">
+                        <i class="nav-icon fas fa-bell"></i>
+                        <p>Subscriber</p>
                     </a>
                 </li>
 
@@ -86,6 +107,7 @@
                 @endcanAny
 
                 <!-- Order -->
+                @canAny('view order')
                 <li class="nav-item {{ Route::is('backend.order.*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Route::is('backend.order.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
@@ -100,19 +122,22 @@
                         </li>
                     </ul>
                 </li>
+                @endcanAny
 
                 <!-- Transaction -->
+                @can('view transaction')
                 <li class="nav-item">
                     <a href="{{ route('backend.transaction.index') }}" class="nav-link @if (Route::currentRouteName() == 'backend.transaction.index') active @endif">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Transaction</p>
                     </a>
                 </li>
+                @endcan
 
                 <!-- User Management -->
                 @canAny('create user', 'edit user', 'delete user', 'view user', 'role assign')
                 <li class="nav-item">
-                    <a href="{{ route('backend.user.index') }}" class="nav-link @if (Route::currentRouteName() == 'backend.user.index') active @endif">
+                    <a href="{{ route('backend.user.index') }}" class="nav-link {{ Route::is('backend.user.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
                         <p>User</p>
                     </a>
@@ -130,14 +155,17 @@
                 @endcanAny
 
                 <!-- Shop -->
+                @can('view shop')
                 <li class="nav-item">
                     <a href="{{ route('backend.shop.index') }}" class="nav-link @if (Route::currentRouteName() == 'backend.shop.index') active @endif">
                         <i class="nav-icon fas fa-store"></i>
                         <p>Shop</p>
                     </a>
                 </li>
+                @endcan
 
                 <!-- Reports -->
+                @canAny('view report')
                 <li class="nav-item {{ Route::is('backend.report.*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Route::is('backend.report.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-chart-line"></i>
@@ -176,6 +204,7 @@
                         </li>
                     </ul>
                 </li>
+                @endcanAny
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

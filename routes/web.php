@@ -8,11 +8,14 @@ use App\Http\Controllers\Backend\BookController;
 use App\Http\Controllers\Backend\HomeController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Backend\CategoryController;
+use App\Http\Controllers\Backend\CouponController;
+use App\Http\Controllers\Backend\MessageContoller;
 use App\Http\Controllers\Backend\OrderController as BackendOrderController;
 use App\Http\Controllers\Backend\PaymentController as BackendPaymentController;
 use App\Http\Controllers\Backend\ReportController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\ShopController;
+use App\Http\Controllers\Backend\SubscriberController;
 use App\Http\Controllers\Backend\TransactionController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Frontend\CheckoutController;
@@ -41,6 +44,7 @@ Route::get('/', [FrontendHomeController::class, 'index'])->name('home');
 Route::get('/about-us', [FrontendHomeController::class, 'aboutUs'])->name('about-us');
 Route::get('/privacy-policy', [FrontendHomeController::class, 'privacyPolicy'])->name('privacy-policy');
 Route::post('/subscribe', [FrontendHomeController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/unsubscribe', [FrontendHomeController::class, 'unsubscribe'])->name('unsubscribe');
 Route::get('/faq', [FrontendHomeController::class, 'faq'])->name('faq');
 Route::get('/clear-cache', [FrontendHomeController::class, 'clearCache']);
 
@@ -141,6 +145,8 @@ Route::prefix('dashboard')->middleware(['auth', 'verified', 'role_or_permission:
     Route::prefix('role')->middleware('role_or_permission:permission,view role')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('backend.role.index');
         Route::post('/store', [RoleController::class, 'store'])->name('backend.role.store');
+        Route::post('/{roleId}/permissions/update', [RoleController::class, 'updatePermissions'])->name('backend.role.permissions.update');
+        Route::get('/{roleId}/permissions', [RoleController::class, 'permissionIndex'])->name('backend.role.permissions');
         Route::post('/update/{id}', [RoleController::class, 'update'])->name('backend.role.update');
         Route::post('/update/user/role', [RoleController::class, 'updateUserRole'])->name('backend.role.update.user');
         Route::post('/delete/{id}', [RoleController::class, 'delete'])->name('backend.role.delete');
@@ -148,6 +154,14 @@ Route::prefix('dashboard')->middleware(['auth', 'verified', 'role_or_permission:
     Route::prefix('user')->middleware('role_or_permission:permission,view user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('backend.user.index');
         Route::get('/getAllUsers', [UserController::class, 'getAllUsers'])->name('backend.user.getAllUsers');
+        Route::get('/details/{userId}', [UserController::class, 'getUserDetails'])->name('backend.user.details');
+        Route::post('details/{userId}', [UserController::class, 'updateUserDetails'])->name('backend.user.details.update');
+        Route::post('details/{userId}/chagnePassword', [UserController::class, 'updatePassword'])->name('backend.user.details.update.password');
+        Route::get('/order/{userId}', [UserController::class, 'getUserOrderDetails'])->name('backend.user.details.order');
+        Route::get('/address/{userId}', [UserController::class, 'getUserAddressDetails'])->name('backend.user.details.address');
+        Route::post('/address/{userId}', [UserController::class, 'storeAddress'])->name('backend.user.details.address.store');
+        Route::post('/address/{addressId}/delete', [UserController::class, 'deleteAddress'])->name('backend.user.details.address.delete');
+        Route::post('/address/{addressId}/updateDefaultAddress', [UserController::class, 'updateDefaultAddress'])->name('backend.user.details.address.default');
         // Route::get('/create', [UserController::class, 'create'])->name('backend.user.create');
         // Route::post('/store', [UserController::class, 'store'])->name('backend.user.store');
         // Route::get('/edit/{id}', [UserController::class, 'edit'])->name('backend.user.edit');
@@ -206,6 +220,26 @@ Route::prefix('dashboard')->middleware(['auth', 'verified', 'role_or_permission:
         Route::get('monthly-sales/{year}', [ReportController::class, 'monthlySales'])->name('backend.report.monthlySales');
         Route::get('best-seller', [ReportController::class, 'bestSeller'])->name('backend.report.bestSeller');
         Route::get('best-selling-authors', [ReportController::class, 'bestSellingAuthors'])->name('backend.report.bestSellingAuthors');
+    });
+
+    Route::prefix('message')->group(function () {
+        Route::get('/', [MessageContoller::class, 'index'])->name('backend.message.index');
+        Route::delete('/delete/{id}', [MessageContoller::class, 'destroy'])->name('backend.message.destroy');
+        Route::post('/reply/{id}', [MessageContoller::class, 'reply'])->name('backend.message.reply');
+    });
+
+    Route::prefix('coupon')->group(function () {
+        Route::get('/', [CouponController::class, 'index'])->name('backend.coupon.index');
+        route::get('/create', [CouponController::class, 'create'])->name('backend.coupon.create');
+        Route::post('/store', [CouponController::class, 'store'])->name('backend.coupon.store');
+        Route::get('/edit/{id}', [CouponController::class, 'edit'])->name('backend.coupon.edit');
+        Route::post('/update/{id}', [CouponController::class, 'update'])->name('backend.coupon.update');
+        Route::delete('/delete/{id}', [CouponController::class, 'destroy'])->name('backend.coupon.destroy');
+    });
+
+    Route::prefix('subscriber')->group(function () {
+        Route::get('/', [SubscriberController::class, 'index'])->name('backend.subscriber.index');
+        Route::delete('/delete/{id}', [SubscriberController::class, 'destroy'])->name('backend.subscriber.destroy');
     });
 
 

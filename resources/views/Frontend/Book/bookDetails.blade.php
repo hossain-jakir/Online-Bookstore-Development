@@ -122,6 +122,10 @@
                                         <th>Pages</th>
                                         <td>{{ $data['book']->pages }} Pages</td>
                                     </tr>
+                                    <tr>
+                                        <th>Minimum Age</th>
+                                        <td>{{ $data['book']->min_age }} Years</td>
+                                    </tr>
                                     <tr class="tags">
                                         <th>Categoty</th>
                                         <td>

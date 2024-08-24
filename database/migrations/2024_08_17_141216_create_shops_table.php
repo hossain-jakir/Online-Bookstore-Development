@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
+            $table->decimal('tax', 8, 2)->nullable()->default(0);
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
             $table->string('short_description')->nullable();

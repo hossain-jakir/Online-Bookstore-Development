@@ -5,10 +5,24 @@ namespace App\Http\Controllers\Backend;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Cache;
 
 class ShopController extends Controller
 {
+
+    public function __construct()
+    {
+        // Authorization check
+        $this->middleware(function ($request, $next) {
+            if (Gate::denies('view shop')) {
+                abort(403, 'Unauthorized');
+            }
+
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         $shop = Shop::first();
@@ -18,6 +32,12 @@ class ShopController extends Controller
     // Update the shop details
     public function update(Request $request)
     {
+
+        // authorize
+        if (Gate::denies('edit shop')) {
+            abort(403, 'Unauthorized');
+        }
+
         $request->validate([
             'name' => 'nullable|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
@@ -25,6 +45,7 @@ class ShopController extends Controller
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:15',
             'email' => 'nullable|email|max:255',
+            'tax' => 'nullable|numeric',
             'latitude' => 'nullable|string|max:50',
             'longitude' => 'nullable|string|max:50',
             'short_description' => 'nullable|string|max:255',
@@ -49,7 +70,7 @@ class ShopController extends Controller
         }
 
         $shop->update($request->only([
-            'name', 'address', 'phone', 'email', 'latitude', 'longitude',
+            'name', 'address', 'phone', 'email','tax', 'latitude', 'longitude',
             'short_description', 'website', 'facebook', 'twitter',
             'instagram', 'linkedin', 'whatsapp'
         ]));

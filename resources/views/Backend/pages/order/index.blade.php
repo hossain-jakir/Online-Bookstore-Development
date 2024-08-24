@@ -98,12 +98,16 @@
                                                     </td>
                                                     <td>
                                                         <a href="{{ route('backend.order.show', ['id' => $order->id]) }}" class="btn btn-info btn-sm">View</a>
+                                                        @can('edit order')
                                                         <a href="{{ route('backend.order.edit', ['id' => $order->id]) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                        @endcan
+                                                        @can('delete order')
                                                         <form action="{{ route('backend.order.destroy', ['id' => $order->id]) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this order?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                                         </form>
+                                                        @endcan
                                                     </td>
                                                 </tr>
                                             @endforeach

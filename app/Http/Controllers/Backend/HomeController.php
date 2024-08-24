@@ -8,8 +8,8 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class HomeController extends Controller
 {

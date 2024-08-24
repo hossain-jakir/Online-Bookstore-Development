@@ -9,9 +9,22 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 
 class ReportController extends Controller
 {
+    public function __construct()
+    {
+        // Authorization check
+        $this->middleware(function ($request, $next) {
+            if (Gate::denies('view report')) {
+                abort(403, 'Unauthorized');
+            }
+
+            return $next($request);
+        });
+    }
+
     public function dailySales($year, $month)
     {
         $start = Carbon::create($year, $month, 1);

@@ -1,4 +1,4 @@
-@extends('Backend/layouts/master')
+@extends('Backend.layouts.master')
 
 @section('title', 'Book List')
 
@@ -33,6 +33,16 @@
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
+                <!-- Search Form -->
+                <form method="GET" action="{{ route('backend.book.index') }}" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search by title, code, or author" value="{{ $search ?? '' }}">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </div>
+                </form>
+
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -92,18 +102,24 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center" width="20%">
+                                                    @can('view book')
                                                     <button type="button" class="btn btn-sm btn-info mb-1 mt-1"
                                                         data-toggle="modal" data-target="#viewModal{{ $item['id'] }}"
                                                         title="View">
                                                         <i class="fa fa-eye text-white"></i>
                                                         View
                                                     </button>
+                                                    @endcan
 
+                                                    @can('edit book')
                                                     <a href="{{ route('backend.book.edit', $item['id']) }}"
                                                         class="btn btn-sm btn-primary mb-1 mt-1" title="Edit">
                                                         <i class="fa fa-edit text-white"></i>
                                                         Edit
                                                     </a>
+                                                    @endcan
+
+                                                    @can('delete book')
                                                     <form action="{{ route('backend.book.delete', $item['id']) }}"
                                                         method="POST" class="d-inline-block">
                                                         @csrf
@@ -114,11 +130,12 @@
                                                             Delete
                                                         </button>
                                                     </form>
+                                                    @endcan
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center">
+                                                <td colspan="8" class="text-center">
                                                     <h4>No data found</h4>
                                                 </td>
                                             </tr>
@@ -142,6 +159,7 @@
         </section>
         <!-- /.content -->
     </div>
+
 
     {{-- view modal --}}
     @foreach ($data['rows'] as $item)
@@ -297,17 +315,6 @@
                                         @endif
                                     </td>
                                 </tr>
-                                {{-- free_delivery --}}
-                                <tr>
-                                    <th>Free Delivery</th>
-                                    <td>
-                                        @if ($item['free_delivery'] == '1')
-                                            <span class="badge badge-success">Yes</span>
-                                        @else
-                                            <span class="badge badge-danger">No</span>
-                                        @endif
-                                    </td>
-                                </tr>
                                 <tr>
                                     <th>Status</th>
                                     <td>
@@ -329,7 +336,6 @@
         </div>
     @endforeach
 
-    @include('Backend.pages.user.role_update')
 
 @endsection
 

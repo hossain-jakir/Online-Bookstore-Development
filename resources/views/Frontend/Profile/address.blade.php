@@ -64,7 +64,7 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <h5>Country</h5>
-                                                <p>{{ $address->country }}</p>
+                                                <p>{{ $address->country->name }}</p>
                                             </div>
                                         </div>
                                         <div class="row">

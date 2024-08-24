@@ -90,8 +90,9 @@ class Order extends Model
                         ->whereYear($column, now()->year);
         } elseif ($period == 'year') {
             return $query->whereYear($column, now()->year);
+        }elseif ($period == 'all') {
+            return $query;
         }
-
         return $query;
     }
 }

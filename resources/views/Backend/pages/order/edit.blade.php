@@ -169,7 +169,9 @@
                                     </div>
                                 </div>
                             </div>
+                            @can('edit order')
                             <button type="submit" class="btn btn-success" id="submitOrderBtn" style="width: -webkit-fill-available;">Update Items</button>
+                            @endcan
                         </div>
                     </div>
 

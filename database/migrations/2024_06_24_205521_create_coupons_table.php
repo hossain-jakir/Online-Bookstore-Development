@@ -16,15 +16,10 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->enum('type', ['fixed', 'percentage'])->default('fixed');
             $table->integer('value');
-            $table->integer('max_value')->nullable();
-            $table->integer('max_use')->nullable()->default(1);
-            $table->integer('max_use_user')->nullable()->default(1);
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
             $table->text('description')->nullable();
-            $table->text('terms')->nullable();
             $table->text('conditions')->nullable();
-            $table->integer('order')->default(0);
 
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->enum('isDeleted', ['yes', 'no'])->default('no');

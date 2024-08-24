@@ -49,7 +49,7 @@
         <div class="small-box bg-danger">
             <div class="inner">
                 <h3>{{ $array['totalBooks'] }}</h3>
-                <p>Total Books</p>
+                <p>New Books</p>
             </div>
             <div class="icon">
                 <i class="ion ion-pie-graph"></i>

@@ -67,6 +67,7 @@ class BookController extends MainController
         // Initialize the query with basic conditions
         $booksQuery = Book::with('category', 'author')
             ->where('isDeleted', 'no')
+            ->where('availability', 1)
             ->where('status', 'published');
 
         if ($request->has('q')) {
@@ -216,6 +217,7 @@ class BookController extends MainController
 
         $FilterBooks = Book::with('category', 'author')
             ->where('isDeleted', 'no')
+            ->where('availability', 1)
             ->where('status', 'published')
             ->latest('id')->get();
 
@@ -256,6 +258,7 @@ class BookController extends MainController
         $data['book'] = Book::with('author', 'category', 'reviews')
             ->where('id', $bookId)
             ->where('isDeleted', 'no')
+            ->where('availability', 1)
             ->where('status', 'published')
             ->first();
 
@@ -292,6 +295,7 @@ class BookController extends MainController
             ->where('isDeleted', 'no') // Only fetch books that are not deleted
             ->where('status', 'published') // Only fetch published books
             ->with('author', 'category') // Load related models if needed
+            ->where('availability', 1)
             ->take(5) // Limit the number of related books
             ->inRandomOrder() // Randomize the order of related books
             ->get();
@@ -306,6 +310,7 @@ class BookController extends MainController
         $data['recommended'] = Book::where('isDeleted', 'no')
             ->where('status', 'published')
             ->with('author', 'category')
+            ->where('availability', 1)
             ->where('id', '!=', $data['book']->id)
             ->inRandomOrder()
             ->take(10)
@@ -398,6 +403,7 @@ class BookController extends MainController
 
         $booksQuery = Book::where('isDeleted', 'no')
             ->where('status', 'published')
+            ->where('availability', 1)
             ->where(function ($query) use ($q) {
                 $query->where('title', 'like', '%' . $q . '%')
                     ->orWhere('description', 'like', '%' . $q . '%')

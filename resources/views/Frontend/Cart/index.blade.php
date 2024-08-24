@@ -83,7 +83,6 @@
                             <div class="form-group">
                                 <select class="form-control" id="deliveryFeeSelect">
                                     @foreach ($data['DeliveryFees'] as $deliveryFee)
-
                                         @php
                                             if($data['cartList']['cart'] && $data['cartList']['cart']->delivery_fee_id != null){
                                                 $deliveryFeeId = $data['cartList']['cart']->delivery_fee_id;
@@ -102,7 +101,6 @@
                                     @if(isset($data['cartList']['couponDiscount']) && $data['cartList']['couponDiscount'] > 0) disabled @endif>
                             </div>
                             <div class="form-group">
-
                                 @if(isset($data['cartList']['couponDiscount']) && $data['cartList']['couponDiscount'] > 0)
                                     <button class="btn btn-primary btnhover" type="button" id="applyCoupon" style="display: none;">Apply Coupon</button>
                                     <button class="btn btn-secondary btnhover" type="button" id="removeCoupon">Remove Coupon</button>
@@ -116,7 +114,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="widget">
-                        <h4 class="widget-title">Cart Subtotal</h4>
+                        <h4 class="widget-title">Cart Summary</h4>
                         <table class="table-bordered check-tbl mb-25">
                             <tbody>
                                 <tr>
@@ -130,6 +128,10 @@
                                 <tr>
                                     <td>Coupon Discount</td>
                                     <td id="couponDiscount">£{{ number_format($data['cartList']['couponDiscount'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tax ({{ $data['cartList']['tax'] }}%)</td>
+                                    <td id="taxAmount">£{{ number_format($data['cartList']['taxAmount'], 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td>Total</td>
@@ -147,7 +149,6 @@
         <!-- Product END -->
     </section>
     <!-- contact area End-->
-
 </div>
 @endsection
 
@@ -184,12 +185,7 @@
             var shippingFee = parseFloat(selectedOption.data('fee')); // Parse as float
             var deliveryFeeId = selectedOption.val(); // Get selected delivery fee ID
 
-            // Check if shippingFee is a number before proceeding
             if (!isNaN(shippingFee)) {
-                // $('#shippingFee').text('£' + shippingFee.toFixed(2)); // Format with toFixed
-                // $('#orderTotal').text('£' + (parseFloat($('#orderSubtotal').text().replace('£', '')) + shippingFee).toFixed(2)); // Update total amount
-
-                // Update the delivery fee in the database
                 updateDeliveryFee(deliveryFeeId, shippingFee);
             } else {
                 $('#shippingFee').text('Unknown'); // Handle if shippingFee is not a number
@@ -199,17 +195,18 @@
         // Function to update the delivery fee
         function updateDeliveryFee(deliveryFeeId, deliveryFee) {
             $.ajax({
-                url: "{{ route('update-delivery-fee') }}", // Update this with your route to update delivery fee
+                url: "{{ route('update-delivery-fee') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    delivery_fee_id: deliveryFeeId, // Updated here
+                    delivery_fee_id: deliveryFeeId,
                     delivery_fee: deliveryFee
                 },
                 success: function(response) {
-                if (response.success) {
+                    if (response.success) {
                         $('#orderTotal').text('£' + parseFloat(response.cart_total).toFixed(2));
                         $('#shippingFee').text('£' + parseFloat(response.delivery_fee).toFixed(2));
+                        $('#taxAmount').text('£' + parseFloat(response.taxAmount).toFixed(2)); // Updated here
                         showToast('success', response.message);
                     } else {
                         showToast('error', response.message);
@@ -222,28 +219,26 @@
         }
 
         // Function to update cart quantity
-        function updateCartQuantity(cartItemId, quantity, deliveryFee) { // Updated here
+        function updateCartQuantity(cartItemId, quantity, deliveryFee) {
             $.ajax({
-                url: "{{ route('update-cart') }}", // Update this with your route to update cart quantity
+                url: "{{ route('update-cart') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
-                    cart_item_id: cartItemId, // Updated here
+                    cart_item_id: cartItemId,
                     quantity: quantity,
                     delivery_fee: deliveryFee
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Update the total price for the item
-                        let row = $('tr[data-cart-id="' + cartItemId + '"]'); // Updated here
+                        let row = $('tr[data-cart-id="' + cartItemId + '"]');
                         row.find('.product-item-total').text('£' + response.item_total_price);
 
-                        // Update the cart summary
                         $('#orderSubtotal').text('£' + response.cart_subtotal);
                         $('#orderTotal').text('£' + response.cart_total);
                         $('#shippingFee').text('£' + response.delivery_fee);
+                        $('#taxAmount').text('£' + response.taxAmount); // Updated here
 
-                        // Optionally, show a toast notification
                         showToast('success', 'Cart updated successfully!');
                     } else {
                         showToast('error', 'Failed to update the cart.');
@@ -261,7 +256,7 @@
             let deliveryFee = parseFloat($('#deliveryFeeSelect option:selected').data('fee'));
 
             $.ajax({
-                url: "{{ route('apply-coupon') }}", // Update this route as needed
+                url: "{{ route('apply-coupon') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -270,7 +265,7 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        var totalPrice = parseFloat(response.totalPrice); // Convert response.totalPrice to a number
+                        var totalPrice = parseFloat(response.totalPrice);
                         if (isNaN(totalPrice)) {
                             showToast('error', 'Invalid total price received.');
                             return;
@@ -278,10 +273,10 @@
 
                         $('#couponDiscount').text('£' + parseFloat(response.couponDiscount).toFixed(2));
                         $('#orderTotal').text('£' + totalPrice.toFixed(2));
-                        $('#couponCode').val(''); // Clear the coupon code input
-                        $('#couponCode').prop('disabled', true); // Disable the coupon code input
-                        $('#applyCoupon').hide(); // Hide apply coupon button
-                        $('#removeCoupon').show(); // Hide remove coupon button
+                        $('#couponCode').val('');
+                        $('#couponCode').prop('disabled', true);
+                        $('#applyCoupon').hide();
+                        $('#removeCoupon').show();
                         showToast('success', response.message);
                     } else {
                         showToast('error', response.message);
@@ -296,14 +291,14 @@
         // Handle coupon removal
         $('#removeCoupon').click(function() {
             $.ajax({
-                url: "{{ route('remove-coupon') }}", // Update this route as needed
+                url: "{{ route('remove-coupon') }}",
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}"
                 },
                 success: function(response) {
                     if (response.success) {
-                        var totalPrice = parseFloat(response.totalPrice); // Convert response.totalPrice to a number
+                        var totalPrice = parseFloat(response.totalPrice);
                         if (isNaN(totalPrice)) {
                             showToast('error', 'Invalid total price received.');
                             return;
@@ -311,10 +306,10 @@
 
                         $('#couponDiscount').text('£' + parseFloat(response.couponDiscount).toFixed(2));
                         $('#orderTotal').text('£' + totalPrice.toFixed(2));
-                        $('#couponCode').val(''); // Clear the coupon code input
-                        $('#couponCode').prop('disabled', false); // Enable the coupon code input
-                        $('#applyCoupon').show(); // Show apply coupon button
-                        $('#removeCoupon').hide(); // Hide remove coupon button
+                        $('#couponCode').val('');
+                        $('#couponCode').prop('disabled', false);
+                        $('#applyCoupon').show();
+                        $('#removeCoupon').hide();
                         showToast('success', response.message);
                     } else {
                         showToast('error', response.message);
@@ -331,6 +326,7 @@
             toastr[type](message);
         }
     });
+
 </script>
 @endsection
 

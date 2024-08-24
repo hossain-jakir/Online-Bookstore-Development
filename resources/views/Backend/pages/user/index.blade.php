@@ -150,7 +150,7 @@
                                                         <img class="img-circle" src="{{ $user['image'] }}"
                                                             alt="User Image">
                                                         <span class="username">
-                                                            <a href="#">{{ $user['full_name'] }}</a>
+                                                            <a href="{{ route('backend.user.details',$user['id']) }}">{{ $user['full_name'] }}</a>
                                                         </span>
                                                     </div>
 
@@ -163,11 +163,8 @@
                                                         <span class="badge badge-danger">{{ $user['status'] }}</span>
                                                     @endif
                                                 <td>
-                                                    <a href="#"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-eye">
-                                                        </i>
-                                                        View
+                                                    <a href="{{ route('backend.user.details', $user['id']) }}" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-eye"></i> View
                                                     </a>
                                                     @if ($user['role'] == null)
                                                         <span class="badge badge-danger">No Role</span>
@@ -203,6 +200,53 @@
         </section>
         <!-- /.content -->
     </div>
+
+    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen modal-dialog-right">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailModalLabel">User Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="userDetailsContent">
+                        <!-- User details will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-dialog-right {
+            position: absolute;
+            right: 0;
+            margin: 0;
+            min-width: 400px;
+            height: 100%;
+            max-width: 100%; /* Ensure the modal is fully wide if needed */
+        }
+
+        /* Ensures the modal content takes full height */
+        .modal-fullscreen .modal-content {
+            height: 100%;
+        }
+        /*
+        * Ensure the modal header and footer don't scroll
+        */
+
+        /* Make the modal body scrollable */
+        .modal-body {
+            overflow-y: auto;
+            max-height: calc(100vh - 100px); /* Adjust for modal header and footer */
+        }
+    </style>
+
 
     @include('Backend.pages.user.role_update')
 

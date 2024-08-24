@@ -10,6 +10,7 @@ use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends HomeController
@@ -23,7 +24,7 @@ class CartController extends HomeController
             ->where('isDeleted', 'no')
             ->get();
 
-        return view('Frontend.cart.index')->with('data', $data);
+        return view('Frontend.Cart.index')->with('data', $data);
     }
 
     public function getCartItems(Request $request)
@@ -82,7 +83,13 @@ class CartController extends HomeController
             $data['cartList']['subTotalPrice'] = $this->calculateCartSubtotal($cart->id);
             $data['cartList']['deliveryFee'] = DeliveryFee::find($cart->delivery_fee_id)->price ?? 0;
             $data['cartList']['couponDiscount'] = $cart->coupon_discount ?? 0;
-            $data['cartList']['totalPrice'] = $data['cartList']['subTotalPrice'] + $data['cartList']['deliveryFee'] - $data['cartList']['couponDiscount'];
+
+            // Calculate tax
+            $taxAmount = $this->calculateTax($data['cartList']['subTotalPrice']);
+            $data['cartList']['taxAmount'] = number_format($taxAmount, 2);
+
+            // Calculate total price including tax
+            $data['cartList']['totalPrice'] = $data['cartList']['subTotalPrice'] + $data['cartList']['deliveryFee'] - $data['cartList']['couponDiscount'] + $taxAmount;
         }
 
         return response()->json([
@@ -180,14 +187,18 @@ class CartController extends HomeController
 
     public function updateQuantity(Request $request)
     {
-        $cartItem = CartItem::find($request->cart_id);
+        $cartItem = CartItem::find($request->cart_item_id);
         if ($cartItem) {
             $cart = $cartItem->cart;
 
-            if (auth()->check() && $cart->user_id != auth()->id()) {
-                return response()->json(['success' => false, 'message' => 'Unauthorized']);
-            } elseif (!$cart->session_id && $cart->session_id != $request->session()->get('session_id')) {
-                return response()->json(['success' => false, 'message' => 'Unauthorized']);
+            if (Auth::check()) {
+                if ($cart->user_id != auth()->id()) {
+                    return response()->json(['success' => false, 'message' => 'Unauthorized']);
+                }
+            } elseif ($cart->session_id) {
+                if($cart->session_id != $request->session()->get('session_id')){
+                    return response()->json(['success' => false, 'message' => 'Unauthorized for session']);
+                }
             }
 
             $cart->total_quantity += $request->quantity - $cartItem->quantity;
@@ -201,7 +212,15 @@ class CartController extends HomeController
             $price = $cartItem->book->discounted_price ?? $cartItem->book->sale_price;
             $itemTotalPrice = number_format($cartItem->quantity * $price, 2);
             $cartSubtotal = $this->calculateCartSubtotal($cart->id);
-            $cartTotal = $this->calculateCartTotal($cart->id, $request->delivery_fee);
+            $cartTotal = $this->calculateCartTotal($cart->id);
+            $deliveryFee = $request->delivery_fee;
+
+            // Retrieve and apply the coupon discount if available
+            if ($cart->coupon_discount) {
+                $cartTotal -= $cart->coupon_discount;
+            }
+
+            $taxAmount = $this->calculateTax($cartSubtotal);
 
             return response()->json([
                 'success' => true,
@@ -209,7 +228,8 @@ class CartController extends HomeController
                 'item_total_price' => $itemTotalPrice,
                 'cart_subtotal' => number_format($cartSubtotal, 2),
                 'delivery_fee' => number_format($request->delivery_fee, 2),
-                'cart_total' => number_format($cartTotal, 2)
+                'taxAmount' => number_format($taxAmount, 2),
+                'cart_total' => number_format($cartTotal + $deliveryFee + $taxAmount, 2)
             ]);
         }
 
@@ -222,10 +242,14 @@ class CartController extends HomeController
         if ($cartItem) {
             $cart = $cartItem->cart;
 
-            if (auth()->check() && $cart->user_id != auth()->id()) {
-                return response()->json(['success' => false, 'message' => 'Unauthorized']);
-            } elseif (!$cart->session_id && $cart->session_id != $request->session()->get('session_id')) {
-                return response()->json(['success' => false, 'message' => 'Unauthorized']);
+            if (auth()->check()) {
+                if($cart->user_id != auth()->id()){
+                    return response()->json(['success' => false, 'message' => 'Unauthorized']);
+                }
+            } elseif (!$cart->session_id) {
+                if($cart->session_id != $request->session()->get('session_id')){
+                    return response()->json(['success' => false, 'message' => 'Unauthorized for session']);
+                }
             }
 
             $cart->total_quantity -= $cartItem->quantity;
@@ -284,8 +308,11 @@ class CartController extends HomeController
             // Get current coupon discount
             $couponDiscount = $cart->coupon_discount ?? 0;
 
-            // Calculate the new cart total
-            $cartTotal = $cartSubtotal + $newDeliveryFee - $couponDiscount;
+            // Calculate the tax amount
+            $taxAmount = $this->calculateTax($cartSubtotal);
+
+            // Calculate the new cart total including tax
+            $cartTotal = $cartSubtotal + $newDeliveryFee - $couponDiscount + $taxAmount;
 
             // Ensure the total price is not negative
             $cartTotal = max(0, $cartTotal);
@@ -294,6 +321,7 @@ class CartController extends HomeController
                 'success' => true,
                 'message' => 'Delivery fee updated successfully',
                 'delivery_fee' => number_format($newDeliveryFee, 2), // Format delivery fee
+                'taxAmount' => number_format($taxAmount, 2), // Format tax amount
                 'cart_total' => number_format($cartTotal, 2) // Format total price
             ]);
         }
@@ -329,6 +357,8 @@ class CartController extends HomeController
 
         $coupon = Coupon::where('code', $couponCode)
             ->where('status', 'active')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
             ->where('isDeleted', 'no')
             ->first();
 
@@ -339,7 +369,8 @@ class CartController extends HomeController
             $cart->coupon_discount = $couponDiscount;
             $cart->save();
 
-            $totalPrice = $subTotal + $deliveryFee - $couponDiscount;
+            $taxAmount = $this->calculateTax($subTotal);
+            $totalPrice = $subTotal + $deliveryFee - $couponDiscount + $taxAmount;
 
             // Ensure the total price is not negative
             $totalPrice = max(0, $totalPrice);
@@ -348,7 +379,8 @@ class CartController extends HomeController
                 'success' => true,
                 'message' => 'Coupon applied successfully.',
                 'couponDiscount' => number_format($couponDiscount, 2), // Format coupon discount
-                'totalPrice' => number_format($totalPrice, 2) // Format total price
+                'totalPrice' => number_format($totalPrice, 2), // Format total price
+                'taxAmount' => number_format($taxAmount, 2) // Format tax amount
             ]);
         }
 
@@ -367,8 +399,10 @@ class CartController extends HomeController
                 $cart->save();
 
                 $deliveryFee = DeliveryFee::find($cart->delivery_fee_id)->price ?? 0;
-                // Recalculate the total price after removing the coupon
-                $totalPrice = $this->calculateCartTotal($cart->id, $deliveryFee);
+                $cartSubtotal = $this->calculateCartSubtotal($cart->id);
+                $taxAmount = $this->calculateTax($cartSubtotal);
+                $totalPrice = $this->calculateCartTotal($cart->id, $deliveryFee) + $taxAmount;
+
 
                 // Ensure the total price is not negative
                 $totalPrice = max(0, $totalPrice);
@@ -377,7 +411,8 @@ class CartController extends HomeController
                     'success' => true,
                     'message' => 'Coupon removed successfully.',
                     'couponDiscount' => 0, // Reset coupon discount
-                    'totalPrice' => number_format($totalPrice, 2) // Format total price
+                    'totalPrice' => number_format($totalPrice, 2), // Format total price
+                    'taxAmount' => number_format($taxAmount, 2) // Format tax amount
                 ]);
             }
 
@@ -442,5 +477,11 @@ class CartController extends HomeController
         // Ensure the total price is not negative
         return max(0, $total);
     }
+
+    private function calculateTax($subTotal)
+    {
+        return $subTotal * Shop::first()->tax / 100;
+    }
+
 
 }
