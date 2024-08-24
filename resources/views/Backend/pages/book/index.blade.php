@@ -60,6 +60,7 @@
                                             <th>Title</th>
                                             <th>Price</th>
                                             <th>Author</th>
+                                            <th>Rating</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
@@ -93,6 +94,26 @@
                                                     </a>
                                                     <br>
                                                     {{ $item['author']->email }}
+                                                </td>
+                                                <td>
+                                                    {{-- show with star --}}
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        @if ($i <= $item['rating'])
+                                                            <i class="fa fa-star text-warning"></i>
+                                                        @else
+                                                            <i class="fa fa-star text-secondary"></i>
+                                                        @endif
+                                                    @endfor
+                                                    {{-- sow only one value after decimal --}}
+                                                    {{ number_format($item['rating'], 1) }}
+
+                                                    {{-- review show modal show button --}}
+                                                    <button type="button" class="btn btn-sm btn-info mb-1 mt-1"
+                                                        data-toggle="modal" data-target="#reviewModal{{ $item['id'] }}"
+                                                        title="Review">
+                                                        <i class="fa fa-eye text-white"></i>
+                                                        Review ({{ count($item->reviews) }})
+                                                    </button>
                                                 </td>
                                                 <td class="text-center" width="10%">
                                                     @if ($item['status'] == 'published')
@@ -323,6 +344,95 @@
                                         @else
                                             <span class="badge badge-danger">{{ $item['status'] }}</span>
                                         @endif
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- review modal --}}
+        <div class="modal fade" id="reviewModal{{ $item['id'] }}" tabindex="-1" role="dialog"
+            aria-labelledby="reviewModal{{ $item['id'] }}Label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reviewModal{{ $item['id'] }}Label">Book Review Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-left">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="{{ $item['image'] }}" alt="Book Image" class="img-thumbnail"
+                                    width="100">
+                            </div>
+                            <div class="col-md-8">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>Title</th>
+                                        <td>{{ $item['title'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Ratings</th>
+                                        <td>
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                @if ($i <= $item['rating'])
+                                                    <i class="fa fa-star text-warning"></i>
+                                                @else
+                                                    <i class="fa fa-star text-secondary"></i>
+                                                @endif
+                                            @endfor
+                                            {{ $item['rating'] }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p class="text-muted">Showing last 10 reviews</p>
+                            <table class="table mt-2">
+                                <tr>
+                                    <td>
+                                        @forelse ($item->reviews()->where('status','active')->where('isDeleted','no')->latest('id')->limit(10)->get() as $review)
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h5 class="card-title mb-0">
+                                                        {{ $review->user->first_name . ' ' . $review->user->last_name }}
+                                                    </h5>
+
+                                                    {{-- right side show delete button --}}
+                                                    <div class="card-tools text-right">
+                                                        <a href="{{ route('book.review.delete', $review->id) }}" class="btn btn-sm btn-danger"
+                                                            onclick="return confirm('Are you sure you want to delete this item?');"
+                                                            title="Delete">
+                                                            <i class="fa fa-trash text-white"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="card-text">{{ $review->review }}</p>
+                                                    <p class="card-text">
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            @if ($i <= $review->rating)
+                                                                <i class="fa fa-star text-warning"></i>
+                                                            @else
+                                                                <i class="fa fa-star text-secondary"></i>
+                                                            @endif
+                                                        @endfor
+                                                        {{ $review->rating }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <h4>No review found</h4>
+                                        @endforelse
                                     </td>
                                 </tr>
                             </table>

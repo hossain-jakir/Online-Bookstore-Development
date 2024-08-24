@@ -53,7 +53,7 @@
                                         <li><span>Publisher</span>{{ $data['book']->publisher }}</li>
                                         <li><span>Year</span>
                                             {{-- showing year from published date --}}
-                                            {{ date('Y', strtotime($data['book']->published_date)) }}
+                                            {{ date('Y', strtotime($data['book']->publication_date)) }}
                                         </li>
                                     </ul>
                                 </div>
@@ -112,7 +112,7 @@
                                     </tr>
                                     <tr>
                                         <th>Date Published</th>
-                                        <td>{{ date('d M, Y', strtotime($data['book']->published_date)) }}</td>
+                                        <td>{{ date('d M, Y', strtotime($data['book']->publication_date)) }}</td>
                                     </tr>
                                     <tr>
                                         <th>Publisher</th>
@@ -140,11 +140,11 @@
                                 <div class="clear" id="comment-list">
                                     <div class="post-comments comments-area style-1 clearfix">
                                         <h4 class="comments-title">
-                                            {{ $data['book']->reviews->count() }} Reviews
+                                            {{ $data['book']->reviews->where('status', 'active')->where('isDeleted', 'no')->count() }} Reviews
                                         </h4>
                                         <div id="comment">
                                             <ol class="comment-list">
-                                                @forelse ($data['book']->reviews as $review)
+                                                @forelse ($data['book']->reviews->sortByDesc('created_at')->where('status', 'active')->where('isDeleted', 'no') as $review)
                                                     <li class="comment even thread-odd thread-alt depth-1 comment" id="comment-{{ $review->id }}">
                                                         <div class="comment-body" id="div-comment-{{ $review->id }}">
                                                             <div class="comment-author vcard">
@@ -163,7 +163,7 @@
                                                                                 <li><i class="flaticon-star text-yellow {{ $i < $review->rating ? '' : 'text-gray' }}"></i></li>
 
                                                                         </ul>
-                                                                        <h6 class="m-b0" style="font-size: 15px"> {{ $review->rating ?? 0 }} | {{ date('d M, Y', strtotime($review->created_at)) }}</h6>
+                                                                        <h6 class="m-b0" style="font-size: 13px"> {{ $review->rating ?? 0 }} | {{ date('d M, Y', strtotime($review->created_at)) }}</h6>
                                                                     </div>
                                                                 </div>
 
@@ -177,6 +177,40 @@
                                                             <div class="comment-content dlab-page-text">
                                                                 <p>{{ $review->review }}</p>
                                                             </div>
+
+                                                            <!-- Edit and Delete Options -->
+                                                            @if (Auth::check() && (Auth::id() == $review->user_id || Auth::user()->is_admin))
+                                                                <div class="comment-actions">
+                                                                    <a href="javascript:void(0);" class="text-primary" onclick="editReview({{ $review->id }})">Edit</a>
+                                                                    |
+                                                                    <a href="{{ route('book.review.delete',$review->id) }}" class="text-danger" onclick="return confirm('Are you sure you want to delete this review?')">Delete</a>
+                                                                </div>
+
+                                                                <!-- Edit Review Form (Initially hidden, shown when "Edit" is clicked) -->
+                                                                <div id="edit-review-{{ $review->id }}" style="display:none;">
+                                                                    <form action="{{ route('book.review.update', $review->id) }}" method="POST">
+                                                                        @csrf
+                                                                        <div class="form-group">
+                                                                            <label for="rating">Rating</label>
+                                                                            <select name="rating" class="form-control" required>
+                                                                                <option value="1" {{ $review->rating == 1 ? 'selected' : '' }}>1 Star</option>
+                                                                                <option value="2" {{ $review->rating == 2 ? 'selected' : '' }}>2 Stars</option>
+                                                                                <option value="3" {{ $review->rating == 3 ? 'selected' : '' }}>3 Stars</option>
+                                                                                <option value="4" {{ $review->rating == 4 ? 'selected' : '' }}>4 Stars</option>
+                                                                                <option value="5" {{ $review->rating == 5 ? 'selected' : '' }}>5 Stars</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="review">Review</label>
+                                                                            <textarea name="review" rows="4" class="form-control" required>{{ $review->review }}</textarea>
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <button type="submit" class="btn btn-primary">Update Review</button>
+                                                                            <button type="button" class="btn btn-secondary" onclick="cancelEdit({{ $review->id }})">Cancel</button>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     </li>
                                                 @empty
@@ -294,21 +328,30 @@
     <script src="{{ asset('assets/frontend/vendor/countdown/counter.js') }}"></script>
 
     <script>
-    $(document).ready(function() {
-        $("input[name='demo_vertical2']").TouchSpin({
-            verticalbuttons: true,
-            verticalupclass: 'ti-plus',
-            verticaldownclass: 'ti-minus',
-            min: 1,
-            max: 100,
-            step: 1,
-            decimals: 0,
-            boostat: 5,
-            maxboostedstep: 10,
-            postfix: '',
+        $(document).ready(function() {
+            $("input[name='demo_vertical2']").TouchSpin({
+                verticalbuttons: true,
+                verticalupclass: 'ti-plus',
+                verticaldownclass: 'ti-minus',
+                min: 1,
+                max: 100,
+                step: 1,
+                decimals: 0,
+                boostat: 5,
+                maxboostedstep: 10,
+                postfix: '',
+            });
+
+
         });
-    });
-</script>
+        function editReview(id) {
+            document.getElementById('edit-review-' + id).style.display = 'block';
+        }
+
+        function cancelEdit(id) {
+            document.getElementById('edit-review-' + id).style.display = 'none';
+        }
+    </script>
 @endsection
 
 @section('addStyle')

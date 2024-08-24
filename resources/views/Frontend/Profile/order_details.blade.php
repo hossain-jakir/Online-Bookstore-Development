@@ -27,7 +27,6 @@
                                     @if ($order->due_amount > 0)
                                         <a href="{{ route('checkout.paypal.form.due', ['order_id' => $order->id, 'order_number' => $order->order_number]) }}" class="btn btn-danger">Pay Due</a>
                                     @endif
-
                                 </div>
                             </div>
                             <div class="card-body">
@@ -87,6 +86,9 @@
                                             <th>Quantity</th>
                                             <th>Price</th>
                                             <th>Total</th>
+                                            @if ($order->status == 'completed')
+                                                <th>Review</th>
+                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -103,6 +105,53 @@
                                                 <td>{{ $item->quantity }}</td>
                                                 <td>£{{ number_format($item->price, 2) }}</td>
                                                 <td>£{{ number_format($item->total, 2) }}</td>
+                                                @if ($order->status == 'completed')
+                                                    @if ($order->reviews()->where('book_id', $item->book->id)->first())
+                                                        <td>
+                                                            <a href="{{ route('book.show', ['id' => base64_encode($item->book->id)]) }}" class="btn btn-success">Reviewed</a>
+                                                        </td>
+                                                    @else
+                                                        <td>
+                                                            <button type="button" class="btn btn-primary" onclick="toggleReviewForm('{{ $item->id }}')">
+                                                                Review
+                                                            </button>
+                                                        </td>
+                                                    @endif
+                                                @endif
+                                            </tr>
+                                            <tr id="reviewRow-{{ $item->id }}" style="display:none;">
+                                                <td colspan="6">
+                                                    <div class="p-3 bg-light">
+                                                        <form action="{{ route('book.review.store') }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="book_id" value="{{ $item->book->id }}">
+                                                            <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                                            <input type="hidden" name="order_item_id" value="{{ $item->id }}">
+
+                                                            <!-- Rating -->
+                                                            <div class="form-group">
+                                                                <label for="rating">Rating</label>
+                                                                <select name="rating" id="rating" class="form-control" required>
+                                                                    <option value="1">1 Star</option>
+                                                                    <option value="2">2 Stars</option>
+                                                                    <option value="3">3 Stars</option>
+                                                                    <option value="4">4 Stars</option>
+                                                                    <option value="5">5 Stars</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- Review Comment -->
+                                                            <div class="form-group">
+                                                                <label for="review">Review</label>
+                                                                <textarea name="review" id="review" rows="4" class="form-control" placeholder="Write your review here..." required></textarea>
+                                                            </div>
+
+                                                            <div class="form-group mt-3">
+                                                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -164,4 +213,14 @@
 @endsection
 
 @section('addScript')
+<script>
+    function toggleReviewForm(itemId) {
+        var reviewRow = document.getElementById('reviewRow-' + itemId);
+        if (reviewRow.style.display === "none") {
+            reviewRow.style.display = "";
+        } else {
+            reviewRow.style.display = "none";
+        }
+    }
+</script>
 @endsection

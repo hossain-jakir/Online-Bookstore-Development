@@ -160,15 +160,6 @@
                                             <input type="text" class="form-control" placeholder="Postcode / Zip" name="zip_code" value="{{ old('zip_code') }}" required>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="form-group col-md-6">
-                                            <input type="text" class="form-control" placeholder="Phone" required name="phone" value="{{ old('phone') }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input type="email" class="form-control" placeholder="Email" name="email" required value="{{ old('email') }}">
-                                    </div>
                                 @endforelse
 
 

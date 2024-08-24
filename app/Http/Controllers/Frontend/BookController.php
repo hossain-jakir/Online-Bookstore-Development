@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Models\Book;
+use App\Models\Review;
 use App\Models\Category;
 use App\Models\Wishlist;
 use App\Services\ServeImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends MainController
 {
@@ -440,6 +443,160 @@ class BookController extends MainController
             'count' => $booksQuery->count(),
             'data' => $booksQuery,
         ]);
+    }
+
+    // Store the review
+    public function storeReview(Request $request){
+
+        try{
+
+            $validator = Validator::make($request->all(),
+            [
+                'book_id' => 'required|exists:books,id',
+                'order_id' => 'required|exists:orders,id',
+                'rating' => 'required|integer|min:1|max:5',
+                'review' => 'required|string|min:10|max:500',
+            ]);
+            if ($validator->fails()) {
+                return redirect()->back()->with('error', $validator->errors()->first())->withInput();
+            }
+
+            // Check if the user is authenticated
+            if (!Auth::check()) {
+                session()->put('error', 'You need to be logged in to submit a review.');
+                return redirect()->back()->with('error', 'You need to be logged in to submit a review.');
+            }
+
+            // Check if the user has already reviewed this book for this order
+            $existingReview = Review::where('user_id', Auth::id())
+                ->where('book_id', $request->book_id)
+                ->where('order_id', $request->order_id)
+                ->first();
+
+            if ($existingReview) {
+                session()->put('error', 'You have already submitted a review for this book.');
+                return redirect()->back()->with('error', 'You have already submitted a review for this book.');
+            }
+
+            // Create a new review
+            $review = new Review();
+            $review->user_id = Auth::id();
+            $review->book_id = $request->book_id;
+            $review->order_id = $request->order_id;
+            $review->rating = $request->rating;
+            $review->review = $request->review;
+            $review->status = 'active'; // Set the initial status to active
+            $review->isDeleted = 'no'; // Set the default value for isDeleted
+
+            // Save the review
+            $save = $review->save();
+
+            if (!$save) {
+                session()->put('error', 'Failed to submit your review. Please try again.');
+                return redirect()->back()->with('error', 'Failed to submit your review. Please try again.');
+            }
+
+            // Update the book's rating
+            $book = Book::find($request->book_id);
+            $book->rating = $book->reviews()->where('status', 'active')->where('isDeleted', 'no')->avg('rating');
+            $book->save();
+
+            return redirect()->back()->with('success', 'Your review has been submitted successfully.');
+        }catch(\Exception $e){
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+
+    public function deleteReview(Request $request, $id){
+
+        try{
+            $review = Review::find($id);
+
+            if (!$review) {
+                return redirect()->back()->with('error', 'Review not found.');
+            }
+
+            // Check if the user is authenticated
+            if (!Auth::check()) {
+                return redirect()->back()->with('error', 'You need to be logged in to delete a review.');
+            }
+
+            // Check if the user is an admin or super admin
+            if (Auth::user()->hasRole('super-admin') || Auth::user()->hasRole('admin')) {
+                // Soft delete the review
+                $review->isDeleted = 'yes';
+                $review->save();
+
+                // Update the book's rating
+                $book = Book::find($review->book_id);
+                $book->rating = $book->reviews()->where('status', 'active')->where('isDeleted', 'no')->avg('rating');
+                $book->save();
+
+                return redirect()->back()->with('success', 'Review deleted successfully.');
+            }
+
+            // Check if the user is the owner of the review
+            if ($review->user_id != Auth::id()) {
+                return redirect()->back()->with('error', 'You are not authorized to delete this review.');
+            }
+
+            // Soft delete the review
+            $review->isDeleted = 'yes';
+            $review->save();
+
+            // Update the book's rating
+            $book = Book::find($review->book_id);
+            $book->rating = $book->reviews()->where('status', 'active')->where('isDeleted', 'no')->avg('rating');
+            $book->save();
+
+            return redirect()->back()->with('success', 'Review deleted successfully.');
+        }catch(\Exception $e){
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+
+    public function updateReview(Request $request, $id){
+
+        try{
+            $validator = Validator::make($request->all(),
+            [
+                'rating' => 'required|integer|min:1|max:5',
+                'review' => 'required|string|min:10|max:500',
+            ]);
+            if ($validator->fails()) {
+                return redirect()->back()->with('error', $validator->errors()->first())->withInput();
+            }
+
+            $review = Review::find($id);
+
+            if (!$review) {
+                return redirect()->back()->with('error', 'Review not found.');
+            }
+
+            // Check if the user is authenticated
+            if (!Auth::check()) {
+                return redirect()->back()->with('error', 'You need to be logged in to update a review.');
+            }
+
+            // Check if the user is the owner of the review
+            if ($review->user_id != Auth::id()) {
+                return redirect()->back()->with('error', 'You are not authorized to update this review.');
+            }
+
+            // Update the review
+            $review->rating = $request->rating;
+            $review->review = $request->review;
+            $review->save();
+
+            // Update the book's rating
+            $book = Book::find($review->book_id);
+            $book->rating = $book->reviews()->where('status', 'active')->where('isDeleted', 'no')->avg('rating');
+            $book->save();
+
+            return redirect()->back()->with('success', 'Review updated successfully.');
+        }catch(\Exception $e){
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+        }
     }
 
 

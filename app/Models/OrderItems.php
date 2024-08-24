@@ -29,4 +29,9 @@ class OrderItems extends Model
     {
         return $this->belongsTo(Book::class, 'book_id');
     }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class);
+    }
 }

@@ -140,6 +140,7 @@ class CheckoutController extends MainController
     {
         // dd($request->all(), $user);
         // Retrieve the request data
+
         $inputAddress = [
             'first_name' => $request->input('first_name'),
             'last_name' => $request->input('last_name'),
@@ -149,8 +150,8 @@ class CheckoutController extends MainController
             'state' => $request->input('state'),
             'country_id' => $request->input('country_id'),
             'zip_code' => $request->input('zip_code'),
-            'phone_number' => $request->input('phone'),
-            'email' => $request->input('email'),
+            'phone_number' => $request->input('phone') ?? $user->phone,
+            'email' => $request->input('email') ?? $user->email,
         ];
 
         // Check if an address with these details already exists for the user
@@ -204,22 +205,40 @@ class CheckoutController extends MainController
 
         try {
 
-            $user = User::where('email', $request->email)->first();
-            if ($user) {
-                session()->flash('error', 'User already exists');
-                return redirect()->back()->with('error', 'User already exists')->withInput();
-            }
-
             $sessionId = session()->getId();
-            $user = $this->checkUserAndCreate($request, $sessionId);
 
-            if (!$user) {
-                return redirect()->back()->with('error', 'Failed to create user')->withInput();
+            if(Auth::check()){
+                $user = Auth::user();
+            }else{
+                $user = User::where('email', $request->email)->first();
+                if ($user) {
+                    session()->flash('error', 'User already exists with this email please login');
+                    return redirect()->back()->with('error', 'User already exists')->withInput();
+                }
+
+                $user = $this->checkUserAndCreate($request, $sessionId);
+
+                if (!$user) {
+                    return redirect()->back()->with('error', 'Failed to create user')->withInput();
+                }
             }
 
             if($request->has('address_id')){
                 $address = Address::find($request->address_id);
             }else{
+
+                $request->validate([
+                    'first_name' => 'required|string|max:255',
+                    'last_name' => 'required|string|max:255',
+                    'address_line_1' => 'required|string|max:255',
+                    'city' => 'required|string|max:255',
+                    'state' => 'required|string|max:255',
+                    'country_id' => 'required|exists:countries,id',
+                    'zip_code' => 'required|string|max:255',
+                    'phone' => 'nullable|string|max:255',
+                    'email' => 'nullable|email',
+                ]);
+
                 $address = $this->checkAndCreateAddress($request, $user);
 
                 if (!$address) {

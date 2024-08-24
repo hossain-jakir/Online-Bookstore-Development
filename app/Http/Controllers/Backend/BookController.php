@@ -36,7 +36,7 @@ class BookController extends Controller
         $search = $request->input('search');
 
         // Start query with the necessary relationships
-        $query = Book::with('author')->with('tag')->where('isDeleted', 'no');
+        $query = Book::with('author','reviews')->with('tag')->where('isDeleted', 'no');
 
         // If search query is present, apply filters
         if ($search) {

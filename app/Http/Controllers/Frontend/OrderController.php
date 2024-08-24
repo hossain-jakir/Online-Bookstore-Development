@@ -52,7 +52,7 @@ class OrderController extends MainController
             $data['user']['image'] = ServeImage::image($user->image, 'grid');
 
             // Retrieve the order and its related data
-            $order = Order::with(['orderItems.book', 'user', 'address', 'shippingAddress', 'coupon', 'deliveryMethod'])
+            $order = Order::with(['orderItems.book','user', 'address', 'shippingAddress', 'coupon', 'deliveryMethod'])
                 ->where('user_id', auth()->id()) // Ensure the order belongs to the authenticated user
                 ->where('order_number', $order_number) // Also validate using order number
                 ->findOrFail($id);

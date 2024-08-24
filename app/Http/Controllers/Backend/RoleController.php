@@ -74,9 +74,7 @@ class RoleController extends Controller
 
             DB::beginTransaction();
 
-            if($request->permissions){
-                $role->givePermissionTo($request->permissions);
-            }
+            $role->syncPermissions($request->permissions);
 
             DB::commit();
             Session::flash('success', 'Permissions updated successfully');

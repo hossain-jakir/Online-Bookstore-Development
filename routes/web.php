@@ -91,6 +91,12 @@ Route::prefix('book')->group(function () {
     Route::get('/search', [FrontendBookController::class, 'search'])->name('book.search');
     Route::get('/', [FrontendBookController::class, 'index'])->name('book.index');
     Route::get('/{id}', [FrontendBookController::class, 'show'])->name('book.show');
+
+    Route::prefix('review')->group(function () {
+        Route::post('/store', [FrontendBookController::class, 'storeReview'])->name('book.review.store');
+        Route::post('/update/{id}', [FrontendBookController::class, 'updateReview'])->name('book.review.update');
+        Route::get('/delete/{id}', [FrontendBookController::class, 'deleteReview'])->name('book.review.delete');
+    });
 });
 
 Route::prefix('category')->group(function () {
@@ -131,7 +137,7 @@ Route::prefix('webhook')->group( function(){
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
 
-Route::prefix('dashboard')->middleware(['auth', 'verified', 'role_or_permission:role,super-admin|admin'])->group(function () {
+Route::prefix('dashboard')->middleware(['auth', 'verified', 'role_or_permission:role,super-admin|admin|user|author'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('backend.dashboard');
     Route::get('/get-stats', [HomeController::class, 'getStats'])->name('backend.home.getStats');
 
@@ -163,7 +169,7 @@ Route::prefix('dashboard')->middleware(['auth', 'verified', 'role_or_permission:
         Route::post('/address/{addressId}/delete', [UserController::class, 'deleteAddress'])->name('backend.user.details.address.delete');
         Route::post('/address/{addressId}/updateDefaultAddress', [UserController::class, 'updateDefaultAddress'])->name('backend.user.details.address.default');
         // Route::get('/create', [UserController::class, 'create'])->name('backend.user.create');
-        // Route::post('/store', [UserController::class, 'store'])->name('backend.user.store');
+        Route::post('/store/author', [UserController::class, 'storeAuthor'])->name('backend.user.store.author');
         // Route::get('/edit/{id}', [UserController::class, 'edit'])->name('backend.user.edit');
         Route::get('/update/status/{id}', [UserController::class, 'updateStatus'])->name('backend.user.update.status');
         Route::get('/delete/{id}', [UserController::class, 'delete'])->name('backend.user.delete');

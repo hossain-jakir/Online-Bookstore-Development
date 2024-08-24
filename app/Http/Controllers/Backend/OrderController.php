@@ -398,6 +398,13 @@ class OrderController extends Controller
             'message' => $request->input('message'),
         ]);
 
+        if($order->shipping_status == 'delivered') {
+            $order->update([
+                'status' => 'completed',
+                'delivered_at' => now(),
+            ]);
+        }
+
         Mail::to($order->user->email)->send(new ShippingStatusMail($order, $request->input('message')));
 
         return redirect()->back()->with('success', 'Status updated successfully.');

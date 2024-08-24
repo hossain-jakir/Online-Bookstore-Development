@@ -56,7 +56,7 @@ class UserController extends Controller
             $role->hashId = Crypt::encrypt($role->id);
         }
 
-        $Users = User::all();
+        $Users = User::where('isDeleted', 'no')->latest('id')->get();
         foreach ($Users as $user) {
 
             $data['users'][] = [
@@ -73,6 +73,61 @@ class UserController extends Controller
         }
 
         return view('Backend.pages.user.index')->with('data', $data);
+    }
+
+    function storeAuthor(Request $request){
+        $validator = Validator::make($request->all(),
+            [
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'phone' => 'required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $user = new User();
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->password = Hash::make('password1@$$$$');
+        $user->status = 'active';
+        $user->save();
+
+        $user->assignRole('author');
+
+        if($request->hasFile('image')){
+            $date = date('YmdHis');
+            $image = $request->file('image');
+            $file_name = time();
+            $imageName = $file_name.'.'.$image->getClientOriginalExtension();
+            $image->move(storage_path('app/public/images/users/'.$user->id .'/'. $date), $imageName);
+
+            $thumbnails = [
+                '_default' => ['width' => 200, 'height' => 200],
+                '_grid' =>['width' => 250, 'height' => 250],
+                '_large' =>['width' => 750, 'height' => 580],
+            ];
+
+            $path = storage_path('app/public/images/users/'.$user->id .'/'. $date .'/'. $imageName);
+            foreach($thumbnails as $key => $thumbnail){
+                $img = Image::make($path);
+                $img->resize($thumbnail['width'], $thumbnail['height'], function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $img->save(storage_path('app/public/images/users/'.$user->id .'/'. $date .'/'. $file_name.$key.'.'.$image->getClientOriginalExtension()));
+            }
+
+            $user->image = 'images/users/'.$user->id .'/'. $date .'/'. $imageName;
+            $user->save();
+        }
+
+        return redirect()->back()->with('success', 'Author added successfully.');
     }
 
     public function updatePassword(Request $request, $userId){
