@@ -12,7 +12,7 @@
                 <h1>Registration</h1>
                 <nav aria-label="breadcrumb" class="breadcrumb-row">
                     <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html"> Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}"> Home</a></li>
                         <li class="breadcrumb-item">Registration</li>
                     </ul>
                 </nav>

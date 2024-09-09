@@ -22,7 +22,7 @@ class HomeController extends MainController{
         $data = array_merge($data, $this->frontendItems($request));
 
         // Fetch banner books
-        $data['banner'] = $this->getBooks('banner', 5, 'banner');
+        $data['banner'] = $this->getBooks('banner', 5, 'large');
 
         // Fetch bannerSmall books
         $data['bannerSmall'] = $this->getBooks('bannerSmall', 3, 'grid');

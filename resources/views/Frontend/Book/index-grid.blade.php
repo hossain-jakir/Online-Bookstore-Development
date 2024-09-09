@@ -72,7 +72,13 @@
                                 <h5 class="title" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis; font-size: larger"><a href="{{ route('book.show', $book->id) }}">{{ $book->title }}</a></h5>
                                 <ul class="dz-tags">
                                     @foreach ($book->category as $category)
-                                        <li>{{ $category->name }}</li>
+                                        @if ($loop->index == 0)
+                                            <li>{{ $category->name }}</li>
+                                        @endif
+                                        @if ($loop->index > 0)
+                                            <li>+{{ $loop->count - 1 }}</li>
+                                            @break
+                                        @endif
                                     @endforeach
                                 </ul>
                                 <ul class="dz-rating">

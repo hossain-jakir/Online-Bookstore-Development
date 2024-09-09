@@ -31,6 +31,15 @@
                                 <hr>
                                 <x-input-error :messages="$errors->get('email')" class="mt-2 text-sm text-red-600 dark:text-red-400 space-y-1" />
 
+                                <x-input-error :messages="$errors->get('password')" class="mt-2 text-sm text-red-600 dark:text-red-400 space-y-1" />
+
+                                @if (session('status'))
+                                    <div class="alert alert-success" role="alert">
+                                        {{ session('status') }}
+                                    </div>
+                                @endif
+
+
                                 <div class="mb-4">
                                     <label class="label-title">E-MAIL *</label>
                                     <input name="email" class="form-control" placeholder="Your Email" type="email" required value="{{ old('email') }}" autofocus autocomplete="username">
@@ -51,16 +60,17 @@
                                     <a data-bs-toggle="tab" href="#forgot-password" class="m-l5"><i class="fas fa-unlock-alt"></i> Forgot Password</a>
                                 </div>
                             </form>
-                            <form id="forgot-password" class="tab-pane fade  col-12">
+                            <form id="forgot-password" class="tab-pane fade  col-12" method="post" action="{{ route('password.email') }}">
+                                @csrf
                                 <h4 class="text-secondary">FORGET PASSWORD ?</h4>
                                 <p class="font-weight-600">We will send you an email to reset your password. </p>
                                 <div class="mb-3">
                                     <label class="label-title">E-MAIL *</label>
-                                    <input name="dzName" required="" class="form-control" placeholder="Your Email Id" type="email">
+                                    <input name="email" required="" class="form-control" placeholder="Your Email Id" type="email">
                                 </div>
                                 <div class="text-left">
                                     <a class="btn btn-outline-secondary btnhover m-r10" data-bs-toggle="tab" href="#login">Back</a>
-                                    <button class="btn btn-primary btnhover">Submit</button>
+                                    <button class="btn btn-primary btnhover" type="submit">Submit</button>
                                 </div>
                             </form>
                         </div>
