@@ -69,7 +69,7 @@
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
                             <div class="mb-5">
-                                <small>Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our <a href="privacy-policy.html">privacy policy</a>.</small>
+                                <small>Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our <a href="{{ route('privacy-policy')}}">privacy policy</a>.</small>
                             </div>
                             <div class="text-left">
                                 <button class="btn btn-primary btnhover w-100 me-2">Register</button>

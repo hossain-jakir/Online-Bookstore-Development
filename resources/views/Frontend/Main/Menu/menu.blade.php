@@ -73,6 +73,23 @@
                             <li><a href="{{ route('contact-us') }}">Contact Us</a></li>
                         </ul>
                     </li>
+                    <li class="sub-menu-down"><a href="javascript:void(0);"><span>Account</span></a>
+                        <ul class="sub-menu">
+                            @guest
+                                <li><a href="{{ route('login') }}">Login</a></li>
+                                <li><a href="{{ route('register') }}">Register</a></li>
+                            @endguest
+                            @auth
+                                <li><a href="{{ route('profile.index') }}">Profile</a></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">Sign Out</a>
+                                    </form>
+                                </li>
+                            @endauth
+                        </ul>
+                    </li>
                 </ul>
                 <div class="dz-social-icon">
                     <ul>
