@@ -31,10 +31,17 @@
                                     {{ Str::limit($offer->description, 200) }}
                                 </p>
                                 <div class="bookcard-footer">
-                                    <button class="btn btn-primary m-t15 btnhover2 add-to-cart" data-id="{{ base64_encode($offer->id) }}">
-                                        <i class="flaticon-shopping-cart-1 m-r10"></i>
-                                        Add To Cart
-                                    </button>
+                                    @if ($offer->quantity > 0)
+                                        <button class="btn btn-primary m-t15 btnhover2 add-to-cart" data-id="{{ base64_encode($offer->id) }}">
+                                            <i class="flaticon-shopping-cart-1 m-r10"></i>
+                                            Add To Cart
+                                        </button>
+                                    @else
+                                        <button class="btn btn-danger m-t15 btnhover2" disabled>
+                                            <i class="flaticon-shopping-cart-1 m-r10"></i>
+                                            Out of Stock
+                                        </button>
+                                    @endif
                                     <div class="price-details">
                                         @if ($offer->discounted_price)
                                             £{{ $offer->discounted_price }} <del>£{{ $offer->sale_price }}</del>

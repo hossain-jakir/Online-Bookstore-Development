@@ -68,8 +68,12 @@
                                         @endif
                                     </div>
                                     <div class="product-num">
-                                        <button class="btn btn-primary btnhover2 add-to-cart" data-id="{{ base64_encode($data['book']->id) }}"><i class="flaticon-shopping-cart-1"></i> <span>Add to cart</span></button>
 
+                                        @if ($data['book']->quantity > 0)
+                                            <button class="btn btn-primary btnhover2 add-to-cart" data-id="{{ base64_encode($data['book']->id) }}"><i class="flaticon-shopping-cart-1"></i> <span>Add to cart</span></button>
+                                        @else
+                                            <button class="btn btn-primary btnhover2" disabled><i class="flaticon-shopping-cart-1"></i> <span>Out of stock</span></button>
+                                        @endif
                                         <div class="bookmark-btn style-1 d-none d-sm-block">
                                             <input class="form-check-input add-to-wishlist" data-id="{{ $data['book']->id }}" type="checkbox" id="flexCheckDefault1" @if ($data['book']->isWishlisted) checked @endif>
                                             <label class="form-check-label" for="flexCheckDefault1">

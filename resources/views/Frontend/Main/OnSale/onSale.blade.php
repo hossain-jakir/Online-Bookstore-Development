@@ -57,10 +57,17 @@
                                     <i class="flaticon-heart"></i>
                                 </a>
                                 <!-- Love Icon -->
-                                <button class="btn btn-secondary btnhover2 add-to-cart" data-id="{{ base64_encode($onSale->id) }}">
-                                    <i class="flaticon-shopping-cart-1 m-r10"></i>
-                                    Add To Cart
-                                </button>
+                                @if ($onSale->quantity > 0)
+                                    <button class="btn btn-secondary btnhover2 add-to-cart" data-id="{{ base64_encode($onSale->id) }}">
+                                        <i class="flaticon-shopping-cart-1 m-r10"></i>
+                                        Add To Cart
+                                    </button>
+                                @else
+                                    <button class="btn btn-danger btnhover2" disabled>
+                                        <i class="flaticon-shopping-cart-1 m-r10"></i>
+                                        Stock out
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -144,7 +144,11 @@
                                             </li>
                                         </ul>
                                         <div class="d-flex">
-                                            <button class="btn btn-secondary btnhover2 add-to-cart" data-id="{{ base64_encode($book->id) }}"><i class="flaticon-shopping-cart-1 m-r10"></i>Add To Cart</button>
+                                            @if ($book->quantity > 0)
+                                                <button class="btn btn-secondary btnhover2 add-to-cart" data-id="{{ base64_encode($book->id) }}"><i class="flaticon-shopping-cart-1 m-r10"></i>Add To Cart</button>
+                                            @else
+                                                <button class="btn btn-secondary btnhover2" disabled><i class="flaticon-shopping-cart-1 m-r10"></i>Out of Stock</button>
+                                            @endif
                                             <!-- Love Icon -->
                                             <button class="btn btn-outline-danger btnhover add-to-wishlist @if($book->isInWishlist) active @endif" data-id="{{ $book->id }}" data-type="large" style="margin-left: 5px;">
                                                 <i class="flaticon-heart"></i>

@@ -53,7 +53,11 @@
 
                                             </div>
                                             <div class="content-btn" data-swiper-parallax="-60">
-                                                <button class="btn btn-primary btnhover add-to-cart" data-id="{{ base64_encode($banner->id) }}">Add To Cart</button>
+                                                @if ($banner->quantity > 0)
+                                                    <button class="btn btn-primary btnhover add-to-cart" data-id="{{ base64_encode($banner->id) }}">Add To Cart</button>
+                                                @else
+                                                    <button class="btn btn-danger btnhover" disabled>Out of Stock</button>
+                                                @endif
                                                 <a class="btn border btnhover ms-4 text-white" href="{{ route('book.show', ['id' => base64_encode($banner->id)]) }}">
                                                     See Details
                                                 </a>

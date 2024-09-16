@@ -99,7 +99,11 @@
                                         @endif
                                     </div>
                                     <button id="flexCheckDefault1" class="btn btn-outline-danger btnhover add-to-wishlist" data-id="{{ $book->id }}"><i class="flaticon-heart"></i></button>
-                                    <a class="btn btn-secondary box-btn btnhover2 add-to-cart" data-id="{{ base64_encode($book->id) }}" href="javascript:void(0);"><i class="flaticon-shopping-cart-1 m-r10"></i>Add To Cart</a>
+                                    @if ($book->quantity > 0)
+                                        <a class="btn btn-secondary box-btn btnhover2 add-to-cart" data-id="{{ base64_encode($book->id) }}" href="javascript:void(0);"><i class="flaticon-shopping-cart-1 m-r10"></i>Add To Cart</a>
+                                    @else
+                                        <button class="btn btn-secondary box-btn btnhover2" disabled><i class="flaticon-shopping-cart-1 m-r10"></i>Out of Stock</button>
+                                    @endif
                                 </div>
                             </div>
                         </div>

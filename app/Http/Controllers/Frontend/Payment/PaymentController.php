@@ -195,6 +195,13 @@ class PaymentController extends MainController
             'billed_at' => now(),
         ]);
 
+        // Book quanity update
+        foreach($order->orderItems as $item){
+            $item->book->update([
+                'quantity' => $item->book->quantity - $item->quantity
+            ]);
+        }
+
         session()->forget('order_id_'.Auth::id());
         session()->forget('paypal_id_'.Auth::id());
 
@@ -350,6 +357,13 @@ class PaymentController extends MainController
             'description' => 'Paypal fee for order '.$order->order_number,
             'billed_at' => now(),
         ]);
+
+        // Book quanity update
+        foreach($order->orderItems as $item){
+            $item->book->update([
+                'quantity' => $item->book->quantity - $item->quantity
+            ]);
+        }
 
         session()->forget('order_id_'.Auth::id());
         session()->forget('paypal_id_'.Auth::id());
